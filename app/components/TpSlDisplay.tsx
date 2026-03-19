@@ -1,58 +1,12 @@
 'use client'
 
-type TradingMode = 'swing' | 'intraday' | 'scalper'
-type RiskProfile = 'conservative' | 'balanced' | 'high-risk'
+import { buildSignal, fmt, fmtPips, pipValue } from '../data/mockSignals'
+import type { TradingMode, RiskProfile } from '../data/mockSignals'
 
 interface TpSlDisplayProps {
   symbol: string
   mode: TradingMode
   risk: RiskProfile
-}
-
-/* ── Mock base prices (same as SignalPanel) ────────────────────────────────── */
-const BASE_PRICES: Record<string, number> = {
-  XAUUSD: 2920,
-  XAGUSD: 32.5,
-  BTCUSD: 84000,
-  ETHUSD: 1920,
-  XRPUSD: 2.35,
-}
-
-function getDirection(symbol: string, mode: TradingMode): 'BUY' | 'SELL' {
-  const key = `${symbol}:${mode}`
-  const buySet = new Set([
-    'XAUUSD:swing', 'XAUUSD:scalper', 'XAGUSD:intraday',
-    'BTCUSD:swing', 'BTCUSD:scalper', 'ETHUSD:intraday',
-    'ETHUSD:scalper', 'XRPUSD:swing', 'XRPUSD:scalper',
-  ])
-  return buySet.has(key) ? 'BUY' : 'SELL'
-}
-
-function getModeMultiplier(mode: TradingMode): number {
-  return mode === 'swing' ? 1.0 : mode === 'intraday' ? 0.45 : 0.18
-}
-
-function getPipSize(symbol: string): number {
-  if (symbol === 'BTCUSD') return 10
-  if (symbol === 'ETHUSD') return 0.5
-  if (symbol === 'XRPUSD') return 0.0001
-  if (symbol === 'XAGUSD') return 0.01
-  return 0.1
-}
-
-function fmt(symbol: string, price: number): string {
-  if (symbol === 'BTCUSD') return price.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-  if (symbol === 'ETHUSD') return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  if (symbol === 'XRPUSD') return price.toFixed(4)
-  if (symbol === 'XAGUSD') return price.toFixed(2)
-  return price.toFixed(2)
-}
-
-function fmtPips(symbol: string, distance: number): string {
-  const pipSize = getPipSize(symbol)
-  const pips = Math.round(Math.abs(distance) / pipSize)
-  if (symbol === 'BTCUSD') return `${pips.toLocaleString()} pts`
-  return `${pips} pips`
 }
 
 interface LevelData {
@@ -73,83 +27,64 @@ function buildLevels(symbol: string, mode: TradingMode): {
   rr3: string
   totalRange: number
 } {
-  const price = BASE_PRICES[symbol] ?? 100
-  const direction = getDirection(symbol, mode)
-  const mult = getModeMultiplier(mode)
-  const slDistance = price * 0.004 * mult
+  // Use 'balanced' risk — price levels are risk-independent
+  const sig = buildSignal(symbol, mode, 'balanced')
 
-  const tp1Distance = slDistance * 1.618
-  const tp2Distance = slDistance * 2.618
-  const tp3Distance = slDistance * 4.236
-
-  const entry = price
-  const sl = direction === 'BUY' ? entry - slDistance : entry + slDistance
-  const tp1 = direction === 'BUY' ? entry + tp1Distance : entry - tp1Distance
-  const tp2 = direction === 'BUY' ? entry + tp2Distance : entry - tp2Distance
-  const tp3 = direction === 'BUY' ? entry + tp3Distance : entry - tp3Distance
-
+  const slDistance = Math.abs(sig.entryPrice - sig.stopLoss)
+  const tp1Distance = Math.abs(sig.tp1 - sig.entryPrice)
+  const tp2Distance = Math.abs(sig.tp2 - sig.entryPrice)
+  const tp3Distance = Math.abs(sig.tp3 - sig.entryPrice)
   const totalRange = slDistance + tp3Distance
 
   const levels: LevelData[] = [
     {
       label: 'TP3',
-      price: tp3,
+      price: sig.tp3,
       color: '#818cf8',
       tag: '4.236 Fib',
       pips: fmtPips(symbol, tp3Distance),
-      distPercent: ((tp3Distance / totalRange) * 100),
+      distPercent: (tp3Distance / totalRange) * 100,
     },
     {
       label: 'TP2',
-      price: tp2,
+      price: sig.tp2,
       color: '#3b82f6',
       tag: '2.618 Fib',
       pips: fmtPips(symbol, tp2Distance),
-      distPercent: ((tp2Distance / totalRange) * 100),
+      distPercent: (tp2Distance / totalRange) * 100,
     },
     {
       label: 'TP1',
-      price: tp1,
+      price: sig.tp1,
       color: '#14b8a6',
       tag: '1.618 Fib',
       pips: fmtPips(symbol, tp1Distance),
-      distPercent: ((tp1Distance / totalRange) * 100),
+      distPercent: (tp1Distance / totalRange) * 100,
     },
     {
       label: 'Stop Loss',
-      price: sl,
+      price: sig.stopLoss,
       color: '#ef4444',
       tag: undefined,
       pips: fmtPips(symbol, slDistance),
-      distPercent: ((slDistance / totalRange) * 100),
+      distPercent: (slDistance / totalRange) * 100,
     },
   ]
 
   // For SELL, TPs are below entry and SL above — reverse visual order
-  if (direction === 'SELL') {
+  if (sig.direction === 'SELL') {
     levels.reverse()
   }
 
   return {
-    direction,
-    entry,
+    direction: sig.direction,
+    entry: sig.entryPrice,
     levels,
     rr1: (tp1Distance / slDistance).toFixed(2),
     rr2: (tp2Distance / slDistance).toFixed(2),
     rr3: (tp3Distance / slDistance).toFixed(2),
     totalRange,
   }
-}
-
-/* ── Pip/dollar value per pip (mock, for position sizing) ──────────────────── */
-function pipValue(symbol: string, capital: number, leverage: number): string {
-  // Simplified mock calculation
-  const pip = getPipSize(symbol)
-  const price = BASE_PRICES[symbol] ?? 100
-  const lotValue = (capital * leverage) / price
-  const val = lotValue * pip
-  if (val >= 1) return `$${val.toFixed(2)}/pip`
-  return `$${val.toFixed(4)}/pip`
 }
 
 /* ── Main Component ───────────────────────────────────────────────────────── */

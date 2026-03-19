@@ -62,20 +62,20 @@ tasks:
     output: "TpSlDisplay component with visual price ladder (TP1-3 + SL), entry marker with direction badge, Fibonacci tags, distance bars, R:R ratio grid with mini bars, position info footer. Replaced placeholder. Commit: 714e139."
 
   - id: TASK-008
-    status: in_progress
+    status: done
     owner: pm-alpha-scanner
     started: 2026-03-19T23:44:00+08:00
-    completed: null
+    completed: 2026-03-19T23:50:00+08:00
     notes: "Settings panel - leverage 1:1000, capital $500, TP1 1.618 defaults"
-    output: null
+    output: "SettingsPanel component with leverage selector (7 presets, high-risk warning), capital selector (7 presets + custom input), TP1 Fibonacci extension selector (auto-chains TP2/TP3), position summary card, reset button. Removed PlaceholderCard. Commit: c772d11."
 
   - id: TASK-009
-    status: pending
+    status: done
     owner: pm-alpha-scanner
-    started: null
-    completed: null
-    notes: "Seed mock signal data for all 5 symbols across all 3 modes"
-    output: null
+    started: 2026-03-20T00:38:00+08:00
+    completed: 2026-03-20T00:45:00+08:00
+    notes: "Seed mock signal data for all 5 symbols across all 3 modes — extract shared data module"
+    output: "Created app/data/mockSignals.ts — centralized mock data with 15 unique signal configs (5 symbols × 3 modes). Each has unique direction, confidence, technicals, SL width, narrative. Refactored SignalPanel + TpSlDisplay to import from shared module. Build passes."
 
   - id: TASK-010
     status: pending
@@ -86,7 +86,7 @@ tasks:
     output: null
 
 next_actions:
-  - "pm-alpha-scanner: Build TASK-008 (Settings panel — leverage, capital, TP ratio defaults)"
+  - "pm-alpha-scanner: Build TASK-010 (Mobile responsiveness + final polish)"
 
 approval_pending: false
 pending_commit_summary: null
