@@ -4,10 +4,14 @@ import { useState } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import SymbolSelector from './components/SymbolSelector'
+import ModeSelector, { type TradingMode } from './components/ModeSelector'
+import RiskSelector, { type RiskProfile } from './components/RiskSelector'
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedSymbol, setSelectedSymbol] = useState('XAUUSD')
+  const [selectedMode, setSelectedMode] = useState<TradingMode>('swing')
+  const [selectedRisk, setSelectedRisk] = useState<RiskProfile>('balanced')
 
   return (
     <div className="flex min-h-screen flex-col bg-[--color-background]">
@@ -55,59 +59,15 @@ export default function Home() {
               onSelect={setSelectedSymbol}
             />
 
-            <SidebarCard
-              title="Mode Selector"
-              label="Strategy"
-              icon={
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-                </svg>
-              }
-            >
-              <div className="grid grid-cols-3 gap-1.5">
-                {[
-                  { label: 'Swing', color: '#3b82f6' },
-                  { label: 'Intraday', color: '#14b8a6' },
-                  { label: 'Scalper', color: '#a855f7' },
-                ].map(({ label, color }) => (
-                  <button
-                    key={label}
-                    className="rounded border px-2 py-1.5 text-[10px] font-semibold transition-opacity hover:opacity-70"
-                    style={{ borderColor: color, color }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </SidebarCard>
+            <ModeSelector
+              selected={selectedMode}
+              onSelect={setSelectedMode}
+            />
 
-            <SidebarCard
-              title="Risk Profile"
-              label="Exposure"
-              icon={
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                  <line x1="12" y1="9" x2="12" y2="13" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-              }
-            >
-              <div className="flex flex-col gap-1.5">
-                {[
-                  { label: 'Conservative', pct: '1%', color: '#14b8a6' },
-                  { label: 'Moderate', pct: '2%', color: '#3b82f6' },
-                  { label: 'Aggressive', pct: '5%', color: '#ef4444' },
-                ].map(({ label, pct, color }) => (
-                  <button
-                    key={label}
-                    className="flex items-center justify-between rounded border border-[--color-border] bg-[--color-card-alt] px-3 py-2 text-xs transition-colors hover:border-[--color-border-subtle]"
-                  >
-                    <span className="text-gray-400">{label}</span>
-                    <span className="font-mono font-semibold" style={{ color }}>{pct}</span>
-                  </button>
-                ))}
-              </div>
-            </SidebarCard>
+            <RiskSelector
+              selected={selectedRisk}
+              onSelect={setSelectedRisk}
+            />
           </div>
         </aside>
 
@@ -188,33 +148,6 @@ export default function Home() {
       </div>
 
       <Footer />
-    </div>
-  )
-}
-
-/* ── Sidebar card ─────────────────────────────────────────────────────────── */
-
-function SidebarCard({
-  title,
-  label,
-  icon,
-  children,
-}: {
-  title: string
-  label: string
-  icon: React.ReactNode
-  children: React.ReactNode
-}) {
-  return (
-    <div className="rounded-lg border border-[--color-border] bg-[--color-card-alt] p-3">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="text-gray-500">{icon}</span>
-        <div>
-          <p className="text-xs font-semibold text-white">{title}</p>
-          <p className="text-[10px] text-gray-600">{label}</p>
-        </div>
-      </div>
-      {children}
     </div>
   )
 }

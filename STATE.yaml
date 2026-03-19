@@ -22,17 +22,17 @@ tasks:
     output: "Navbar (sticky, 64px, mobile hamburger, live badge), Footer (minimal), page.tsx replaced with full dashboard shell: 280px collapsible sidebar (Symbol/Mode/Risk cards) + main content grid (Signal Panel, TP/SL, Settings placeholders). Mobile drawer pattern with overlay. npm run build passes."
 
   - id: TASK-003
-    status: in_progress
+    status: done
     owner: pm-alpha-scanner
     started: 2026-03-19T20:37:00+08:00
-    completed: null
+    completed: 2026-03-19T20:40:00+08:00
     notes: "Symbol selector - XAUUSD, XAGUSD, BTCUSD, ETHUSD, XRPUSD with asset category labels"
-    output: null
+    output: "SymbolSelector component with collapsible panel, category grouping (Commodities/Crypto), mock prices + % change, active state highlight. Integrated with selectedSymbol state in page.tsx. Commit: 00fee78."
 
   - id: TASK-004
-    status: pending
+    status: in_progress
     owner: pm-alpha-scanner
-    started: null
+    started: 2026-03-19T20:41:00+08:00
     completed: null
     notes: "Mode selector - Swing/Intraday/Scalper toggle with descriptions"
     output: null
