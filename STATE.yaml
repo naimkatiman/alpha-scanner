@@ -14,17 +14,17 @@ tasks:
     output: "Next.js 16.2.0 + Tailwind v4 + TypeScript strict. App Router, dark theme via @theme CSS vars. npm run build passes."
 
   - id: TASK-002
-    status: pending
+    status: done
     owner: pm-alpha-scanner
-    started: null
-    completed: null
+    started: 2026-03-19T19:46:00+08:00
+    completed: 2026-03-19T20:30:00+08:00
     notes: "Dashboard layout - Navbar, Footer, main grid, responsive shell"
-    output: null
+    output: "Navbar (sticky, 64px, mobile hamburger, live badge), Footer (minimal), page.tsx replaced with full dashboard shell: 280px collapsible sidebar (Symbol/Mode/Risk cards) + main content grid (Signal Panel, TP/SL, Settings placeholders). Mobile drawer pattern with overlay. npm run build passes."
 
   - id: TASK-003
-    status: pending
+    status: in_progress
     owner: pm-alpha-scanner
-    started: null
+    started: 2026-03-19T20:37:00+08:00
     completed: null
     notes: "Symbol selector - XAUUSD, XAGUSD, BTCUSD, ETHUSD, XRPUSD with asset category labels"
     output: null
@@ -86,7 +86,7 @@ tasks:
     output: null
 
 next_actions:
-  - "pm-alpha-scanner: Build TASK-002 (dashboard layout - Navbar, Footer, main grid)"
+  - "pm-alpha-scanner: Build TASK-003 (Symbol Selector component with asset categories)"
 
 approval_pending: false
 pending_commit_summary: null
