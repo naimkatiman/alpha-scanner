@@ -54,17 +54,17 @@ tasks:
     output: "SignalPanel component with BUY/SELL badges, confidence bar, 4 tech indicators (RSI/MACD/EMA/S/R), TP1-3 (1.618/2.618/4.236 Fib), SL with pip distance, R:R ratio bar. Mock prices per symbol. Swing=wide, Scalper=tight. Commit: 79f89d3."
 
   - id: TASK-007
-    status: in_progress
+    status: done
     owner: pm-alpha-scanner
     started: 2026-03-19T22:37:00+08:00
-    completed: null
+    completed: 2026-03-19T22:42:00+08:00
     notes: "TP/SL visual display component with price levels and risk-reward ratio"
-    output: null
+    output: "TpSlDisplay component with visual price ladder (TP1-3 + SL), entry marker with direction badge, Fibonacci tags, distance bars, R:R ratio grid with mini bars, position info footer. Replaced placeholder. Commit: 714e139."
 
   - id: TASK-008
-    status: pending
+    status: in_progress
     owner: pm-alpha-scanner
-    started: null
+    started: 2026-03-19T23:44:00+08:00
     completed: null
     notes: "Settings panel - leverage 1:1000, capital $500, TP1 1.618 defaults"
     output: null
@@ -86,7 +86,7 @@ tasks:
     output: null
 
 next_actions:
-  - "pm-alpha-scanner: Build TASK-007 (TP/SL visual display with price levels and risk-reward ratio)"
+  - "pm-alpha-scanner: Build TASK-008 (Settings panel — leverage, capital, TP ratio defaults)"
 
 approval_pending: false
 pending_commit_summary: null

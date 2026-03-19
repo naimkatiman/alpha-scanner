@@ -8,12 +8,14 @@ import ModeSelector, { type TradingMode } from './components/ModeSelector'
 import RiskSelector, { type RiskProfile } from './components/RiskSelector'
 import SignalPanel from './components/SignalPanel'
 import TpSlDisplay from './components/TpSlDisplay'
+import SettingsPanel, { DEFAULT_SETTINGS, type ScannerSettings } from './components/SettingsPanel'
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedSymbol, setSelectedSymbol] = useState('XAUUSD')
   const [selectedMode, setSelectedMode] = useState<TradingMode>('swing')
   const [selectedRisk, setSelectedRisk] = useState<RiskProfile>('balanced')
+  const [settings, setSettings] = useState<ScannerSettings>(DEFAULT_SETTINGS)
 
   return (
     <div className="flex min-h-screen flex-col bg-[--color-background]">
@@ -93,71 +95,13 @@ export default function Home() {
             <div className="grid gap-4 sm:grid-cols-2">
               <TpSlDisplay symbol={selectedSymbol} mode={selectedMode} risk={selectedRisk} />
 
-              <PlaceholderCard
-                title="Settings"
-                description="Scanner configuration & parameters"
-                accent="muted"
-              >
-                <div className="mt-4 space-y-2">
-                  {['Timeframe', 'Confluence', 'Notifications'].map((item) => (
-                    <div
-                      key={item}
-                      className="flex items-center justify-between rounded border border-[--color-border] bg-[--color-card-alt] px-3 py-2"
-                    >
-                      <span className="text-xs text-gray-500">{item}</span>
-                      <span className="h-2 w-12 rounded bg-[--color-border-subtle]" />
-                    </div>
-                  ))}
-                </div>
-              </PlaceholderCard>
+              <SettingsPanel settings={settings} onSettingsChange={setSettings} />
             </div>
           </div>
         </main>
       </div>
 
       <Footer />
-    </div>
-  )
-}
-
-/* ── Main content card ────────────────────────────────────────────────────── */
-
-function PlaceholderCard({
-  title,
-  description,
-  accent,
-  tall,
-  children,
-}: {
-  title: string
-  description: string
-  accent: 'buy' | 'teal' | 'sell' | 'muted'
-  tall?: boolean
-  children?: React.ReactNode
-}) {
-  const accentColor = {
-    buy: '#3b82f6',
-    teal: '#14b8a6',
-    sell: '#ef4444',
-    muted: '#374151',
-  }[accent]
-
-  return (
-    <div
-      className={`rounded-lg border border-[--color-border] bg-[--color-card] p-5 ${tall ? 'min-h-[180px]' : 'min-h-[140px]'}`}
-      style={{ borderTopColor: accentColor, borderTopWidth: '2px' }}
-    >
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
-          <p className="mt-0.5 text-xs text-gray-600">{description}</p>
-        </div>
-        <span
-          className="h-1.5 w-1.5 rounded-full"
-          style={{ backgroundColor: accentColor, boxShadow: `0 0 4px ${accentColor}` }}
-        />
-      </div>
-      {children}
     </div>
   )
 }
