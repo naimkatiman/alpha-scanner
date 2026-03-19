@@ -1,0 +1,92 @@
+project: alpha-scanner
+updated: 2026-03-19T00:00:00Z
+repo: https://github.com/naimkatiman/alpha-scanner
+deployed: null
+phase: 1
+
+tasks:
+  - id: TASK-001
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "Scaffold Next.js + Tailwind project, dark fintech theme, deploy pipeline"
+    output: null
+
+  - id: TASK-002
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "Dashboard layout - Navbar, Footer, main grid, responsive shell"
+    output: null
+
+  - id: TASK-003
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "Symbol selector - XAUUSD, XAGUSD, BTCUSD, ETHUSD, XRPUSD with asset category labels"
+    output: null
+
+  - id: TASK-004
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "Mode selector - Swing/Intraday/Scalper toggle with descriptions"
+    output: null
+
+  - id: TASK-005
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "Risk profile selector - High Risk/Balanced/Conservative cards"
+    output: null
+
+  - id: TASK-006
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "Signal panel with mock data - direction, entry, TP/SL, confidence"
+    output: null
+
+  - id: TASK-007
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "TP/SL visual display component with price levels and risk-reward ratio"
+    output: null
+
+  - id: TASK-008
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "Settings panel - leverage 1:1000, capital $500, TP1 1.618 defaults"
+    output: null
+
+  - id: TASK-009
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "Seed mock signal data for all 5 symbols across all 3 modes"
+    output: null
+
+  - id: TASK-010
+    status: pending
+    owner: pm-alpha-scanner
+    started: null
+    completed: null
+    notes: "Mobile responsiveness pass + final polish"
+    output: null
+
+next_actions:
+  - "pm-alpha-scanner: Build TASK-001 (scaffold project)"
+
+approval_pending: false
+pending_commit_summary: null
