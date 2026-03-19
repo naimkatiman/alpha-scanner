@@ -9,6 +9,7 @@ import RiskSelector, { type RiskProfile } from './components/RiskSelector'
 import SignalPanel from './components/SignalPanel'
 import TpSlDisplay from './components/TpSlDisplay'
 import SettingsPanel, { DEFAULT_SETTINGS, type ScannerSettings } from './components/SettingsPanel'
+import SRLevels from './components/SRLevels'
 import { usePrices } from './hooks/usePrices'
 
 type ConnectionStatus = 'loading' | 'live' | 'stale' | 'error'
@@ -152,6 +153,9 @@ export default function Home() {
               <TpSlDisplay symbol={selectedSymbol} mode={selectedMode} risk={selectedRisk} />
               <SettingsPanel settings={settings} onSettingsChange={setSettings} />
             </div>
+
+            {/* Third row: Support & Resistance */}
+            <SRLevels symbol={selectedSymbol} />
           </div>
         </main>
       </div>
