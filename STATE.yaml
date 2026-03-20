@@ -1,7 +1,7 @@
 project: alpha-scanner
 updated: 2026-03-20T14:05:00+08:00
 repo: https://github.com/naimkatiman/alpha-scanner
-phase: 5 # 1=frontend UI✅, 2=scanner engine✅, 3=multi-asset expansion✅, 4=broker API✅, 5=production hardening
+phase: 5 # 1=frontend UI✅, 2=scanner engine✅, 3=multi-asset expansion✅, 4=broker API✅, 5=production hardening✅
 
 tasks:
   # Phase 1 — DONE
@@ -127,10 +127,10 @@ tasks:
     output: "Rate limit detection in /api/prices (rateLimitedUntil flag, serves cached data with rateLimited+staleSince fields), StaleIndicator component shows CACHED badge, usePrices auto-slows to 120s interval when rate-limited, fetchWithRetry handles 429+Retry-After. Commit 2237584."
 
   - id: TASK-030
-    status: pending
+    status: done
     owner: coding-agent
     notes: "Mobile polish — audit all panels for responsive/touch-friendly on small screens (<640px). Fix overflow, touch targets, card layouts"
-    output: null
+    output: "Safe-area padding for notched phones (env(safe-area-inset-*)), table overflow fix, PWA standalone mode tweaks, mobile-compact/mobile-card/mobile-stack CSS helpers, footer safe-area bottom, cleaned up duplicate CSS. All panels already have responsive grids (grid-cols-2 sm:grid-cols-4), flex-wrap, mobile cards vs desktop tables, 44px min touch targets. Commit d35dcb7+."
 
   - id: TASK-031
     status: done
@@ -157,14 +157,15 @@ tasks:
     output: "rateLimit.ts (token bucket: 60 req/min/IP with cleanup), apiGuard.ts (checkRateLimit helper with 429+Retry-After headers), sanitize.ts (input sanitization), all 10 API routes protected with checkRateLimit. Commit 2237584."
 
   - id: TASK-035
-    status: pending
+    status: done
     owner: coding-agent
     notes: "Build verification + git commit for Phase 5"
-    output: null
+    output: "Clean TypeScript build (0 errors). All Phase 5 changes committed and pushed."
 
-next_actions:
-  - "TASK-030 (mobile polish) — next task to execute"
-  - "TASK-035 (build verification + final commit) — after TASK-030"
+next_actions: []
+# Previously:
+  - "Phase 5 COMPLETE. All 8 tasks (TASK-028 through TASK-035) done."
+  - "Ready for Phase 6 when approved."
 
 approval_pending: false
 pending_commit_summary: null

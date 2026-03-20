@@ -201,19 +201,8 @@ button, [role="button"] {
   }
 }
 
-/* ── Safe-area insets for notched phones ─────────────────────── */
-body {
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-}
-
 /* Sticky footer gets bottom safe-area */
 footer {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Sidebar respects safe-area on sides */
-.safe-area-inset-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
