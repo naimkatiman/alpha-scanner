@@ -78,6 +78,33 @@ export function computeMACD(
   return { macdLine, signalLine, histogram }
 }
 
+/* ── ATR (Average True Range, Wilder's Smoothing) ─────────────────────────── */
+
+export function calculateATR(
+  candles: { high: number; low: number; close: number }[],
+  period = 14,
+): number {
+  if (candles.length < 2) return NaN
+
+  const trueRanges: number[] = []
+  for (let i = 1; i < candles.length; i++) {
+    const prevClose = candles[i - 1].close
+    const { high, low } = candles[i]
+    trueRanges.push(Math.max(high - low, Math.abs(high - prevClose), Math.abs(low - prevClose)))
+  }
+
+  if (trueRanges.length < period) {
+    return trueRanges.reduce((a, b) => a + b, 0) / trueRanges.length
+  }
+
+  // Seed with SMA of first `period` TRs, then Wilder's smoothing
+  let atr = trueRanges.slice(0, period).reduce((a, b) => a + b, 0) / period
+  for (let i = period; i < trueRanges.length; i++) {
+    atr = (atr * (period - 1) + trueRanges[i]) / period
+  }
+  return atr
+}
+
 /* ── All-in-one ───────────────────────────────────────────────────────────── */
 
 export interface AllIndicators {

@@ -1,97 +1,132 @@
 'use client'
 
-import { buildSignal, fmt, fmtPips, pipValue } from '../data/mockSignals'
+import { fmt, fmtPips } from '../data/mockSignals'
 import type { TradingMode, RiskProfile } from '../data/mockSignals'
+import { useTpSl } from '../hooks/useTpSl'
 
 interface TpSlDisplayProps {
   symbol: string
   mode: TradingMode
   risk: RiskProfile
-}
-
-interface LevelData {
-  label: string
-  price: number
-  color: string
-  tag?: string
-  pips: string
-  distPercent: number
-}
-
-function buildLevels(symbol: string, mode: TradingMode): {
+  leverage: number
+  capital: number
   direction: 'BUY' | 'SELL' | 'NEUTRAL'
-  entry: number
-  levels: LevelData[]
-  rr1: string
-  rr2: string
-  rr3: string
-  totalRange: number
-} {
-  const sig = buildSignal(symbol, mode, 'balanced')
+  currentPrice: number
+}
 
-  const slDistance = Math.abs(sig.entryPrice - sig.stopLoss)
-  const tp1Distance = Math.abs(sig.tp1 - sig.entryPrice)
-  const tp2Distance = Math.abs(sig.tp2 - sig.entryPrice)
-  const tp3Distance = Math.abs(sig.tp3 - sig.entryPrice)
-  const totalRange = slDistance + tp3Distance
+/* ── Skeleton ─────────────────────────────────────────────────────────────── */
 
-  const levels: LevelData[] = [
+function SkeletonLine({ width = 'w-full', height = 'h-3' }: { width?: string; height?: string }) {
+  return <div className={`skeleton ${width} ${height} rounded`} />
+}
+
+/* ── Main Component ───────────────────────────────────────────────────────── */
+
+export default function TpSlDisplay({
+  symbol,
+  mode,
+  risk,
+  leverage,
+  capital,
+  direction,
+  currentPrice,
+}: TpSlDisplayProps) {
+  const { data, loading } = useTpSl({
+    symbol,
+    mode,
+    risk,
+    leverage,
+    capital,
+    direction,
+    currentPrice,
+  })
+
+  const isNeutral = direction === 'NEUTRAL'
+  const dirColor =
+    direction === 'BUY' ? '#3b82f6' : direction === 'SELL' ? '#ef4444' : '#f59e0b'
+  const dirBg =
+    direction === 'BUY'
+      ? 'rgba(59,130,246,0.15)'
+      : direction === 'SELL'
+        ? 'rgba(239,68,68,0.15)'
+        : 'rgba(245,158,11,0.15)'
+
+  const riskPct = risk === 'conservative' ? 1 : risk === 'balanced' ? 2 : 5
+
+  /* ── Derived display data ────────────────────────────────────────────────── */
+
+  const entry = data?.entry ?? currentPrice
+  const sl = data?.sl ?? 0
+  const tp1 = data?.tp1 ?? 0
+  const tp2 = data?.tp2 ?? 0
+  const tp3 = data?.tp3 ?? 0
+  const slDistance = data?.slDistance ?? 0
+  const tp1Distance = Math.abs(tp1 - entry)
+  const tp2Distance = Math.abs(tp2 - entry)
+  const tp3Distance = Math.abs(tp3 - entry)
+  const totalRange = (slDistance + tp3Distance) || 1
+
+  interface LevelData {
+    label: string
+    price: number
+    color: string
+    tag: string
+    pips: string
+    distPercent: number
+  }
+
+  const levelsRaw: LevelData[] = [
     {
       label: 'TP3',
-      price: sig.tp3,
+      price: tp3,
       color: '#818cf8',
-      tag: '4.236 Fib',
+      tag: isNeutral ? '1.272 Fib' : '4.236 Fib',
       pips: fmtPips(symbol, tp3Distance),
       distPercent: (tp3Distance / totalRange) * 100,
     },
     {
       label: 'TP2',
-      price: sig.tp2,
+      price: tp2,
       color: '#3b82f6',
-      tag: '2.618 Fib',
+      tag: isNeutral ? '1.272 Fib' : '2.618 Fib',
       pips: fmtPips(symbol, tp2Distance),
       distPercent: (tp2Distance / totalRange) * 100,
     },
     {
       label: 'TP1',
-      price: sig.tp1,
+      price: tp1,
       color: '#14b8a6',
-      tag: '1.618 Fib',
+      tag: isNeutral ? '1.272 Fib' : '1.618 Fib',
       pips: fmtPips(symbol, tp1Distance),
       distPercent: (tp1Distance / totalRange) * 100,
     },
     {
       label: 'Stop Loss',
-      price: sig.stopLoss,
+      price: sl,
       color: '#ef4444',
-      tag: undefined,
+      tag: 'ATR-based',
       pips: fmtPips(symbol, slDistance),
       distPercent: (slDistance / totalRange) * 100,
     },
   ]
 
-  if (sig.direction === 'SELL') {
-    levels.reverse()
-  }
+  // SELL: SL is above entry, so reverse to show highest price at top
+  const levels = direction === 'SELL' ? [...levelsRaw].reverse() : levelsRaw
 
-  return {
-    direction: sig.direction,
-    entry: sig.entryPrice,
-    levels,
-    rr1: (tp1Distance / slDistance).toFixed(2),
-    rr2: (tp2Distance / slDistance).toFixed(2),
-    rr3: (tp3Distance / slDistance).toFixed(2),
-    totalRange,
-  }
-}
+  const rr = [
+    { label: 'TP1', ratio: data ? data.rr1.toFixed(2) : null, color: '#14b8a6' },
+    { label: 'TP2', ratio: data ? data.rr2.toFixed(2) : null, color: '#3b82f6' },
+    { label: 'TP3', ratio: data ? data.rr3.toFixed(2) : null, color: '#818cf8' },
+  ]
 
-/* ── Main Component ───────────────────────────────────────────────────────── */
-export default function TpSlDisplay({ symbol, mode, risk }: TpSlDisplayProps) {
-  const data = buildLevels(symbol, mode)
-  const isBuy = data.direction === 'BUY'
-  const dirColor = data.direction === 'BUY' ? '#3b82f6' : data.direction === 'SELL' ? '#ef4444' : '#f59e0b'
+  const pipValDisplay = data
+    ? data.pipVal >= 1
+      ? `$${data.pipVal.toFixed(2)}/pip`
+      : `$${data.pipVal.toFixed(4)}/pip`
+    : '—'
 
-  const riskPct = risk === 'conservative' ? 1 : risk === 'balanced' ? 2 : 5
+  const posDisplay = data ? data.positionSize.toFixed(4) : '—'
+  const riskDisplay = data ? `$${data.riskAmount.toFixed(2)}` : '—'
 
   return (
     <div
@@ -106,143 +141,187 @@ export default function TpSlDisplay({ symbol, mode, risk }: TpSlDisplayProps) {
             Visual price levels · {symbol} · {mode.charAt(0).toUpperCase() + mode.slice(1)}
           </p>
         </div>
-        <span
-          className="h-2 w-2 flex-shrink-0 rounded-full mt-0.5"
-          style={{ backgroundColor: '#14b8a6', boxShadow: '0 0 6px #14b8a6' }}
-          aria-hidden="true"
-        />
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {!loading && (
+            <span
+              className="rounded px-1.5 py-0.5 font-mono text-[8px] font-bold tracking-wider"
+              style={{ backgroundColor: 'rgba(20,184,166,0.12)', color: '#14b8a6' }}
+            >
+              LIVE
+            </span>
+          )}
+          <span
+            className="h-2 w-2 rounded-full mt-0.5"
+            style={{ backgroundColor: '#14b8a6', boxShadow: '0 0 6px #14b8a6' }}
+            aria-hidden="true"
+          />
+        </div>
       </div>
 
-      {/* Visual price ladder */}
-      <div className="mt-4">
-        {/* Entry price marker */}
-        <div className="mb-3 flex items-center gap-2 sm:gap-3">
-          <div className="flex-1 border-t border-dashed border-gray-700" aria-hidden="true" />
-          <div className="flex items-center gap-2 rounded-md border border-gray-700 bg-[#1a1a1a] px-2.5 py-1.5 flex-shrink-0">
-            <span className="text-[10px] uppercase tracking-widest text-gray-500">Entry</span>
-            <span className="font-mono text-sm font-bold text-white">{fmt(symbol, data.entry)}</span>
-            <span
-              className="rounded px-1.5 py-0.5 text-[9px] font-bold tracking-wider"
-              style={{
-                backgroundColor: isBuy ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)',
-                color: dirColor,
-              }}
-            >
-              {data.direction}
-            </span>
+      {loading && !data ? (
+        /* ── Loading shimmer ──────────────────────────────────────────────── */
+        <div className="mt-4 space-y-3">
+          <SkeletonLine width="w-full" height="h-9" />
+          <div className="space-y-2">
+            <SkeletonLine height="h-10" />
+            <SkeletonLine height="h-10" />
+            <SkeletonLine height="h-10" />
+            <SkeletonLine height="h-10" />
           </div>
-          <div className="flex-1 border-t border-dashed border-gray-700" aria-hidden="true" />
+          <SkeletonLine height="h-16" />
+          <SkeletonLine height="h-10" />
         </div>
+      ) : (
+        <>
+          {/* Visual price ladder */}
+          <div className="mt-4">
+            {/* Entry price marker */}
+            <div className="mb-3 flex items-center gap-2 sm:gap-3">
+              <div className="flex-1 border-t border-dashed border-gray-700" aria-hidden="true" />
+              <div className="flex items-center gap-2 rounded-md border border-gray-700 bg-[#1a1a1a] px-2.5 py-1.5 flex-shrink-0">
+                <span className="text-[10px] uppercase tracking-widest text-gray-500">Entry</span>
+                <span className="font-mono text-sm font-bold text-white">
+                  {fmt(symbol, entry)}
+                </span>
+                <span
+                  className="rounded px-1.5 py-0.5 text-[9px] font-bold tracking-wider"
+                  style={{ backgroundColor: dirBg, color: dirColor }}
+                >
+                  {direction}
+                </span>
+              </div>
+              <div className="flex-1 border-t border-dashed border-gray-700" aria-hidden="true" />
+            </div>
 
-        {/* Level rows */}
-        <div className="space-y-2">
-          {data.levels.map((level) => (
-            <div key={level.label}>
-              <div
-                className="flex items-center justify-between rounded-md border px-3 py-2.5 transition-all duration-200 hover:brightness-110 active:scale-[0.99]"
-                style={{
-                  borderColor: `${level.color}30`,
-                  backgroundColor: `${level.color}08`,
-                }}
-              >
-                {/* Left: label + tag */}
-                <div className="flex items-center gap-2 min-w-0">
-                  <span
-                    className="h-2 w-2 flex-shrink-0 rounded-full"
-                    style={{ backgroundColor: level.color, boxShadow: `0 0 4px ${level.color}60` }}
-                    aria-hidden="true"
-                  />
-                  <span className="text-xs font-semibold text-gray-300 flex-shrink-0">{level.label}</span>
-                  {level.tag && (
-                    <span
-                      className="hidden sm:inline rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider flex-shrink-0"
-                      style={{ backgroundColor: `${level.color}18`, color: level.color }}
-                    >
-                      {level.tag}
-                    </span>
+            {/* Level rows */}
+            <div className="space-y-2">
+              {levels.map((level) => (
+                <div key={level.label}>
+                  <div
+                    className="flex items-center justify-between rounded-md border px-3 py-2.5 transition-all duration-200 hover:brightness-110 active:scale-[0.99]"
+                    style={{
+                      borderColor: `${level.color}30`,
+                      backgroundColor: `${level.color}08`,
+                    }}
+                  >
+                    {/* Left: label + tag */}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="h-2 w-2 flex-shrink-0 rounded-full"
+                        style={{
+                          backgroundColor: level.color,
+                          boxShadow: `0 0 4px ${level.color}60`,
+                        }}
+                        aria-hidden="true"
+                      />
+                      <span className="text-xs font-semibold text-gray-300 flex-shrink-0">
+                        {level.label}
+                      </span>
+                      <span
+                        className="hidden sm:inline rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider flex-shrink-0"
+                        style={{ backgroundColor: `${level.color}18`, color: level.color }}
+                      >
+                        {level.tag}
+                      </span>
+                    </div>
+
+                    {/* Right: price + pips */}
+                    <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
+                      <span className="hidden xs:inline text-[10px] text-gray-600">
+                        {level.pips}
+                      </span>
+                      <span
+                        className="font-mono text-xs font-bold"
+                        style={{ color: level.color }}
+                      >
+                        {fmt(symbol, level.price)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Distance bar */}
+                  <div className="mt-1 h-0.5 overflow-hidden rounded-full bg-[#222]">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.min(100, level.distPercent)}%`,
+                        backgroundColor: level.color,
+                        opacity: 0.6,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Risk-Reward Summary */}
+          <div className="mt-5 rounded-md border border-[#222] bg-[#1a1a1a] p-3">
+            <span className="mb-2 block text-[10px] uppercase tracking-widest text-gray-600">
+              Risk-Reward Ratios
+            </span>
+            <div className="grid grid-cols-3 gap-2">
+              {rr.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex flex-col items-center rounded border border-[#222] bg-[#111] py-2 transition-all duration-200"
+                >
+                  <span className="text-[10px] text-gray-600">{item.label}</span>
+                  <span className="font-mono text-sm font-bold" style={{ color: item.color }}>
+                    {item.ratio === null ? '—' : `1:${item.ratio}`}
+                  </span>
+                  {item.ratio !== null && (
+                    <div className="mt-1 h-1 w-10 sm:w-12 overflow-hidden rounded-full bg-[#222]">
+                      <div className="flex h-full">
+                        <div
+                          className="h-full bg-[#ef4444]"
+                          style={{ width: `${100 / (1 + parseFloat(item.ratio))}%` }}
+                        />
+                        <div className="h-full flex-1" style={{ backgroundColor: item.color }} />
+                      </div>
+                    </div>
                   )}
                 </div>
+              ))}
+            </div>
+          </div>
 
-                {/* Right: price + pips */}
-                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
-                  <span className="hidden xs:inline text-[10px] text-gray-600">{level.pips}</span>
-                  <span className="font-mono text-xs font-bold" style={{ color: level.color }}>
-                    {fmt(symbol, level.price)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Distance bar */}
-              <div className="mt-1 h-0.5 overflow-hidden rounded-full bg-[#222]">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
+          {/* Position info footer */}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#333] bg-[#1a1a1a] px-3 py-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-gray-600">Risk</span>
+                <span
+                  className="text-[10px] font-bold"
                   style={{
-                    width: `${Math.min(100, level.distPercent)}%`,
-                    backgroundColor: level.color,
-                    opacity: 0.6,
+                    color:
+                      risk === 'conservative'
+                        ? '#14b8a6'
+                        : risk === 'balanced'
+                          ? '#3b82f6'
+                          : '#ef4444',
                   }}
-                />
+                >
+                  {riskPct}% ({riskDisplay})
+                </span>
+              </div>
+              <div className="h-3 w-px bg-[#222]" aria-hidden="true" />
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-gray-600">Pip Value</span>
+                <span className="text-[10px] font-bold text-gray-400">{pipValDisplay}</span>
+              </div>
+              <div className="h-3 w-px bg-[#222]" aria-hidden="true" />
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-gray-600">Size</span>
+                <span className="font-mono text-[10px] font-bold text-gray-400">{posDisplay}</span>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Risk-Reward Summary */}
-      <div className="mt-5 rounded-md border border-[#222] bg-[#1a1a1a] p-3">
-        <span className="mb-2 block text-[10px] uppercase tracking-widest text-gray-600">
-          Risk-Reward Ratios
-        </span>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { label: 'TP1', ratio: data.rr1, color: '#14b8a6' },
-            { label: 'TP2', ratio: data.rr2, color: '#3b82f6' },
-            { label: 'TP3', ratio: data.rr3, color: '#818cf8' },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="flex flex-col items-center rounded border border-[#222] bg-[#111] py-2 transition-all duration-200 hover:border-opacity-50"
-              style={{ '--hover-border': item.color } as React.CSSProperties}
-            >
-              <span className="text-[10px] text-gray-600">{item.label}</span>
-              <span className="font-mono text-sm font-bold" style={{ color: item.color }}>
-                1:{item.ratio}
-              </span>
-              <div className="mt-1 h-1 w-10 sm:w-12 overflow-hidden rounded-full bg-[#222]">
-                <div className="flex h-full">
-                  <div className="h-full bg-[#ef4444]" style={{ width: `${100 / (1 + parseFloat(item.ratio))}%` }} />
-                  <div className="h-full flex-1" style={{ backgroundColor: item.color }} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Position info footer */}
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#333] bg-[#1a1a1a] px-3 py-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-gray-600">Risk</span>
-            <span
-              className="text-[10px] font-bold"
-              style={{
-                color: risk === 'conservative' ? '#14b8a6' : risk === 'balanced' ? '#3b82f6' : '#ef4444',
-              }}
-            >
-              {riskPct}%
+            <span className="text-[9px] text-gray-700">
+              Lev 1:{leverage.toLocaleString()} · ${capital.toLocaleString()}
             </span>
           </div>
-          <div className="h-3 w-px bg-[#222]" aria-hidden="true" />
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-gray-600">Pip Value</span>
-            <span className="text-[10px] font-bold text-gray-400">
-              {pipValue(symbol, 500, 1000)}
-            </span>
-          </div>
-        </div>
-        <span className="text-[9px] text-gray-700">Lev 1:1000 · $500</span>
-      </div>
+        </>
+      )}
     </div>
   )
 }

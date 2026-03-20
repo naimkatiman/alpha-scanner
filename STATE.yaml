@@ -56,19 +56,19 @@ tasks:
     output: "technicalAnalysis.ts (Wilder RSI, EMA, MACD), /api/indicators route (60s cache), useIndicators hook, IndicatorsPanel component (RSI gauge, MACD grid, EMA alignment). Integrated in page.tsx. Commit 74bb054."
 
   - id: TASK-014
-    status: in_progress
+    status: done
     owner: pm-alpha-scanner
     notes: "Signal generation logic — use RSI/MACD/EMA/S&R to produce BUY/SELL/NEUTRAL per symbol+mode combination. Replace mock signals with computed ones."
-    output: null
+    output: "Signal engine with weighted RSI/MACD/EMA/S&R scoring, /api/signals route (30s cache), useSignals hook, SignalPanel wired to live data with NEUTRAL support. Commit 7c18f63."
 
   - id: TASK-015
-    status: pending
+    status: in_progress
     owner: pm-alpha-scanner
     notes: "TP/SL calculation engine — compute entry, TP1/2/3 (Fibonacci extensions), SL based on risk profile + leverage + volatility. Replace hardcoded values."
     output: null
 
 next_actions:
-  - "pm-alpha-scanner: Start TASK-014 (signal generation logic — real BUY/SELL/NEUTRAL from RSI/MACD/EMA/S&R)"
+  - "pm-alpha-scanner: Building TASK-015 (TP/SL calculation engine)"
 
 approval_pending: false
 pending_commit_summary: null

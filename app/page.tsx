@@ -12,6 +12,7 @@ import SettingsPanel, { DEFAULT_SETTINGS, type ScannerSettings } from './compone
 import SRLevels from './components/SRLevels'
 import IndicatorsPanel from './components/IndicatorsPanel'
 import { usePrices } from './hooks/usePrices'
+import { useSignals } from './hooks/useSignals'
 
 type ConnectionStatus = 'loading' | 'live' | 'stale' | 'error'
 
@@ -49,7 +50,11 @@ export default function Home() {
   const [settings, setSettings] = useState<ScannerSettings>(DEFAULT_SETTINGS)
 
   const { prices, loading: pricesLoading, error: pricesError, lastUpdated } = usePrices()
+  const { signal } = useSignals(selectedSymbol, selectedMode, selectedRisk)
   const connectionStatus = getConnectionStatus(pricesLoading, pricesError, lastUpdated)
+
+  const currentPrice = prices?.[selectedSymbol]?.price ?? 0
+  const direction = signal?.direction ?? 'NEUTRAL'
 
   const closeSidebar = () => setSidebarOpen(false)
 
@@ -151,7 +156,15 @@ export default function Home() {
 
             {/* Second row: TP/SL + Settings — stack on mobile */}
             <div className="grid gap-4 lg:grid-cols-2">
-              <TpSlDisplay symbol={selectedSymbol} mode={selectedMode} risk={selectedRisk} />
+              <TpSlDisplay
+                symbol={selectedSymbol}
+                mode={selectedMode}
+                risk={selectedRisk}
+                leverage={settings.leverage}
+                capital={settings.capital}
+                direction={direction}
+                currentPrice={currentPrice}
+              />
               <SettingsPanel settings={settings} onSettingsChange={setSettings} />
             </div>
 
