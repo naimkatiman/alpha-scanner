@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
 import { disconnectBroker } from '@/app/lib/brokerApi'
+import { checkRateLimit } from '@/app/lib/apiGuard'
 
 export async function POST(request: Request) {
+  const rateLimitResponse = checkRateLimit(request)
+  if (rateLimitResponse) return rateLimitResponse
+
   try {
     const body = await request.json() as { sessionId?: string }
     const { sessionId } = body

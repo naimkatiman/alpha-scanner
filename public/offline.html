@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Scanner — Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container { max-width: 400px; }
+    .icon { font-size: 3rem; margin-bottom: 1.5rem; opacity: 0.6; }
+    h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #e5e5e5; }
+    p { font-size: 0.875rem; color: #666; line-height: 1.6; margin-bottom: 2rem; }
+    .retry-btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border: 1px solid #333;
+      border-radius: 0.75rem;
+      background: #111;
+      color: #ccc;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .retry-btn:hover { background: #1a1a1a; color: #fff; border-color: #444; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <h1>Alpha Scanner is offline</h1>
+    <p>Check your internet connection and try again. Your data will sync when you&rsquo;re back online.</p>
+    <a href="/" class="retry-btn">Retry</a>
+  </div>
+</body>
+</html>

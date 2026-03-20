@@ -1,19 +1,25 @@
 import { NextResponse } from 'next/server'
 import { connectBroker } from '@/app/lib/brokerApi'
+import { checkRateLimit } from '@/app/lib/apiGuard'
+import { sanitizeInput, isValidToken, isValidAccountId } from '@/app/lib/sanitize'
 
 export async function POST(request: Request) {
+  const rateLimitResponse = checkRateLimit(request)
+  if (rateLimitResponse) return rateLimitResponse
+
   try {
     const body = await request.json() as { token?: string; accountId?: string }
-    const { token, accountId } = body
+    const token = sanitizeInput(body.token ?? '', 512)
+    const accountId = sanitizeInput(body.accountId ?? '', 128)
 
-    if (!token || typeof token !== 'string' || token.length < 10) {
+    if (!isValidToken(token)) {
       return NextResponse.json(
         { error: 'Invalid MetaApi token' },
         { status: 400 },
       )
     }
 
-    if (!accountId || typeof accountId !== 'string' || accountId.length < 5) {
+    if (!isValidAccountId(accountId)) {
       return NextResponse.json(
         { error: 'Invalid account ID' },
         { status: 400 },

@@ -12,10 +12,26 @@ export interface UseBrokerReturn {
   positions: BrokerPosition[]
   totalProfit: number
   error: string | null
+  retryCount: number
   connect: (token: string, accountId: string) => Promise<void>
   disconnect: () => Promise<void>
   refreshAccount: () => Promise<void>
   refreshPositions: () => Promise<void>
+}
+
+const MAX_RETRIES = 3
+const RETRY_DELAYS = [1000, 2000, 4000]
+
+async function fetchWithRetry(
+  url: string,
+  attempt = 0,
+): Promise<{ res: Response; retries: number }> {
+  const res = await fetch(url)
+  if (!res.ok && res.status !== 404 && res.status !== 401 && attempt < MAX_RETRIES) {
+    await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt]))
+    return fetchWithRetry(url, attempt + 1)
+  }
+  return { res, retries: attempt }
 }
 
 export function useBroker(): UseBrokerReturn {
@@ -25,6 +41,7 @@ export function useBroker(): UseBrokerReturn {
   const [positions, setPositions] = useState<BrokerPosition[]>([])
   const [totalProfit, setTotalProfit] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Load persisted session on mount
@@ -46,10 +63,12 @@ export function useBroker(): UseBrokerReturn {
   const refreshAccount = useCallback(async () => {
     if (!sessionId) return
     try {
-      const res = await fetch(`/api/broker/account?sessionId=${sessionId}`)
+      const { res, retries } = await fetchWithRetry(
+        `/api/broker/account?sessionId=${sessionId}`,
+      )
+      setRetryCount(retries)
       if (!res.ok) {
         if (res.status === 404) {
-          // Session expired on server
           setState('disconnected')
           setSessionId(null)
           setAccount(null)
@@ -72,7 +91,7 @@ export function useBroker(): UseBrokerReturn {
       const res = await fetch(`/api/broker/positions?sessionId=${sessionId}`)
       if (!res.ok) {
         if (res.status === 404) return
-        throw new Error(`HTTP ${res.status}`)
+        return
       }
       const data = await res.json() as { positions: BrokerPosition[]; totalProfit: number }
       setPositions(data.positions)
@@ -164,6 +183,7 @@ export function useBroker(): UseBrokerReturn {
     positions,
     totalProfit,
     error,
+    retryCount,
     connect,
     disconnect,
     refreshAccount,

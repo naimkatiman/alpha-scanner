@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { fetchWithRetry } from '@/app/lib/fetchWithRetry'
 import type { SRLevel } from '@/app/lib/supportResistance'
 
 interface SRData {
@@ -16,6 +17,7 @@ export interface UseSRReturn {
   currentPrice: number | null
   loading: boolean
   error: string | null
+  retryCount: number
 }
 
 export function useSR(symbol: string): UseSRReturn {
@@ -25,7 +27,7 @@ export function useSR(symbol: string): UseSRReturn {
 
   const fetchSR = useCallback(async () => {
     try {
-      const res = await fetch(`/api/sr?symbol=${encodeURIComponent(symbol)}`)
+      const res = await fetchWithRetry(`/api/sr?symbol=${encodeURIComponent(symbol)}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json = (await res.json()) as SRData
       setData(json)
@@ -40,9 +42,7 @@ export function useSR(symbol: string): UseSRReturn {
   useEffect(() => {
     setLoading(true)
     void fetchSR()
-    const interval = setInterval(() => {
-      void fetchSR()
-    }, 60_000)
+    const interval = setInterval(() => void fetchSR(), 60_000)
     return () => clearInterval(interval)
   }, [fetchSR])
 
@@ -52,5 +52,6 @@ export function useSR(symbol: string): UseSRReturn {
     currentPrice: data?.currentPrice ?? null,
     loading,
     error,
+    retryCount: 0,
   }
 }

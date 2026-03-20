@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { computeIndicatorsForSymbol } from '@/app/api/indicators/route'
 import { computeSRForSymbol } from '@/app/api/sr/route'
 import { generateSignal } from '@/app/lib/signalEngine'
+import { checkRateLimit } from '@/app/lib/apiGuard'
 import type { TradingMode, RiskProfile } from '@/app/data/mockSignals'
 import type { GeneratedSignal } from '@/app/lib/signalEngine'
 
@@ -13,11 +14,13 @@ export interface SignalsResponse {
   risk: RiskProfile
   signal: GeneratedSignal
   timestamp: number
+  rateLimited?: boolean
+  staleSince?: number
 }
 
 /* ── Cache ─────────────────────────────────────────────────────────────────── */
 
-const signalCache = new Map<string, { data: SignalsResponse; expiresAt: number }>()
+const signalCache = new Map<string, { data: SignalsResponse; expiresAt: number; fetchedAt: number }>()
 const CACHE_TTL = 30_000 // 30 seconds
 
 import { getAllSymbols } from '@/app/lib/symbols'
@@ -28,6 +31,9 @@ const VALID_RISKS: RiskProfile[] = ['conservative', 'balanced', 'high-risk']
 /* ── Route handler ────────────────────────────────────────────────────────── */
 
 export async function GET(request: Request): Promise<Response> {
+  const rateLimitResponse = checkRateLimit(request)
+  if (rateLimitResponse) return rateLimitResponse
+
   const { searchParams } = new URL(request.url)
   const symbol = searchParams.get('symbol')?.toUpperCase()
   const mode = searchParams.get('mode')?.toLowerCase() as TradingMode | undefined
@@ -51,11 +57,12 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   try {
-    // Fetch indicators and S/R in parallel
     const [indicatorsRes, srRes] = await Promise.all([
       computeIndicatorsForSymbol(symbol),
       computeSRForSymbol(symbol),
     ])
+
+    const wasRateLimited = indicatorsRes.rateLimited || srRes.rateLimited
 
     const signal = generateSignal({
       indicators: indicatorsRes.indicators,
@@ -72,12 +79,22 @@ export async function GET(request: Request): Promise<Response> {
       risk,
       signal,
       timestamp: now,
+      ...(wasRateLimited ? { rateLimited: true, staleSince: indicatorsRes.staleSince ?? srRes.staleSince ?? now } : {}),
     }
 
-    signalCache.set(cacheKey, { data, expiresAt: now + CACHE_TTL })
+    signalCache.set(cacheKey, { data, expiresAt: now + CACHE_TTL, fetchedAt: now })
     return NextResponse.json(data)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    const isRateLimited = message.includes('429') || message.includes('rate_limited')
+    const cachedEntry = signalCache.get(cacheKey)
+    if (cachedEntry) {
+      return NextResponse.json({
+        ...cachedEntry.data,
+        rateLimited: isRateLimited,
+        staleSince: cachedEntry.fetchedAt,
+      })
+    }
+    return NextResponse.json({ error: message }, { status: isRateLimited ? 429 : 500 })
   }
 }

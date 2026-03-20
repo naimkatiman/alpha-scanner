@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { Candle } from '@/app/lib/supportResistance'
 import { getAllSymbols, getSymbolConfig } from '@/app/lib/symbols'
+import { checkRateLimit } from '@/app/lib/apiGuard'
 
 export interface HistoryResponse {
   symbol: string
@@ -191,6 +192,9 @@ export async function fetchHistory(symbol: string): Promise<HistoryResponse> {
 /* ── Route handler ────────────────────────────────────────────────────────── */
 
 export async function GET(request: Request): Promise<Response> {
+  const rateLimitResponse = checkRateLimit(request)
+  if (rateLimitResponse) return rateLimitResponse
+
   const { searchParams } = new URL(request.url)
   const symbol = searchParams.get('symbol')?.toUpperCase()
 

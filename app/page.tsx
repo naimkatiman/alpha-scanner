@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, lazy, Suspense, memo } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import SymbolSelector from './components/SymbolSelector'
@@ -9,17 +9,28 @@ import RiskSelector, { type RiskProfile } from './components/RiskSelector'
 import SignalPanel from './components/SignalPanel'
 import TpSlDisplay from './components/TpSlDisplay'
 import SettingsPanel, { DEFAULT_SETTINGS, type ScannerSettings } from './components/SettingsPanel'
-import SRLevels from './components/SRLevels'
-import IndicatorsPanel from './components/IndicatorsPanel'
 import BrokerConnect from './components/BrokerConnect'
 import PositionsPanel from './components/PositionsPanel'
-import AlertsPanel, { AlertToast } from './components/AlertsPanel'
-import PaperTrading from './components/PaperTrading'
+import { AlertToast } from './components/AlertsPanel'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { PanelSkeleton } from './components/LoadingSkeleton'
+import StaleIndicator from './components/StaleIndicator'
 import { usePrices } from './hooks/usePrices'
 import { useSignals } from './hooks/useSignals'
 import { useBroker } from './hooks/useBroker'
 import { useAlerts } from './hooks/useAlerts'
 import { usePaperTrading } from './hooks/usePaperTrading'
+
+// Lazy-loaded heavy panels
+const SRLevels = lazy(() => import('./components/SRLevels'))
+const IndicatorsPanel = lazy(() => import('./components/IndicatorsPanel'))
+const AlertsPanel = lazy(() => import('./components/AlertsPanel').then(m => ({ default: m.default })))
+const PaperTrading = lazy(() => import('./components/PaperTrading'))
+
+// Memoized pure display components
+const MemoSignalPanel = memo(SignalPanel)
+const MemoTpSlDisplay = memo(TpSlDisplay)
+const MemoPositionsPanel = memo(PositionsPanel)
 
 type ConnectionStatus = 'loading' | 'live' | 'stale' | 'error'
 
@@ -56,7 +67,7 @@ export default function Home() {
   const [selectedRisk, setSelectedRisk] = useState<RiskProfile>('balanced')
   const [settings, setSettings] = useState<ScannerSettings>(DEFAULT_SETTINGS)
 
-  const { prices, loading: pricesLoading, error: pricesError, lastUpdated } = usePrices()
+  const { prices, loading: pricesLoading, error: pricesError, lastUpdated, rateLimited } = usePrices()
   const { signal } = useSignals(selectedSymbol, selectedMode, selectedRisk)
   const connectionStatus = getConnectionStatus(pricesLoading, pricesError, lastUpdated)
 
@@ -155,6 +166,7 @@ export default function Home() {
 
         {/* Main content */}
         <main className="flex-1 min-w-0 overflow-y-auto">
+          <ErrorBoundary>
           {/* Subtle grid background */}
           <div
             className="pointer-events-none fixed inset-0 opacity-[0.025]"
@@ -166,9 +178,9 @@ export default function Home() {
             }}
           />
 
-          <div className="relative z-10 flex flex-col gap-4 p-4 sm:p-5">
+          <div className="relative z-10 flex flex-col gap-4 p-3 sm:p-4 md:p-5">
             {/* Connection status indicator */}
-            <div className="flex justify-end items-center gap-1.5">
+            <div className="flex flex-wrap justify-end items-center gap-1.5">
               <span
                 className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${STATUS_DOT[connectionStatus]}`}
                 aria-hidden="true"
@@ -190,69 +202,95 @@ export default function Home() {
                   </span>
                 </>
               )}
+              <StaleIndicator rateLimited={rateLimited} />
             </div>
 
             {/* Signal Panel — full width */}
-            <SignalPanel symbol={selectedSymbol} mode={selectedMode} risk={selectedRisk} />
+            <ErrorBoundary fallbackTitle="Signal panel error">
+              <MemoSignalPanel symbol={selectedSymbol} mode={selectedMode} risk={selectedRisk} />
+            </ErrorBoundary>
 
             {/* Second row: TP/SL + Settings — stack on mobile */}
             <div className="grid gap-4 lg:grid-cols-2">
-              <TpSlDisplay
-                symbol={selectedSymbol}
-                mode={selectedMode}
-                risk={selectedRisk}
-                leverage={settings.leverage}
-                capital={settings.capital}
-                direction={direction}
-                currentPrice={currentPrice}
-              />
-              <SettingsPanel settings={settings} onSettingsChange={setSettings} />
+              <ErrorBoundary fallbackTitle="TP/SL error">
+                <MemoTpSlDisplay
+                  symbol={selectedSymbol}
+                  mode={selectedMode}
+                  risk={selectedRisk}
+                  leverage={settings.leverage}
+                  capital={settings.capital}
+                  direction={direction}
+                  currentPrice={currentPrice}
+                />
+              </ErrorBoundary>
+              <ErrorBoundary fallbackTitle="Settings error">
+                <SettingsPanel settings={settings} onSettingsChange={setSettings} />
+              </ErrorBoundary>
             </div>
 
             {/* Broker positions (only when connected) */}
-            <PositionsPanel
-              state={broker.state}
-              positions={broker.positions}
-              totalProfit={broker.totalProfit}
-            />
+            <ErrorBoundary fallbackTitle="Positions error">
+              <MemoPositionsPanel
+                state={broker.state}
+                positions={broker.positions}
+                totalProfit={broker.totalProfit}
+              />
+            </ErrorBoundary>
 
             {/* Paper trading */}
-            <PaperTrading
-              enabled={paper.enabled}
-              autoTrade={paper.autoTrade}
-              account={paper.account}
-              equity={paper.equity}
-              unrealizedPL={paper.unrealizedPL}
-              stats={paper.stats}
-              lotSize={paper.lotSize}
-              selectedSymbol={selectedSymbol}
-              currentPrice={currentPrice}
-              onSetLotSize={paper.setLotSize}
-              onToggleEnabled={paper.toggleEnabled}
-              onToggleAutoTrade={paper.toggleAutoTrade}
-              onOpenTrade={paper.openTrade}
-              onCloseTrade={paper.closeTrade}
-              onCloseAll={paper.closeAllTrades}
-              onReset={paper.resetAccount}
-              prices={prices}
-            />
+            <ErrorBoundary fallbackTitle="Paper trading error">
+              <Suspense fallback={<PanelSkeleton />}>
+                <PaperTrading
+                  enabled={paper.enabled}
+                  autoTrade={paper.autoTrade}
+                  account={paper.account}
+                  equity={paper.equity}
+                  unrealizedPL={paper.unrealizedPL}
+                  stats={paper.stats}
+                  lotSize={paper.lotSize}
+                  selectedSymbol={selectedSymbol}
+                  currentPrice={currentPrice}
+                  onSetLotSize={paper.setLotSize}
+                  onToggleEnabled={paper.toggleEnabled}
+                  onToggleAutoTrade={paper.toggleAutoTrade}
+                  onOpenTrade={paper.openTrade}
+                  onCloseTrade={paper.closeTrade}
+                  onCloseAll={paper.closeAllTrades}
+                  onReset={paper.resetAccount}
+                  prices={prices}
+                />
+              </Suspense>
+            </ErrorBoundary>
 
             {/* Signal alerts */}
-            <AlertsPanel
-              watchlist={alerts.watchlist}
-              alerts={alerts.alerts}
-              notificationsEnabled={alerts.notificationsEnabled}
-              onToggleWatch={alerts.toggleWatchlist}
-              onClearAlerts={alerts.clearAlerts}
-              onEnableNotifications={alerts.enableNotifications}
-            />
+            <ErrorBoundary fallbackTitle="Alerts error">
+              <Suspense fallback={<PanelSkeleton />}>
+                <AlertsPanel
+                  watchlist={alerts.watchlist}
+                  alerts={alerts.alerts}
+                  notificationsEnabled={alerts.notificationsEnabled}
+                  onToggleWatch={alerts.toggleWatchlist}
+                  onClearAlerts={alerts.clearAlerts}
+                  onEnableNotifications={alerts.enableNotifications}
+                />
+              </Suspense>
+            </ErrorBoundary>
 
             {/* Support & Resistance */}
-            <SRLevels symbol={selectedSymbol} />
+            <ErrorBoundary fallbackTitle="S/R levels error">
+              <Suspense fallback={<PanelSkeleton />}>
+                <SRLevels symbol={selectedSymbol} />
+              </Suspense>
+            </ErrorBoundary>
 
             {/* Technical Indicators */}
-            <IndicatorsPanel symbol={selectedSymbol} />
+            <ErrorBoundary fallbackTitle="Indicators error">
+              <Suspense fallback={<PanelSkeleton />}>
+                <IndicatorsPanel symbol={selectedSymbol} />
+              </Suspense>
+            </ErrorBoundary>
           </div>
+          </ErrorBoundary>
         </main>
       </div>
 

@@ -1,7 +1,7 @@
 project: alpha-scanner
-updated: 2026-03-20T13:20:00+08:00
+updated: 2026-03-20T14:05:00+08:00
 repo: https://github.com/naimkatiman/alpha-scanner
-phase: 4 # 1=frontend UI✅, 2=scanner engine✅, 3=multi-asset expansion✅, 4=broker API
+phase: 5 # 1=frontend UI✅, 2=scanner engine✅, 3=multi-asset expansion✅, 4=broker API✅, 5=production hardening
 
 tasks:
   # Phase 1 — DONE
@@ -56,104 +56,115 @@ tasks:
   # Phase 3 — Multi-Asset Expansion — DONE
   - id: TASK-016
     status: done
-    owner: coding-agent
     output: "SymbolConfig type + SYMBOL_REGISTRY with 12 symbols (2 metals, 6 crypto, 4 forex)."
   - id: TASK-017
     status: done
-    owner: coding-agent
     output: "prices/route.ts: fetchForexPrices() via fawazahmed0 USD rates, expanded CoinGecko for SOL/DOGE/ADA. history/route.ts: registry-driven lookups."
   - id: TASK-018
     status: done
-    owner: coding-agent
     output: "All 5 API routes now use getAllSymbols() for VALID_SYMBOLS. tpslEngine.ts imports from symbols.ts."
   - id: TASK-019
     status: done
-    owner: coding-agent
     output: "Registry-driven SymbolSelector with 3 independently collapsible categories."
   - id: TASK-020
     status: done
-    owner: coding-agent
     output: "Clean TypeScript build. Commit 8339100: 'feat: Phase 3 - Multi-asset expansion'. Pushed to GitHub."
 
-  # Phase 4 — Broker API Integration — IN PROGRESS
+  # Phase 4 — Broker API Integration — DONE
   - id: TASK-021
-    status: in-progress
-    owner: coding-agent
-    notes: >
-      MetaApi SDK + broker connection library.
-      Install metaapi.cloud-sdk. Create app/lib/brokerApi.ts with MetaApi wrapper.
-      Types for account info (balance, equity, margin, free margin), positions, connection state.
-      In-memory session store (token + accountId per session) for serverless API routes.
-    output: null
+    status: done
+    owner: pm-agent
+    notes: "MetaApi SDK + broker connection library"
+    output: "metaapi.cloud-sdk installed. app/lib/brokerApi.ts with MetaApiWrapper, in-memory session store, connect/disconnect/getAccountInfo/getPositions. BrokerAccount/BrokerPosition types. serverExternalPackages configured in next.config.mjs."
 
   - id: TASK-022
-    status: pending
-    owner: coding-agent
-    notes: >
-      Broker API routes:
-      POST /api/broker/connect — accept MetaApi token + MT4/MT5 account ID, deploy & connect
-      GET /api/broker/account — fetch account info (balance, equity, margin level, free margin)
-      GET /api/broker/positions — fetch open positions with live P&L
-      POST /api/broker/disconnect — clean up connection
-      All routes use in-memory session store, return proper error codes.
-    output: null
+    status: done
+    owner: pm-agent
+    notes: "Broker API routes"
+    output: "4 API routes: POST /api/broker/connect (deploy+connect MT4/MT5), GET /api/broker/account (balance/equity/margin), GET /api/broker/positions (open positions+P&L), POST /api/broker/disconnect (cleanup)."
 
   - id: TASK-023
-    status: pending
-    owner: coding-agent
-    notes: >
-      Broker connection UI:
-      BrokerConnect component — slide-out panel or modal to enter MetaApi token + account ID.
-      AccountInfo component — show balance, equity, margin level, free margin, leverage.
-      Connection status indicator in navbar or sidebar.
-      useBroker hook to manage connection state (localStorage persistence for reconnect).
-    output: null
+    status: done
+    owner: pm-agent
+    notes: "Broker connection UI"
+    output: "BrokerConnect component in sidebar (collapsible, token+accountID form, connection status). AccountInfoCompact embedded (balance/equity/margin level/leverage). useBroker hook with localStorage session persistence, auto-reconnect on reload, 5s refresh."
 
   - id: TASK-024
-    status: pending
-    owner: coding-agent
-    notes: >
-      Live positions panel:
-      PositionsPanel component — table of open trades (symbol, type, volume, open price, current price, P&L, swap).
-      Highlight active symbols in SymbolSelector when user has open trades on them.
-      Auto-refresh positions every 5s when connected.
-      usePositions hook.
-    output: null
+    status: done
+    owner: pm-agent
+    notes: "Live positions panel"
+    output: "PositionsPanel component (desktop table + mobile cards, total P&L summary). Purple dot indicator in SymbolSelector for symbols with open positions. Auto-refresh via useBroker (5s). Broker status indicator in header bar."
 
   - id: TASK-025
-    status: pending
-    owner: coding-agent
-    notes: >
-      Signal alerts system:
-      Watchlist management — add/remove symbols to watch.
-      Signal change detection — track previous signal state, detect BUY/SELL transitions.
-      Browser Notification API for desktop alerts (with permission request).
-      In-app alert toast/banner when new signal fires.
-      AlertsPanel component showing alert history.
-      useAlerts hook with localStorage persistence.
-    output: null
+    status: done
+    owner: pm-agent
+    notes: "Signal alerts system"
+    output: "alertEngine.ts (direction change detection, browser Notification API, watchlist/alerts localStorage). AlertsPanel component (watchlist tab with symbol toggles + history tab with alert rows). useAlerts hook (30s poll for watched symbols). AlertToast component (slide-in-right animation, 5s auto-dismiss). Desktop notification support with permission request."
 
   - id: TASK-026
-    status: pending
-    owner: coding-agent
-    notes: >
-      Paper trading mode:
-      PaperTrading component — virtual balance ($10,000 default), open/close simulated positions.
-      Auto-entry mode — automatically open paper trades when scanner signals fire.
-      Position tracking with live P&L using scanner prices.
-      Trade history with win/loss stats.
-      usePaperTrading hook with localStorage persistence.
-      Toggle between Live Broker and Paper Trading modes.
-    output: null
+    status: done
+    owner: pm-agent
+    notes: "Paper trading mode"
+    output: "PaperTrading component ($10k virtual balance, quick BUY/SELL buttons, lot size presets, auto-trade toggle, open positions with live P&L, trade history with win rate/stats, reset account). usePaperTrading hook (localStorage persistence, auto-trade on signal changes, P&L calculation). Toggle switch to enable/disable."
 
   - id: TASK-027
+    status: done
+    owner: pm-agent
+    notes: "Build verification + git commit"
+    output: "Clean TypeScript build (0 errors). Commit a90225f: 'feat: Phase 4 - Broker API integration (MetaApi, live positions, signal alerts, paper trading)'. Pushed to GitHub. 20 files changed, 5048 insertions(+), 67 deletions(-)."
+
+  # Phase 5 — Production Hardening + Mobile Polish
+  - id: TASK-028
+    status: in-progress
+    owner: coding-agent
+    notes: "Error handling — ErrorBoundary component, loading skeletons for all panels, retry logic with exponential backoff in all hooks"
+    output: null
+
+  - id: TASK-029
     status: pending
     owner: coding-agent
-    notes: "Build verification (next build), git add + commit + push."
+    notes: "Rate limit handling — detect 429/rate limits from CoinGecko/fawazahmed0, serve cached data with stale indicator, backoff timer"
+    output: null
+
+  - id: TASK-030
+    status: pending
+    owner: coding-agent
+    notes: "Mobile polish — audit all panels for responsive/touch-friendly on small screens (<640px). Fix overflow, touch targets, card layouts"
+    output: null
+
+  - id: TASK-031
+    status: pending
+    owner: coding-agent
+    notes: "Performance — React.lazy + Suspense for heavy panels (IndicatorsPanel, PaperTrading, AlertsPanel), debounce rapid updates, React.memo where needed"
+    output: null
+
+  - id: TASK-032
+    status: pending
+    owner: coding-agent
+    notes: "PWA support — manifest.json, service worker, icons, install prompt, offline fallback page"
+    output: null
+
+  - id: TASK-033
+    status: pending
+    owner: coding-agent
+    notes: "SEO + metadata — og:title, og:description, og:image placeholder, favicon, per-route page titles, robots.txt, sitemap"
+    output: null
+
+  - id: TASK-034
+    status: pending
+    owner: coding-agent
+    notes: "Security — sanitize all user inputs (broker form, settings), rate limit API routes (in-memory token bucket), CSP headers in next.config"
+    output: null
+
+  - id: TASK-035
+    status: pending
+    owner: coding-agent
+    notes: "Build verification + git commit for Phase 5"
     output: null
 
 next_actions:
-  - "TASK-021 in progress — coding agent implementing MetaApi SDK integration"
+  - "Phase 5 IN PROGRESS — executing TASK-028 through TASK-035"
+  - "Coding agent spawned for implementation"
 
 approval_pending: false
 pending_commit_summary: null

@@ -3,12 +3,13 @@ import { fetchHistory } from '@/app/api/history/route'
 import { computeSRForSymbol } from '@/app/api/sr/route'
 import { computeTpSl } from '@/app/lib/tpslEngine'
 import { calculateATR } from '@/app/lib/technicalAnalysis'
+import { checkRateLimit } from '@/app/lib/apiGuard'
 import type { TradingMode, RiskProfile } from '@/app/data/mockSignals'
 import type { TpSlResult } from '@/app/lib/tpslEngine'
 
 /* ── In-memory cache — 30s TTL per symbol+mode+risk+direction combo ─────── */
 
-const tpslCache = new Map<string, { data: TpSlResult; expiresAt: number }>()
+const tpslCache = new Map<string, { data: TpSlResult; expiresAt: number; fetchedAt: number }>()
 const CACHE_TTL = 30_000
 
 import { getAllSymbols } from '@/app/lib/symbols'
@@ -18,6 +19,9 @@ const VALID_RISKS: RiskProfile[] = ['conservative', 'balanced', 'high-risk']
 const VALID_DIRECTIONS = ['BUY', 'SELL', 'NEUTRAL'] as const
 
 export async function GET(request: Request): Promise<Response> {
+  const rateLimitResponse = checkRateLimit(request)
+  if (rateLimitResponse) return rateLimitResponse
+
   const { searchParams } = new URL(request.url)
 
   const symbol = searchParams.get('symbol')?.toUpperCase() ?? ''
@@ -67,10 +71,27 @@ export async function GET(request: Request): Promise<Response> {
       atr,
     })
 
-    tpslCache.set(cacheKey, { data: tpsl, expiresAt: now + CACHE_TTL })
-    return NextResponse.json({ tpsl, timestamp: now, cached: false })
+    tpslCache.set(cacheKey, { data: tpsl, expiresAt: now + CACHE_TTL, fetchedAt: now })
+    const rateLimited = srData.rateLimited
+    return NextResponse.json({
+      tpsl,
+      timestamp: now,
+      cached: false,
+      ...(rateLimited ? { rateLimited: true, staleSince: srData.staleSince ?? now } : {}),
+    })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    const isRateLimited = message.includes('429') || message.includes('rate_limited')
+    const cachedEntry = tpslCache.get(cacheKey)
+    if (cachedEntry) {
+      return NextResponse.json({
+        tpsl: cachedEntry.data,
+        timestamp: now,
+        cached: true,
+        rateLimited: isRateLimited,
+        staleSince: cachedEntry.fetchedAt,
+      })
+    }
+    return NextResponse.json({ error: message }, { status: isRateLimited ? 429 : 500 })
   }
 }

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPositions, hasSession } from '@/app/lib/brokerApi'
+import { checkRateLimit } from '@/app/lib/apiGuard'
 
 export async function GET(request: NextRequest) {
+  const rateLimitResponse = checkRateLimit(request)
+  if (rateLimitResponse) return rateLimitResponse
+
   const sessionId = request.nextUrl.searchParams.get('sessionId')
 
   if (!sessionId) {

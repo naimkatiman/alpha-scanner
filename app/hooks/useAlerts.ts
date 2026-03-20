@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { fetchWithRetry } from '@/app/lib/fetchWithRetry'
 import type { AlertConfig } from '../lib/alertEngine'
 import type { SignalDirection } from '../lib/signalEngine'
 import {
@@ -18,6 +19,7 @@ export interface UseAlertsReturn {
   alerts: AlertConfig[]
   toastAlert: AlertConfig | null
   notificationsEnabled: boolean
+  retryCount: number
   addToWatchlist: (symbol: string) => void
   removeFromWatchlist: (symbol: string) => void
   toggleWatchlist: (symbol: string) => void
@@ -31,8 +33,10 @@ export function useAlerts(currentMode: string): UseAlertsReturn {
   const [alerts, setAlerts] = useState<AlertConfig[]>([])
   const [toastAlert, setToastAlert] = useState<AlertConfig | null>(null)
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+  const [retryCount] = useState(0)
   const prevSignals = useRef<Map<string, SignalDirection>>(new Map())
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isPollingRef = useRef(false)
 
   // Load from localStorage
   useEffect(() => {
@@ -43,47 +47,51 @@ export function useAlerts(currentMode: string): UseAlertsReturn {
     }
   }, [])
 
-  // Poll watched symbols for signal changes
+  // Poll watched symbols for signal changes — debounced (skip if already polling)
   useEffect(() => {
     if (watchlist.length === 0) return
 
     const pollSignals = async () => {
-      for (const symbol of watchlist) {
-        try {
-          const params = new URLSearchParams({ symbol, mode: currentMode, risk: 'balanced' })
-          const res = await fetch(`/api/signals?${params.toString()}`)
-          if (!res.ok) continue
-          const data = await res.json() as { signal: { direction: SignalDirection } }
-          const dir = data.signal.direction
+      if (isPollingRef.current) return
+      isPollingRef.current = true
+      try {
+        for (const symbol of watchlist) {
+          try {
+            const params = new URLSearchParams({ symbol, mode: currentMode, risk: 'balanced' })
+            const res = await fetchWithRetry(`/api/signals?${params.toString()}`)
+            if (!res.ok) continue
+            const data = await res.json() as { signal: { direction: SignalDirection } }
+            const dir = data.signal.direction
 
-          const alert = detectDirectionChange(symbol, currentMode, dir)
-          if (alert) {
-            setAlerts((prev) => {
-              const updated = [alert, ...prev].slice(0, 50)
-              saveAlertHistory(updated)
-              return updated
-            })
+            const alert = detectDirectionChange(symbol, currentMode, dir)
+            if (alert) {
+              setAlerts((prev) => {
+                const updated = [alert, ...prev].slice(0, 50)
+                saveAlertHistory(updated)
+                return updated
+              })
 
-            // Toast
-            setToastAlert(alert)
-            if (toastTimer.current) clearTimeout(toastTimer.current)
-            toastTimer.current = setTimeout(() => setToastAlert(null), 5000)
+              setToastAlert(alert)
+              if (toastTimer.current) clearTimeout(toastTimer.current)
+              toastTimer.current = setTimeout(() => setToastAlert(null), 5000)
 
-            // Desktop notification
-            if (notificationsEnabled) {
-              sendDesktopNotification(alert)
+              if (notificationsEnabled) {
+                sendDesktopNotification(alert)
+              }
             }
-          }
 
-          prevSignals.current.set(`${symbol}:${currentMode}`, dir)
-        } catch {
-          // Skip failed fetches
+            prevSignals.current.set(`${symbol}:${currentMode}`, dir)
+          } catch {
+            // Skip failed fetches
+          }
         }
+      } finally {
+        isPollingRef.current = false
       }
     }
 
     void pollSignals()
-    const interval = setInterval(pollSignals, 30_000)
+    const interval = setInterval(() => void pollSignals(), 30_000)
     return () => clearInterval(interval)
   }, [watchlist, currentMode, notificationsEnabled])
 
@@ -134,6 +142,7 @@ export function useAlerts(currentMode: string): UseAlertsReturn {
     alerts,
     toastAlert,
     notificationsEnabled,
+    retryCount,
     addToWatchlist,
     removeFromWatchlist,
     toggleWatchlist,

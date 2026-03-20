@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { fetchHistory } from '@/app/api/history/route'
 import { computeSR } from '@/app/lib/supportResistance'
+import { checkRateLimit } from '@/app/lib/apiGuard'
 import type { SRLevel } from '@/app/lib/supportResistance'
 
 export interface SRResponse {
@@ -9,11 +10,13 @@ export interface SRResponse {
   resistance: SRLevel[]
   currentPrice: number
   timestamp: number
+  rateLimited?: boolean
+  staleSince?: number
 }
 
 /* ── In-memory cache ──────────────────────────────────────────────────────── */
 
-const srCache = new Map<string, { data: SRResponse; expiresAt: number }>()
+const srCache = new Map<string, { data: SRResponse; expiresAt: number; fetchedAt: number }>()
 const CACHE_TTL = 2 * 60_000
 
 import { getAllSymbols } from '@/app/lib/symbols'
@@ -36,7 +39,7 @@ export async function computeSRForSymbol(symbol: string): Promise<SRResponse> {
       currentPrice: 0,
       timestamp: now,
     }
-    srCache.set(symbol, { data, expiresAt: now + CACHE_TTL })
+    srCache.set(symbol, { data, expiresAt: now + CACHE_TTL, fetchedAt: now })
     return data
   }
 
@@ -44,13 +47,16 @@ export async function computeSRForSymbol(symbol: string): Promise<SRResponse> {
   const { support, resistance } = computeSR(candles, currentPrice)
 
   const data: SRResponse = { symbol, support, resistance, currentPrice, timestamp: now }
-  srCache.set(symbol, { data, expiresAt: now + CACHE_TTL })
+  srCache.set(symbol, { data, expiresAt: now + CACHE_TTL, fetchedAt: now })
   return data
 }
 
 /* ── Route handler ────────────────────────────────────────────────────────── */
 
 export async function GET(request: Request): Promise<Response> {
+  const rateLimitResponse = checkRateLimit(request)
+  if (rateLimitResponse) return rateLimitResponse
+
   const { searchParams } = new URL(request.url)
   const symbol = searchParams.get('symbol')?.toUpperCase()
 
@@ -63,6 +69,15 @@ export async function GET(request: Request): Promise<Response> {
     return NextResponse.json(data)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    const isRateLimited = message.includes('429') || message.includes('rate_limited')
+    const cached = srCache.get(symbol)
+    if (cached) {
+      return NextResponse.json({
+        ...cached.data,
+        rateLimited: isRateLimited,
+        staleSince: cached.fetchedAt,
+      })
+    }
+    return NextResponse.json({ error: message }, { status: isRateLimited ? 429 : 500 })
   }
 }

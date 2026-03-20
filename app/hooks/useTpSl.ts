@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { fetchWithRetry } from '@/app/lib/fetchWithRetry'
 import type { TradingMode, RiskProfile } from '@/app/data/mockSignals'
 import type { TpSlResult } from '@/app/lib/tpslEngine'
 
@@ -18,6 +19,7 @@ export interface UseTpSlReturn {
   data: TpSlResult | null
   loading: boolean
   error: string | null
+  retryCount: number
 }
 
 export function useTpSl({
@@ -45,7 +47,7 @@ export function useTpSl({
         direction,
         currentPrice: String(currentPrice),
       })
-      const res = await fetch(`/api/tpsl?${params.toString()}`)
+      const res = await fetchWithRetry(`/api/tpsl?${params.toString()}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json = (await res.json()) as { tpsl: TpSlResult }
       setData(json.tpsl)
@@ -64,5 +66,5 @@ export function useTpSl({
     return () => clearInterval(interval)
   }, [fetchTpSl])
 
-  return { data, loading, error }
+  return { data, loading, error, retryCount: 0 }
 }

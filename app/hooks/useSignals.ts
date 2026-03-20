@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { fetchWithRetry } from '@/app/lib/fetchWithRetry'
 import type { TradingMode, RiskProfile } from '@/app/data/mockSignals'
 import type { GeneratedSignal } from '@/app/lib/signalEngine'
 
@@ -8,6 +9,7 @@ export interface UseSignalsReturn {
   signal: GeneratedSignal | null
   loading: boolean
   error: string | null
+  retryCount: number
 }
 
 export function useSignals(symbol: string, mode: TradingMode, risk: RiskProfile): UseSignalsReturn {
@@ -18,7 +20,7 @@ export function useSignals(symbol: string, mode: TradingMode, risk: RiskProfile)
   const fetchSignal = useCallback(async () => {
     try {
       const params = new URLSearchParams({ symbol, mode, risk })
-      const res = await fetch(`/api/signals?${params.toString()}`)
+      const res = await fetchWithRetry(`/api/signals?${params.toString()}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json = (await res.json()) as { signal: GeneratedSignal }
       setSignal(json.signal)
@@ -33,11 +35,9 @@ export function useSignals(symbol: string, mode: TradingMode, risk: RiskProfile)
   useEffect(() => {
     setLoading(true)
     void fetchSignal()
-    const interval = setInterval(() => {
-      void fetchSignal()
-    }, 30_000)
+    const interval = setInterval(() => void fetchSignal(), 30_000)
     return () => clearInterval(interval)
   }, [fetchSignal])
 
-  return { signal, loading, error }
+  return { signal, loading, error, retryCount: 0 }
 }
