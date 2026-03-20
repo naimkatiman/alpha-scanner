@@ -2,6 +2,7 @@
 
 import { buildSignal, fmt, fmtPips } from '../data/mockSignals'
 import type { TradingMode, RiskProfile } from '../data/mockSignals'
+import { useSignals } from '../hooks/useSignals'
 
 interface SignalPanelProps {
   symbol: string
@@ -126,23 +127,53 @@ function EmptyState() {
   )
 }
 
+/* ── Direction color helper ──────────────────────────────────────────────── */
+function getDirectionColor(direction: 'BUY' | 'SELL' | 'NEUTRAL'): string {
+  if (direction === 'BUY') return '#3b82f6'
+  if (direction === 'SELL') return '#ef4444'
+  return '#f59e0b' // NEUTRAL = amber
+}
+
+function getGlowClass(direction: 'BUY' | 'SELL' | 'NEUTRAL'): string {
+  if (direction === 'BUY') return 'glow-buy'
+  if (direction === 'SELL') return 'glow-sell'
+  return '' // no glow for neutral
+}
+
 /* ── Main component ───────────────────────────────────────────────────────── */
 export default function SignalPanel({ symbol, mode, risk, loading = false }: SignalPanelProps) {
-  if (loading) return <SignalPanelSkeleton />
+  // Fetch real signal from the engine
+  const { signal: liveSignal, loading: signalLoading } = useSignals(symbol, mode, risk)
+
+  if (loading || signalLoading) return <SignalPanelSkeleton />
   if (!symbol) return (
     <div className="rounded-lg border border-[#222] bg-[#111] p-4 sm:p-5">
       <EmptyState />
     </div>
   )
 
-  const sig = buildSignal(symbol, mode, risk)
-  const isBuy = sig.direction === 'BUY'
-  const dirColor = isBuy ? '#3b82f6' : '#ef4444'
-  const slDistance = Math.abs(sig.entryPrice - sig.stopLoss)
-  const rrRatio = (Math.abs(sig.tp1 - sig.entryPrice) / slDistance).toFixed(2)
-  const agreingCount = Object.values(sig.technicals).filter(Boolean).length
+  // Use real signal for direction/confidence/technicals/reason
+  // Fall back to mock if signal hasn't loaded yet
+  const mockSig = buildSignal(symbol, mode, risk)
 
-  const glowClass = isBuy ? 'glow-buy' : 'glow-sell'
+  const direction = liveSignal?.direction ?? mockSig.direction
+  const confidence = liveSignal?.confidence ?? mockSig.confidence
+  const technicals = liveSignal?.technicals ?? mockSig.technicals
+  const reason = liveSignal?.reason ?? mockSig.reason
+
+  // TP/SL still from mock (TASK-015 will replace)
+  const entryPrice = mockSig.entryPrice
+  const stopLoss = mockSig.stopLoss
+  const tp1 = mockSig.tp1
+  const tp2 = mockSig.tp2
+  const tp3 = mockSig.tp3
+
+  const dirColor = getDirectionColor(direction)
+  const slDistance = Math.abs(entryPrice - stopLoss)
+  const rrRatio = (Math.abs(tp1 - entryPrice) / slDistance).toFixed(2)
+  const agreingCount = Object.values(technicals).filter(Boolean).length
+
+  const glowClass = getGlowClass(direction)
 
   return (
     <div
@@ -164,11 +195,18 @@ export default function SignalPanel({ symbol, mode, risk, loading = false }: Sig
                 boxShadow: `0 0 8px ${dirColor}25`,
               }}
             >
-              {sig.direction}
+              {direction}
             </span>
+            {/* Live indicator */}
+            {liveSignal && (
+              <span className="flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+                <span className="text-[9px] text-gray-600 uppercase tracking-wider">LIVE</span>
+              </span>
+            )}
           </div>
           <p className="mt-0.5 text-xs text-gray-600 truncate">
-            {symbol} · {mode.charAt(0).toUpperCase() + mode.slice(1)} · {sig.timestamp}
+            {symbol} · {mode.charAt(0).toUpperCase() + mode.slice(1)} · now
           </p>
         </div>
         <div className="flex flex-col items-end gap-1 flex-shrink-0">
@@ -188,7 +226,13 @@ export default function SignalPanel({ symbol, mode, risk, loading = false }: Sig
         <div className="mb-2 flex items-center justify-between">
           <span className="text-[10px] uppercase tracking-widest text-gray-600">Confidence</span>
         </div>
-        <ConfidenceBar value={sig.confidence} />
+        <ConfidenceBar value={confidence} />
+      </div>
+
+      {/* Reason */}
+      <div className="mt-3 rounded border border-[#222] bg-[#1a1a1a] px-3 py-2">
+        <span className="text-[10px] uppercase tracking-widest text-gray-600">Analysis</span>
+        <p className="mt-1 text-xs text-gray-400 leading-relaxed">{reason}</p>
       </div>
 
       {/* Technical indicators */}
@@ -197,10 +241,10 @@ export default function SignalPanel({ symbol, mode, risk, loading = false }: Sig
           Signal Agreement
         </span>
         <div className="flex flex-wrap gap-2">
-          <TechBadge label="RSI" active={sig.technicals.rsi} />
-          <TechBadge label="MACD" active={sig.technicals.macd} />
-          <TechBadge label="EMA" active={sig.technicals.ema} />
-          <TechBadge label="S/R" active={sig.technicals.sr} />
+          <TechBadge label="RSI" active={technicals.rsi} />
+          <TechBadge label="MACD" active={technicals.macd} />
+          <TechBadge label="EMA" active={technicals.ema} />
+          <TechBadge label="S/R" active={technicals.sr} />
         </div>
       </div>
 
@@ -208,17 +252,17 @@ export default function SignalPanel({ symbol, mode, risk, loading = false }: Sig
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <span className="block text-[10px] uppercase tracking-widest text-gray-600">Entry &amp; Targets</span>
-          <PriceRow label="Entry" value={fmt(symbol, sig.entryPrice)} color="#e5e7eb" />
-          <PriceRow label="TP1" value={fmt(symbol, sig.tp1)} color="#14b8a6" tag="1.618" />
-          <PriceRow label="TP2" value={fmt(symbol, sig.tp2)} color="#3b82f6" tag="2.618" />
-          <PriceRow label="TP3" value={fmt(symbol, sig.tp3)} color="#818cf8" tag="4.236" />
+          <PriceRow label="Entry" value={fmt(symbol, entryPrice)} color="#e5e7eb" />
+          <PriceRow label="TP1" value={fmt(symbol, tp1)} color="#14b8a6" tag="1.618" />
+          <PriceRow label="TP2" value={fmt(symbol, tp2)} color="#3b82f6" tag="2.618" />
+          <PriceRow label="TP3" value={fmt(symbol, tp3)} color="#818cf8" tag="4.236" />
         </div>
 
         <div className="space-y-1.5">
           <span className="block text-[10px] uppercase tracking-widest text-gray-600">Risk Management</span>
           <PriceRow
             label="Stop Loss"
-            value={fmt(symbol, sig.stopLoss)}
+            value={fmt(symbol, stopLoss)}
             color="#ef4444"
             tag={fmtPips(symbol, slDistance)}
           />

@@ -56,7 +56,7 @@ tasks:
     output: "technicalAnalysis.ts (Wilder RSI, EMA, MACD), /api/indicators route (60s cache), useIndicators hook, IndicatorsPanel component (RSI gauge, MACD grid, EMA alignment). Integrated in page.tsx. Commit 74bb054."
 
   - id: TASK-014
-    status: pending
+    status: in_progress
     owner: pm-alpha-scanner
     notes: "Signal generation logic — use RSI/MACD/EMA/S&R to produce BUY/SELL/NEUTRAL per symbol+mode combination. Replace mock signals with computed ones."
     output: null

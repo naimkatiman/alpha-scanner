@@ -4,7 +4,7 @@ export type TradingMode = 'swing' | 'intraday' | 'scalper'
 export type RiskProfile = 'conservative' | 'balanced' | 'high-risk'
 
 export interface SignalData {
-  direction: 'BUY' | 'SELL'
+  direction: 'BUY' | 'SELL' | 'NEUTRAL' | 'NEUTRAL'
   confidence: number
   entryPrice: number
   stopLoss: number
@@ -84,7 +84,7 @@ export function pipValue(symbol: string, capital: number, leverage: number): str
 // baseConf: base confidence before risk profile adjustment.
 
 interface CombinationSeed {
-  direction: 'BUY' | 'SELL'
+  direction: 'BUY' | 'SELL' | 'NEUTRAL'
   slPct: number
   baseConf: number
   technicals: { rsi: boolean; macd: boolean; ema: boolean; sr: boolean }

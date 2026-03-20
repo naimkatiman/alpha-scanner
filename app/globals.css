@@ -62,6 +62,10 @@ body {
   box-shadow: 0 0 12px rgba(239, 68, 68, 0.4), 0 0 24px rgba(239, 68, 68, 0.15);
 }
 
+.glow-neutral {
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4), 0 0 24px rgba(245, 158, 11, 0.15);
+}
+
 .glow-teal {
   box-shadow: 0 0 8px rgba(20, 184, 166, 0.4);
 }

@@ -19,7 +19,7 @@ interface LevelData {
 }
 
 function buildLevels(symbol: string, mode: TradingMode): {
-  direction: 'BUY' | 'SELL'
+  direction: 'BUY' | 'SELL' | 'NEUTRAL'
   entry: number
   levels: LevelData[]
   rr1: string
@@ -89,7 +89,7 @@ function buildLevels(symbol: string, mode: TradingMode): {
 export default function TpSlDisplay({ symbol, mode, risk }: TpSlDisplayProps) {
   const data = buildLevels(symbol, mode)
   const isBuy = data.direction === 'BUY'
-  const dirColor = isBuy ? '#3b82f6' : '#ef4444'
+  const dirColor = data.direction === 'BUY' ? '#3b82f6' : data.direction === 'SELL' ? '#ef4444' : '#f59e0b'
 
   const riskPct = risk === 'conservative' ? 1 : risk === 'balanced' ? 2 : 5
 
