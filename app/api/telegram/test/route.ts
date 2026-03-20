@@ -29,7 +29,7 @@ export async function POST(request: Request): Promise<Response> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: chatId,
-        text: '✅ <b>Alpha Scanner Connected!</b>\n\nYou will receive signal alerts here.',
+        text: '<b>Alpha Scanner Connected!</b>\n\nYou will receive signal alerts here.',
         parse_mode: 'HTML',
       }),
       signal: AbortSignal.timeout(10_000),

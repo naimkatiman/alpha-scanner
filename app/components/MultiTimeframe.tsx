@@ -12,9 +12,9 @@ interface MultiTimeframeProps {
 /* ── Color helpers ────────────────────────────────────────────────────────── */
 
 function dirColor(dir: SignalDirection): string {
-  if (dir === 'BUY') return '#3b82f6'
-  if (dir === 'SELL') return '#ef4444'
-  return '#f59e0b'
+  if (dir === 'BUY') return '#10b981'
+  if (dir === 'SELL') return '#f43f5e'
+  return '#a1a1aa'
 }
 
 function dirBg(dir: SignalDirection): string {
@@ -25,7 +25,7 @@ function dirBg(dir: SignalDirection): string {
 
 function emaColor(alignment: 'bullish' | 'bearish' | 'neutral'): string {
   if (alignment === 'bullish') return '#14b8a6'
-  if (alignment === 'bearish') return '#ef4444'
+  if (alignment === 'bearish') return '#f43f5e'
   return '#6b7280'
 }
 
@@ -40,7 +40,7 @@ const TF_LABELS: Record<Timeframe, string> = {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-md border border-[#222] bg-[#1a1a1a] p-3 animate-pulse">
+    <div className="rounded-md border border-white/[0.06] bg-white/[0.03] p-3 animate-pulse">
       <div className="h-3 w-12 rounded bg-[#222] mb-3" />
       <div className="h-8 w-full rounded bg-[#222] mb-2" />
       <div className="h-2 w-16 rounded bg-[#222]" />
@@ -56,12 +56,12 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
 
   return (
     <div
-      className="rounded-lg border border-[#222] bg-[#111]"
+      className="rounded-xl border border-white/[0.06] bg-[#111]"
       style={{ borderTopColor: '#06b6d4', borderTopWidth: '2px' }}
     >
       {/* Header */}
       <button
-        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 sm:py-4 hover:bg-[#1a1a1a] transition-colors rounded-t-lg"
+        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 sm:py-4 hover:bg-white/[0.03] transition-colors rounded-t-lg"
         onClick={() => setCollapsed((c) => !c)}
         aria-expanded={!collapsed}
       >
@@ -72,7 +72,7 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
             aria-hidden="true"
           />
           <h3 className="text-sm font-semibold text-white">Multi-Timeframe</h3>
-          <span className="hidden sm:inline text-xs text-gray-600">
+          <span className="hidden sm:inline text-xs text-zinc-600">
             · {symbol} · M15 · H1 · H4 · D1
           </span>
           {data?.confluence && data.confluence.direction !== 'NEUTRAL' && (
@@ -95,7 +95,7 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
-          className={`text-gray-600 flex-shrink-0 transition-transform duration-200 ${collapsed ? '-rotate-90' : ''}`}
+          className={`text-zinc-600 flex-shrink-0 transition-transform duration-200 ${collapsed ? '-rotate-90' : ''}`}
           aria-hidden="true"
         >
           <polyline points="6 9 12 15 18 9" />
@@ -103,7 +103,7 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
       </button>
 
       {!collapsed && (
-        <div className="border-t border-[#222] px-4 pb-4 sm:px-5 sm:pb-5">
+        <div className="border-t border-white/[0.06] px-4 pb-4 sm:px-5 sm:pb-5">
           {/* Loading */}
           {loading && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4">
@@ -116,7 +116,7 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
 
           {/* Error */}
           {!loading && error && (
-            <div className="mt-4 rounded-md border border-[#333] bg-[#1a1a1a] px-3 py-3 text-xs text-gray-500">
+            <div className="mt-4 rounded-md border border-[#333] bg-white/[0.03] px-3 py-3 text-xs text-zinc-500">
               Unable to load multi-timeframe data · {error}
             </div>
           )}
@@ -132,9 +132,9 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
               </div>
 
               {/* Confluence meter */}
-              <div className="rounded-md border border-[#222] bg-[#0a0a0a] px-4 py-3">
+              <div className="rounded-md border border-white/[0.06] bg-[#0a0a0a] px-4 py-3">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] uppercase tracking-widest text-gray-600">
+                  <span className="text-[10px] uppercase tracking-widest text-zinc-600">
                     Confluence Score
                   </span>
                   <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
 
                 {/* Score bar */}
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 h-3 rounded-full bg-[#1a1a1a] overflow-hidden">
+                  <div className="flex-1 h-3 rounded-full bg-white/[0.03] overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-700"
                       style={{
@@ -170,16 +170,16 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
                   </span>
                 </div>
 
-                <div className="mt-2 flex justify-between text-[9px] text-gray-700">
+                <div className="mt-2 flex justify-between text-[9px] text-zinc-700">
                   <span>
                     {data.confluence.agreeing} of {data.confluence.total} timeframes agree
                   </span>
                   <span>
                     {data.confluence.score >= 75
-                      ? '✅ Strong confluence'
+                      ? 'Strong confluence'
                       : data.confluence.score >= 50
-                      ? '⚠️ Moderate confluence'
-                      : '❌ Weak confluence'}
+                      ? 'Moderate confluence'
+                      : 'Weak confluence'}
                   </span>
                 </div>
               </div>
@@ -195,16 +195,16 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
 
 function TimeframeCard({ signal }: { signal: TimeframeSignal }) {
   const color = dirColor(signal.direction)
-  const rsiColor = signal.rsi < 30 ? '#14b8a6' : signal.rsi > 70 ? '#ef4444' : '#6b7280'
+  const rsiColor = signal.rsi < 30 ? '#14b8a6' : signal.rsi > 70 ? '#f43f5e' : '#6b7280'
 
   return (
     <div
-      className="rounded-md border bg-[#1a1a1a] p-3 transition-all hover:bg-[#202020]"
+      className="rounded-md border bg-white/[0.03] p-3 transition-all hover:bg-white/[0.05]"
       style={{ borderColor: `${color}30` }}
     >
       {/* Timeframe label */}
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
           {TF_LABELS[signal.timeframe]}
         </span>
         <span
@@ -230,7 +230,7 @@ function TimeframeCard({ signal }: { signal: TimeframeSignal }) {
       {/* Confidence */}
       <div className="mb-2">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[8px] text-gray-600">Confidence</span>
+          <span className="text-[8px] text-zinc-600">Confidence</span>
           <span className="font-mono text-[10px] font-bold" style={{ color }}>
             {signal.confidence}%
           </span>
@@ -247,14 +247,14 @@ function TimeframeCard({ signal }: { signal: TimeframeSignal }) {
       <div className="space-y-1">
         {isFinite(signal.rsi) && (
           <div className="flex items-center justify-between">
-            <span className="text-[8px] text-gray-600">RSI</span>
+            <span className="text-[8px] text-zinc-600">RSI</span>
             <span className="font-mono text-[9px] font-bold" style={{ color: rsiColor }}>
               {signal.rsi.toFixed(0)}
             </span>
           </div>
         )}
         <div className="flex items-center justify-between">
-          <span className="text-[8px] text-gray-600">EMA</span>
+          <span className="text-[8px] text-zinc-600">EMA</span>
           <span
             className="text-[8px] font-semibold capitalize"
             style={{ color: emaColor(signal.emaAlignment) }}

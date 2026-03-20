@@ -28,7 +28,7 @@ const PROFILES: RiskInfo[] = [
     description: 'Moderate risk with structured position sizing',
     riskPct: '2%',
     maxDrawdown: '10%',
-    color: '#3b82f6',
+    color: '#10b981',
   },
   {
     id: 'high-risk',
@@ -36,7 +36,7 @@ const PROFILES: RiskInfo[] = [
     description: 'Aggressive entries, wider stops, max opportunity capture',
     riskPct: '5%',
     maxDrawdown: '25%',
-    color: '#ef4444',
+    color: '#f43f5e',
   },
 ]
 
@@ -51,7 +51,7 @@ export default function RiskSelector({ selected, onSelect }: Props) {
   const selectedProfile = PROFILES.find((p) => p.id === selected)
 
   return (
-    <div className="rounded-lg border border-[#222] bg-[#1a1a1a] overflow-hidden">
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] overflow-hidden">
       {/* Header toggle */}
       <button
         onClick={() => setExpanded((e) => !e)}
@@ -69,14 +69,14 @@ export default function RiskSelector({ selected, onSelect }: Props) {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-gray-500 flex-shrink-0"
+            className="text-zinc-500 flex-shrink-0"
             aria-hidden="true"
           >
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
           <div className="text-left">
             <p className="text-xs font-semibold text-white">Risk Profile</p>
-            <p className="text-[10px] text-gray-600">Exposure Level</p>
+            <p className="text-[10px] text-zinc-600">Exposure Level</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -99,7 +99,7 @@ export default function RiskSelector({ selected, onSelect }: Props) {
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
-            className={`text-gray-600 transition-transform duration-200 flex-shrink-0 ${expanded ? 'rotate-180' : ''}`}
+            className={`text-zinc-600 transition-transform duration-200 flex-shrink-0 ${expanded ? 'rotate-180' : ''}`}
             aria-hidden="true"
           >
             <polyline points="6 9 12 15 18 9" />
@@ -111,7 +111,7 @@ export default function RiskSelector({ selected, onSelect }: Props) {
       {expanded && (
         <div
           id="risk-selector-content"
-          className="border-t border-[#222] px-3 pb-3 pt-2"
+          className="border-t border-white/[0.06] px-3 pb-3 pt-2"
         >
           <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Risk profile">
             {PROFILES.map((profile) => {
@@ -126,7 +126,7 @@ export default function RiskSelector({ selected, onSelect }: Props) {
                     'group rounded-md border px-3 py-3 text-left transition-all duration-200 active:scale-[0.98]',
                     isActive
                       ? ''
-                      : 'border-[#222] bg-[#111] hover:border-[#333] hover:bg-[#1a1a1a]',
+                      : 'border-white/[0.06] bg-[#111] hover:border-[#333] hover:bg-white/[0.03]',
                   ].join(' ')}
                   style={
                     isActive
@@ -165,21 +165,21 @@ export default function RiskSelector({ selected, onSelect }: Props) {
                   </div>
 
                   {/* Description */}
-                  <p className="mt-1 text-[10px] leading-snug text-gray-600">
+                  <p className="mt-1 text-[10px] leading-snug text-zinc-600">
                     {profile.description}
                   </p>
 
                   {/* Stats row */}
                   <div className="mt-2 flex flex-wrap items-center gap-3">
                     <div className="flex items-center gap-1">
-                      <span className="text-[9px] text-gray-600">Risk/Trade:</span>
-                      <span className="font-mono text-[9px] font-semibold text-gray-400">
+                      <span className="text-[9px] text-zinc-600">Risk/Trade:</span>
+                      <span className="font-mono text-[9px] font-semibold text-zinc-400">
                         {profile.riskPct}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="text-[9px] text-gray-600">Max DD:</span>
-                      <span className="font-mono text-[9px] font-semibold text-gray-400">
+                      <span className="text-[9px] text-zinc-600">Max DD:</span>
+                      <span className="font-mono text-[9px] font-semibold text-zinc-400">
                         {profile.maxDrawdown}
                       </span>
                     </div>

@@ -24,6 +24,8 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^0.577.0",
     "metaapi.cloud-sdk": "^29.3.3",
     "next": "^16.2.0",
     "postcss": "^8.5.8",

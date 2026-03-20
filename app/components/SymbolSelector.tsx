@@ -3,6 +3,19 @@
 import { useState, useEffect, useRef } from 'react'
 import { fmt, getSymbolsByCategory, getAllSymbols } from '../lib/symbols'
 import type { SymbolPrice } from '../hooks/usePrices'
+import { Coins, Bitcoin, DollarSign, Globe, ChevronDown, CircleDot } from 'lucide-react'
+
+function SymbolIcon({ icon, className = '' }: { icon: string; className?: string }) {
+  const size = 14
+  switch (icon) {
+    case 'gold':
+    case 'silver':
+      return <Coins size={size} className={className} />
+    default:
+      if (icon.length <= 3) return <DollarSign size={size} className={className} />
+      return <CircleDot size={size} className={className} />
+  }
+}
 
 type Props = {
   selected: string
@@ -59,7 +72,7 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
   }
 
   return (
-    <div className="rounded-lg border border-[#222] bg-[#1a1a1a] overflow-hidden">
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] overflow-hidden">
       {/* Header toggle */}
       <button
         onClick={() => setExpanded((e) => !e)}
@@ -115,7 +128,7 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
       {expanded && (
         <div
           id="symbol-selector-content"
-          className="border-t border-[#222] px-3 pb-3 pt-2"
+          className="border-t border-white/[0.06] px-3 pb-3 pt-2"
         >
           {CATEGORIES.map((cat) => {
             const syms = getSymbolsByCategory(cat.key)
@@ -186,13 +199,13 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
                             'group flex items-center justify-between rounded-md border px-2.5 py-2.5 transition-all duration-150 active:scale-[0.98]',
                             isActive
                               ? 'border-[#3b82f6]/40 bg-[#3b82f6]/10'
-                              : 'border-[#222] bg-[#111] hover:border-[#333] hover:bg-[#1a1a1a]',
+                              : 'border-white/[0.06] bg-[#111] hover:border-[#333] hover:bg-white/[0.03]',
                             isFlashing ? 'ring-1 ring-[#22c55e]/40' : '',
                           ].join(' ')}
                           style={isActive ? { boxShadow: '0 0 10px rgba(59,130,246,0.12)' } : undefined}
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-sm flex-shrink-0" aria-hidden="true">{s.icon}</span>
+                            <SymbolIcon icon={s.icon} className="flex-shrink-0 text-zinc-500" />
                             <div className="text-left min-w-0">
                               <span
                                 className={[

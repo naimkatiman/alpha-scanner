@@ -14,22 +14,22 @@ export default function PositionsPanel({ state, positions, totalProfit }: Positi
 
   return (
     <div
-      className="rounded-lg border border-[#222] bg-[#111] overflow-hidden"
-      style={{ borderTopColor: '#8b5cf6', borderTopWidth: '2px' }}
+      className="rounded-xl border border-white/[0.06] bg-[#111] overflow-hidden"
+      style={{ borderTopColor: '#10b981', borderTopWidth: '2px' }}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 sm:px-5">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-white">Open Positions</h3>
-          <span className="rounded bg-[#1a1a1a] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gray-500">
+          <span className="rounded bg-white/[0.03] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
             {positions.length}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-gray-600">Total P&L</span>
+          <span className="text-[10px] text-zinc-600">Total P&L</span>
           <span
             className="font-mono text-xs font-bold"
-            style={{ color: totalProfit >= 0 ? '#22c55e' : '#ef4444' }}
+            style={{ color: totalProfit >= 0 ? '#10b981' : '#f43f5e' }}
           >
             {totalProfit >= 0 ? '+' : ''}${totalProfit.toFixed(2)}
           </span>
@@ -37,15 +37,15 @@ export default function PositionsPanel({ state, positions, totalProfit }: Positi
       </div>
 
       {positions.length === 0 ? (
-        <div className="border-t border-[#222] px-4 py-6 text-center">
-          <div className="mb-2 text-2xl opacity-30">📭</div>
-          <p className="text-xs text-gray-500">No open positions</p>
-          <p className="mt-0.5 text-[9px] text-gray-700">Your live trades will appear here</p>
+        <div className="border-t border-white/[0.06] px-4 py-6 text-center">
+          <div className="mb-2 opacity-30"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-zinc-600"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+          <p className="text-xs text-zinc-500">No open positions</p>
+          <p className="mt-0.5 text-[9px] text-zinc-700">Your live trades will appear here</p>
         </div>
       ) : (
-        <div className="border-t border-[#222]">
+        <div className="border-t border-white/[0.06]">
           {/* Desktop table header */}
-          <div className="hidden sm:grid grid-cols-7 gap-2 px-4 py-2 text-[9px] uppercase tracking-widest text-gray-600 border-b border-[#222] bg-[#0d0d0d]">
+          <div className="hidden sm:grid grid-cols-7 gap-2 px-4 py-2 text-[9px] uppercase tracking-widest text-zinc-600 border-b border-white/[0.06] bg-white/[0.02]">
             <span>Symbol</span>
             <span>Type</span>
             <span className="text-right">Volume</span>
@@ -67,13 +67,13 @@ export default function PositionsPanel({ state, positions, totalProfit }: Positi
 
 function PositionRow({ position }: { position: BrokerPosition }) {
   const isBuy = position.type === 'buy'
-  const typeColor = isBuy ? '#3b82f6' : '#ef4444'
-  const plColor = position.profit >= 0 ? '#22c55e' : '#ef4444'
+  const typeColor = isBuy ? '#10b981' : '#f43f5e'
+  const plColor = position.profit >= 0 ? '#10b981' : '#f43f5e'
 
   return (
     <>
       {/* Desktop row */}
-      <div className="hidden sm:grid grid-cols-7 gap-2 items-center px-4 py-2.5 border-b border-[#222] last:border-b-0 transition-colors hover:bg-[#1a1a1a]">
+      <div className="hidden sm:grid grid-cols-7 gap-2 items-center px-4 py-2.5 border-b border-white/[0.06] last:border-b-0 transition-colors hover:bg-white/[0.03]">
         <span className="text-xs font-semibold text-white">{position.symbol}</span>
         <span>
           <span
@@ -83,16 +83,16 @@ function PositionRow({ position }: { position: BrokerPosition }) {
             {position.type}
           </span>
         </span>
-        <span className="text-right font-mono text-[10px] text-gray-400">
+        <span className="text-right font-mono text-[10px] text-zinc-400">
           {position.volume.toFixed(2)}
         </span>
-        <span className="text-right font-mono text-[10px] text-gray-400">
+        <span className="text-right font-mono text-[10px] text-zinc-400">
           {position.openPrice.toFixed(5)}
         </span>
-        <span className="text-right font-mono text-[10px] text-gray-300">
+        <span className="text-right font-mono text-[10px] text-zinc-300">
           {position.currentPrice.toFixed(5)}
         </span>
-        <span className="text-right font-mono text-[10px] text-gray-600">
+        <span className="text-right font-mono text-[10px] text-zinc-600">
           {position.swap.toFixed(2)}
         </span>
         <span
@@ -104,7 +104,7 @@ function PositionRow({ position }: { position: BrokerPosition }) {
       </div>
 
       {/* Mobile card */}
-      <div className="sm:hidden border-b border-[#222] last:border-b-0 px-4 py-3 space-y-2">
+      <div className="sm:hidden border-b border-white/[0.06] last:border-b-0 px-4 py-3 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-white">{position.symbol}</span>
@@ -135,8 +135,8 @@ function PositionRow({ position }: { position: BrokerPosition }) {
 function MobileDetail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="block text-[8px] uppercase tracking-widest text-gray-600">{label}</span>
-      <span className="font-mono text-[10px] text-gray-400">{value}</span>
+      <span className="block text-[8px] uppercase tracking-widest text-zinc-600">{label}</span>
+      <span className="font-mono text-[10px] text-zinc-400">{value}</span>
     </div>
   )
 }

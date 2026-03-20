@@ -116,7 +116,7 @@ function computeLeaderboard(records: SignalRecord[]): LeaderboardEntry[] {
 /* ── Win rate bar ───────────────────────────────────────────────────────────── */
 
 function WinRateBar({ value }: { value: number }) {
-  const color = value >= 60 ? '#22c55e' : value >= 50 ? '#f59e0b' : '#ef4444'
+  const color = value >= 60 ? '#10b981' : value >= 50 ? '#a1a1aa' : '#f43f5e'
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-1.5 rounded-full bg-[#222] overflow-hidden" style={{ minWidth: '60px' }}>
@@ -135,10 +135,18 @@ function WinRateBar({ value }: { value: number }) {
 /* ── Rank badge ─────────────────────────────────────────────────────────────── */
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return <span className="text-sm">🥇</span>
-  if (rank === 2) return <span className="text-sm">🥈</span>
-  if (rank === 3) return <span className="text-sm">🥉</span>
-  return <span className="font-mono text-[10px] text-gray-500 w-6 text-center">{rank}</span>
+  if (rank <= 3) {
+    const colors = ['#fbbf24', '#a1a1aa', '#d97706']
+    return (
+      <span
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold"
+        style={{ backgroundColor: `${colors[rank - 1]}20`, color: colors[rank - 1] }}
+      >
+        {rank}
+      </span>
+    )
+  }
+  return <span className="font-mono text-[10px] text-zinc-500 w-6 text-center">{rank}</span>
 }
 
 /* ── Main component ─────────────────────────────────────────────────────────── */
@@ -184,13 +192,13 @@ export default function Leaderboard() {
 
   return (
     <div
-      className="rounded-lg border border-[#222] bg-[#111] overflow-hidden"
+      className="rounded-xl border border-white/[0.06] bg-[#111] overflow-hidden"
       style={{ borderTopColor: ACCENT, borderTopWidth: '2px' }}
     >
       {/* Header */}
       <button
         onClick={() => setIsExpanded((e) => !e)}
-        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 text-left transition-colors hover:bg-[#1a1a1a]"
+        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 text-left transition-colors hover:bg-white/[0.03]"
       >
         <div className="flex items-center gap-2">
           <span
@@ -216,16 +224,16 @@ export default function Leaderboard() {
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
-          className={`text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          className={`text-zinc-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
 
       {isExpanded && (
-        <div className="border-t border-[#222]">
+        <div className="border-t border-white/[0.06]">
           {/* Category filter tabs */}
-          <div className="flex border-b border-[#222]">
+          <div className="flex border-b border-white/[0.06]">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -247,26 +255,26 @@ export default function Leaderboard() {
           <div className="px-4 py-4 sm:px-5">
             {allEntries.length === 0 ? (
               <div className="py-8 text-center">
-                <div className="text-2xl opacity-30 mb-2">🏆</div>
-                <p className="text-xs text-gray-500">No ranked entries yet</p>
-                <p className="text-[9px] text-gray-700 mt-1">
+                <div className="opacity-30 mb-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-zinc-600"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+                <p className="text-xs text-zinc-500">No ranked entries yet</p>
+                <p className="text-[9px] text-zinc-700 mt-1">
                   Signal pairs need at least 3 resolved signals to appear here.
                   Use the dashboard to generate signals.
                 </p>
               </div>
             ) : filtered.length === 0 ? (
               <div className="py-6 text-center">
-                <p className="text-xs text-gray-500">No {categoryFilter} entries ranked</p>
+                <p className="text-xs text-zinc-500">No {categoryFilter} entries ranked</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-[10px]">
                   <thead>
-                    <tr className="border-b border-[#222]">
+                    <tr className="border-b border-white/[0.06]">
                       {['Rank', 'Symbol', 'Mode', 'Signals', 'Win Rate', 'Avg Conf', 'Streak'].map((h) => (
                         <th
                           key={h}
-                          className="px-2 py-1.5 text-left font-semibold uppercase tracking-widest text-gray-600"
+                          className="px-2 py-1.5 text-left font-semibold uppercase tracking-widest text-zinc-600"
                         >
                           {h}
                         </th>
@@ -277,7 +285,7 @@ export default function Leaderboard() {
                     {filtered.map((entry, idx) => (
                       <tr
                         key={entry.key}
-                        className="border-b border-[#1a1a1a] hover:bg-[#1a1a1a] transition-colors"
+                        className="border-b border-[#1a1a1a] hover:bg-white/[0.03] transition-colors"
                       >
                         {/* Rank */}
                         <td className="px-2 py-2">
@@ -287,25 +295,25 @@ export default function Leaderboard() {
                         {/* Symbol */}
                         <td className="px-2 py-2">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-sm">{entry.icon}</span>
+                            
                             <div>
                               <div className="font-semibold text-white text-[10px]">{entry.symbol}</div>
-                              <div className="text-[8px] text-gray-600">{entry.category}</div>
+                              <div className="text-[8px] text-zinc-600">{entry.category}</div>
                             </div>
                           </div>
                         </td>
 
                         {/* Mode */}
                         <td className="px-2 py-2">
-                          <span className="rounded bg-[#1a1a1a] px-1.5 py-0.5 text-[8px] font-semibold uppercase text-gray-500">
+                          <span className="rounded bg-white/[0.03] px-1.5 py-0.5 text-[8px] font-semibold uppercase text-zinc-500">
                             {entry.mode}
                           </span>
                         </td>
 
                         {/* Signals */}
-                        <td className="px-2 py-2 text-gray-400">
-                          <span className="text-[#22c55e]">{entry.wins}</span>
-                          <span className="text-gray-600">/{entry.total}</span>
+                        <td className="px-2 py-2 text-zinc-400">
+                          <span className="text-[#10b981]">{entry.wins}</span>
+                          <span className="text-zinc-600">/{entry.total}</span>
                         </td>
 
                         {/* Win Rate bar */}
@@ -314,7 +322,7 @@ export default function Leaderboard() {
                         </td>
 
                         {/* Avg Confidence */}
-                        <td className="px-2 py-2 font-mono text-gray-400">
+                        <td className="px-2 py-2 font-mono text-zinc-400">
                           {entry.avgConfidence.toFixed(0)}%
                         </td>
 
@@ -322,9 +330,9 @@ export default function Leaderboard() {
                         <td className="px-2 py-2 text-center">
                           <span
                             className="font-mono font-bold text-[10px]"
-                            style={{ color: entry.bestStreak >= 3 ? '#22c55e' : '#6b7280' }}
+                            style={{ color: entry.bestStreak >= 3 ? '#10b981' : '#6b7280' }}
                           >
-                            {entry.bestStreak > 0 ? `${entry.bestStreak}🔥` : '—'}
+                            {entry.bestStreak > 0 ? `${entry.bestStreak}W` : '—'}
                           </span>
                         </td>
                       </tr>
@@ -335,7 +343,7 @@ export default function Leaderboard() {
             )}
 
             {/* Footer note */}
-            <p className="mt-3 text-[8px] text-gray-700">
+            <p className="mt-3 text-[8px] text-zinc-700">
               Ranked by win rate · Minimum 3 resolved signals to qualify · Data from local signal history
             </p>
           </div>

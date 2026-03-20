@@ -27,21 +27,21 @@ export default function AlertsPanel({
 
   return (
     <div
-      className="rounded-lg border border-[#222] bg-[#111] overflow-hidden"
-      style={{ borderTopColor: '#f59e0b', borderTopWidth: '2px' }}
+      className="rounded-xl border border-white/[0.06] bg-[#111] overflow-hidden"
+      style={{ borderTopColor: '#a1a1aa', borderTopWidth: '2px' }}
     >
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 text-left transition-colors hover:bg-[#1a1a1a]"
+        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 text-left transition-colors hover:bg-white/[0.03]"
       >
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-white">Signal Alerts</h3>
-          <span className="rounded bg-[#1a1a1a] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gray-500">
+          <span className="rounded bg-white/[0.03] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gray-500">
             {alerts.length}
           </span>
           {alerts.length > 0 && (
-            <span className="h-1.5 w-1.5 rounded-full bg-[#f59e0b] animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#a1a1aa] animate-pulse" />
           )}
         </div>
         <svg
@@ -59,15 +59,15 @@ export default function AlertsPanel({
       </button>
 
       {isExpanded && (
-        <div className="border-t border-[#222]">
+        <div className="border-t border-white/[0.06]">
           {/* Tabs */}
-          <div className="flex border-b border-[#222]">
+          <div className="flex border-b border-white/[0.06]">
             <button
               onClick={() => setTab('watchlist')}
               className="flex-1 py-2 text-[10px] font-semibold uppercase tracking-widest transition-colors"
               style={{
-                color: tab === 'watchlist' ? '#f59e0b' : '#4b5563',
-                borderBottom: tab === 'watchlist' ? '2px solid #f59e0b' : '2px solid transparent',
+                color: tab === 'watchlist' ? '#a1a1aa' : '#4b5563',
+                borderBottom: tab === 'watchlist' ? '2px solid #a1a1aa' : '2px solid transparent',
               }}
             >
               Watchlist ({watchlist.length})
@@ -76,8 +76,8 @@ export default function AlertsPanel({
               onClick={() => setTab('history')}
               className="flex-1 py-2 text-[10px] font-semibold uppercase tracking-widest transition-colors"
               style={{
-                color: tab === 'history' ? '#f59e0b' : '#4b5563',
-                borderBottom: tab === 'history' ? '2px solid #f59e0b' : '2px solid transparent',
+                color: tab === 'history' ? '#a1a1aa' : '#4b5563',
+                borderBottom: tab === 'history' ? '2px solid #a1a1aa' : '2px solid transparent',
               }}
             >
               History ({alerts.length})
@@ -87,9 +87,9 @@ export default function AlertsPanel({
           {tab === 'watchlist' ? (
             <div className="p-4 sm:p-5 space-y-3">
               {/* Notification toggle */}
-              <div className="flex items-center justify-between rounded border border-[#222] bg-[#1a1a1a] px-3 py-2">
+              <div className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] px-3 py-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm" aria-hidden="true">🔔</span>
+                  <span aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg></span>
                   <span className="text-[10px] text-gray-400">Desktop Notifications</span>
                 </div>
                 {notificationsEnabled ? (
@@ -97,7 +97,7 @@ export default function AlertsPanel({
                 ) : (
                   <button
                     onClick={onEnableNotifications}
-                    className="rounded bg-[#f59e0b]/10 px-2 py-1 text-[9px] font-semibold text-[#f59e0b] transition-colors hover:bg-[#f59e0b]/20"
+                    className="rounded bg-[#a1a1aa]/10 px-2 py-1 text-[9px] font-semibold text-[#a1a1aa] transition-colors hover:bg-[#a1a1aa]/20"
                   >
                     Enable
                   </button>
@@ -119,7 +119,7 @@ export default function AlertsPanel({
                         color: isWatched ? '#fbbf24' : '#6b7280',
                       }}
                     >
-                      <span className="mr-1">{cfg.icon}</span>
+                      
                       {cfg.symbol.replace('USD', '')}
                     </button>
                   )
@@ -130,7 +130,7 @@ export default function AlertsPanel({
             <div className="p-4 sm:p-5 space-y-2">
               {alerts.length === 0 ? (
                 <div className="py-4 text-center">
-                  <div className="mb-2 text-2xl opacity-30">🔕</div>
+                  <div className="mb-2 opacity-30"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-zinc-600"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><line x1="1" y1="1" x2="23" y2="23" /></svg></div>
                   <p className="text-xs text-gray-500">No alerts yet</p>
                   <p className="mt-0.5 text-[9px] text-gray-700">
                     Add symbols to your watchlist to receive alerts
@@ -144,7 +144,7 @@ export default function AlertsPanel({
                   {alerts.length > 0 && (
                     <button
                       onClick={onClearAlerts}
-                      className="w-full rounded border border-[#222] bg-[#1a1a1a] py-2 text-[9px] text-gray-600 transition-colors hover:text-gray-400 hover:border-gray-500"
+                      className="w-full rounded border border-white/[0.06] bg-white/[0.03] py-2 text-[9px] text-gray-600 transition-colors hover:text-gray-400 hover:border-gray-500"
                     >
                       Clear All
                     </button>
@@ -160,14 +160,14 @@ export default function AlertsPanel({
 }
 
 function AlertRow({ alert }: { alert: AlertConfig }) {
-  const dirColor = alert.newDirection === 'BUY' ? '#3b82f6' : '#ef4444'
+  const dirColor = alert.newDirection === 'BUY' ? '#10b981' : '#f43f5e'
   const time = new Date(alert.timestamp).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
   })
 
   return (
-    <div className="flex items-center justify-between rounded border border-[#222] bg-[#1a1a1a] px-3 py-2 transition-colors hover:bg-[#202020]">
+    <div className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] px-3 py-2 transition-colors hover:bg-white/[0.05]">
       <div className="flex items-center gap-2 min-w-0">
         <span
           className="h-2 w-2 rounded-full flex-shrink-0"
@@ -200,9 +200,7 @@ export function AlertToast({
 }) {
   if (!alert) return null
 
-  const dirColor = alert.newDirection === 'BUY' ? '#3b82f6' : '#ef4444'
-  const emoji = alert.newDirection === 'BUY' ? '🟢' : '🔴'
-
+  const dirColor = alert.newDirection === 'BUY' ? '#10b981' : '#f43f5e'
   return (
     <div
       className="fixed top-20 right-4 z-[60] max-w-sm animate-slide-in-right"
@@ -212,7 +210,10 @@ export function AlertToast({
         className="flex items-center gap-3 rounded-lg border bg-[#111] px-4 py-3 shadow-xl"
         style={{ borderColor: `${dirColor}40` }}
       >
-        <span className="text-lg flex-shrink-0">{emoji}</span>
+        <span
+          className="h-3 w-3 rounded-full flex-shrink-0"
+          style={{ backgroundColor: dirColor, boxShadow: `0 0 8px ${dirColor}60` }}
+        />
         <div className="min-w-0">
           <p className="text-xs font-semibold text-white">
             {alert.symbol} — {alert.newDirection}

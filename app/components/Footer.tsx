@@ -1,15 +1,17 @@
+import { Zap, Radio } from 'lucide-react'
+
 export default function Footer() {
   return (
-    <footer className="border-t border-[#222] bg-[#111]">
+    <footer className="border-t border-white/[0.06] bg-[#111]">
       <div className="flex h-10 items-center justify-between px-4 sm:px-5">
-        <p className="text-xs text-gray-600">
-          <span className="text-[#3b82f6] mr-1" aria-hidden="true">⚡</span>
+        <p className="text-xs text-zinc-600 flex items-center gap-1.5">
+          <Zap size={12} className="text-emerald-500" aria-hidden="true" />
           Alpha Scanner &copy; 2026
           <span className="hidden sm:inline"> &bull; Multi-Asset Trading Scanner</span>
         </p>
         <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#14b8a6] shadow-[0_0_4px_#14b8a6]" aria-hidden="true" />
-          <p className="text-xs text-gray-700">v0.2.0</p>
+          <Radio size={10} className="text-emerald-500" />
+          <p className="text-xs text-zinc-700 font-mono tabular-nums">v0.2.0</p>
         </div>
       </div>
     </footer>

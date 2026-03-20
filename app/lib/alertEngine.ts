@@ -51,7 +51,7 @@ export function requestNotificationPermission(): Promise<NotificationPermission>
 export function sendDesktopNotification(alert: AlertConfig): void {
   if (!('Notification' in window) || Notification.permission !== 'granted') return
 
-  const emoji = alert.newDirection === 'BUY' ? '🟢' : '🔴'
+  const emoji = alert.newDirection === 'BUY' ? '[BUY]' : '[SELL]'
   const title = `${emoji} ${alert.symbol} — ${alert.newDirection}`
   const body = `Signal changed from ${alert.previousDirection} to ${alert.newDirection} (${alert.mode})`
 

@@ -19,7 +19,7 @@ const MODES: ModeInfo[] = [
     label: 'Swing',
     description: 'Multi-day positions following larger trends',
     timeframe: 'H4 – D1',
-    color: '#3b82f6',
+    color: '#10b981',
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <polyline points="3 17 9 11 13 15 21 7" />
@@ -44,7 +44,7 @@ const MODES: ModeInfo[] = [
     label: 'Scalper',
     description: 'Quick entries targeting small pip movements',
     timeframe: 'M1 – M5',
-    color: '#a855f7',
+    color: '#a1a1aa',
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -64,7 +64,7 @@ export default function ModeSelector({ selected, onSelect }: Props) {
   const selectedMode = MODES.find((m) => m.id === selected)
 
   return (
-    <div className="rounded-lg border border-[#222] bg-[#1a1a1a] overflow-hidden">
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] overflow-hidden">
       {/* Header toggle */}
       <button
         onClick={() => setExpanded((e) => !e)}
@@ -82,14 +82,14 @@ export default function ModeSelector({ selected, onSelect }: Props) {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-gray-500 flex-shrink-0"
+            className="text-zinc-500 flex-shrink-0"
             aria-hidden="true"
           >
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
           <div className="text-left">
             <p className="text-xs font-semibold text-white">Trading Mode</p>
-            <p className="text-[10px] text-gray-600">Strategy Type</p>
+            <p className="text-[10px] text-zinc-600">Strategy Type</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -109,7 +109,7 @@ export default function ModeSelector({ selected, onSelect }: Props) {
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
-            className={`text-gray-600 transition-transform duration-200 flex-shrink-0 ${expanded ? 'rotate-180' : ''}`}
+            className={`text-zinc-600 transition-transform duration-200 flex-shrink-0 ${expanded ? 'rotate-180' : ''}`}
             aria-hidden="true"
           >
             <polyline points="6 9 12 15 18 9" />
@@ -121,7 +121,7 @@ export default function ModeSelector({ selected, onSelect }: Props) {
       {expanded && (
         <div
           id="mode-selector-content"
-          className="border-t border-[#222] px-3 pb-3 pt-2"
+          className="border-t border-white/[0.06] px-3 pb-3 pt-2"
         >
           <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Trading mode">
             {MODES.map((mode) => {
@@ -136,7 +136,7 @@ export default function ModeSelector({ selected, onSelect }: Props) {
                     'group flex items-start gap-2.5 rounded-md border px-3 py-3 text-left transition-all duration-200 active:scale-[0.98]',
                     isActive
                       ? ''
-                      : 'border-[#222] bg-[#111] hover:border-[#333] hover:bg-[#1a1a1a]',
+                      : 'border-white/[0.06] bg-[#111] hover:border-[#333] hover:bg-white/[0.03]',
                   ].join(' ')}
                   style={
                     isActive
@@ -165,11 +165,11 @@ export default function ModeSelector({ selected, onSelect }: Props) {
                       >
                         {mode.label}
                       </span>
-                      <span className="font-mono text-[9px] text-gray-600 flex-shrink-0">
+                      <span className="font-mono text-[9px] text-zinc-600 flex-shrink-0">
                         {mode.timeframe}
                       </span>
                     </div>
-                    <p className="mt-0.5 text-[10px] leading-snug text-gray-600">
+                    <p className="mt-0.5 text-[10px] leading-snug text-zinc-600">
                       {mode.description}
                     </p>
                   </div>

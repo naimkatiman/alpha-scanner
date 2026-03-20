@@ -6,11 +6,12 @@
   --color-card-alt: #1a1a1a;
   --color-border: #222222;
   --color-border-subtle: #333333;
-  --color-buy: #3b82f6;
-  --color-teal: #14b8a6;
-  --color-sell: #ef4444;
+  --color-buy: #10b981;
+  --color-teal: #10b981;
+  --color-sell: #f43f5e;
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, 'SFMono-Regular', 'Consolas', monospace;
 }
 
 /* ── Base ──────────────────────────────────────────────────── */
@@ -23,7 +24,6 @@ body {
   color: #ffffff;
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
-  /* Safe area padding for notched phones */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
@@ -49,6 +49,32 @@ table {
   white-space: nowrap;
 }
 
+/* Tabular nums for financial data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Glass panel surface ───────────────────────────────────── */
+.glass-panel {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(17, 17, 17, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.glass-panel-strong {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(17, 17, 17, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
 /* ── Skeleton loading animation ────────────────────────────── */
 @keyframes shimmer {
   0% {
@@ -71,21 +97,31 @@ table {
   border-radius: 4px;
 }
 
-/* ── Glow effects ───────────────────────────────────────────── */
+/* ── Glow effects (updated to emerald/rose) ──────────────── */
 .glow-buy {
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4), 0 0 24px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3), 0 0 24px rgba(16, 185, 129, 0.1);
 }
 
 .glow-sell {
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4), 0 0 24px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.3), 0 0 24px rgba(244, 63, 94, 0.1);
 }
 
 .glow-neutral {
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4), 0 0 24px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 12px rgba(161, 161, 170, 0.2), 0 0 24px rgba(161, 161, 170, 0.08);
 }
 
 .glow-teal {
-  box-shadow: 0 0 8px rgba(20, 184, 166, 0.4);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+
+/* ── Active signal pulse ─────────────────────────────────────── */
+@keyframes signal-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.signal-alive {
+  animation: signal-pulse 2s ease-in-out infinite;
 }
 
 /* ── Touch targets ──────────────────────────────────────────── */
@@ -94,7 +130,6 @@ button, [role="button"] {
   cursor: pointer;
 }
 
-/* Override for inline icon buttons that should be smaller */
 .btn-icon {
   min-height: unset;
 }
@@ -118,14 +153,14 @@ button, [role="button"] {
   background: #555;
 }
 
-/* ── Smooth transitions for interactive elements ────────────── */
+/* ── Smooth transitions ────────────────────────────────────── */
 .transition-glow {
   transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.15s ease;
 }
 
 /* ── Focus visible ──────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid rgba(59, 130, 246, 0.6);
+  outline: 2px solid rgba(16, 185, 129, 0.6);
   outline-offset: 2px;
 }
 
@@ -172,41 +207,36 @@ button, [role="button"] {
 
 /* ── Selection color ─────────────────────────────────────────── */
 ::selection {
-  background: rgba(59, 130, 246, 0.3);
+  background: rgba(16, 185, 129, 0.3);
   color: white;
 }
 
-/* ── PWA standalone mode tweaks ──────────────────────────────── */
+/* ── PWA standalone mode ──────────────────────────────────── */
 @media (display-mode: standalone) {
   body {
     padding-top: env(safe-area-inset-top);
   }
 }
 
-/* ── Mobile-specific improvements ───────────────────────────── */
+/* ── Mobile-specific ───────────────────────────────────────── */
 @media (max-width: 640px) {
-  /* Tighter padding on very small screens */
   .mobile-compact {
     padding: 0.75rem;
   }
 
-  /* Ensure cards don't have excessive padding */
   .mobile-card {
     padding: 0.75rem;
   }
 
-  /* Stack horizontal items vertically on mobile */
   .mobile-stack {
     flex-direction: column;
   }
 }
 
-/* Sticky footer gets bottom safe-area */
 footer {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* ── Small-screen helpers ────────────────────────────────────── */
 @media (max-width: 400px) {
   .text-truncate-mobile {
     white-space: nowrap;

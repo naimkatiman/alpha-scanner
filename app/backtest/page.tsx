@@ -6,12 +6,12 @@ import BacktestDashboard from '../components/BacktestDashboard'
 
 export default function BacktestPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-[#0a0a0a]">
+    <div className="flex min-h-[100dvh] flex-col bg-[#0a0a0a]">
       <Navbar onMenuToggle={() => {}} />
       <main className="flex-1 p-3 sm:p-4 md:p-6 max-w-6xl mx-auto w-full">
         <div className="mb-4">
           <h1 className="text-lg font-bold text-white">Backtesting Engine</h1>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-zinc-500 mt-1">
             Replay signals against historical data to evaluate strategy performance
           </p>
         </div>

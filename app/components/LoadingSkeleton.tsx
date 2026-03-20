@@ -22,7 +22,7 @@ export function SkeletonLines({ lines = 3, gap = '8px' }: { lines?: number; gap?
 export function SkeletonCard({ height = '200px' }: { height?: string }) {
   return (
     <div
-      className="rounded-xl border border-[#222] bg-[#111] p-5"
+      className="rounded-xl border border-white/[0.06] bg-[#111] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
       style={{ minHeight: height }}
     >
       <div className="mb-4 flex items-center gap-3">
@@ -37,7 +37,7 @@ export function SkeletonCard({ height = '200px' }: { height?: string }) {
 /** Table skeleton with rows */
 export function SkeletonTable({ rows = 4, cols = 3 }: { rows?: number; cols?: number }) {
   return (
-    <div className="rounded-xl border border-[#222] bg-[#111] p-5">
+    <div className="rounded-xl border border-white/[0.06] bg-[#111] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
       {/* Header */}
       <div className="mb-4 flex gap-4">
         {Array.from({ length: cols }).map((_, i) => (
@@ -61,7 +61,7 @@ export function SkeletonTable({ rows = 4, cols = 3 }: { rows?: number; cols?: nu
 /** Inline skeleton for panels that are lazy-loaded */
 export function PanelSkeleton() {
   return (
-    <div className="rounded-xl border border-[#222] bg-[#111] p-5 animate-pulse">
+    <div className="rounded-xl border border-white/[0.06] bg-[#111] p-5 animate-pulse shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
       <div className="mb-4 flex items-center gap-2">
         <div className="h-4 w-4 rounded bg-[#222]" />
         <div className="h-4 w-24 rounded bg-[#222]" />

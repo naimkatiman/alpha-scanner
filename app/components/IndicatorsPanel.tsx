@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useIndicators } from '../hooks/useIndicators'
 import { fmt } from '../data/mockSignals'
 import type { AllIndicators, BollingerBands, StochasticResult } from '../lib/technicalAnalysis'
+import { motion } from 'framer-motion'
+import { ChevronDown } from 'lucide-react'
 
 interface IndicatorsPanelProps {
   symbol: string
@@ -15,8 +17,8 @@ type Sentiment = 'bullish' | 'bearish' | 'neutral'
 
 function Badge({ sentiment }: { sentiment: Sentiment }) {
   const styles: Record<Sentiment, { bg: string; text: string; label: string }> = {
-    bullish: { bg: '#14b8a618', text: '#14b8a6', label: 'Bullish' },
-    bearish: { bg: '#ef444418', text: '#ef4444', label: 'Bearish' },
+    bullish: { bg: '#10b98118', text: '#10b981', label: 'Bullish' },
+    bearish: { bg: '#f43f5e18', text: '#f43f5e', label: 'Bearish' },
     neutral: { bg: '#6b728018', text: '#9ca3af', label: 'Neutral' },
   }
   const s = styles[sentiment]
@@ -34,7 +36,7 @@ function Badge({ sentiment }: { sentiment: Sentiment }) {
 
 function RSIGauge({ value }: { value: number }) {
   const clamped = Math.max(0, Math.min(100, value))
-  const color = clamped < 30 ? '#14b8a6' : clamped > 70 ? '#ef4444' : '#6b7280'
+  const color = clamped < 30 ? '#10b981' : clamped > 70 ? '#f43f5e' : '#6b7280'
   const sentiment: Sentiment = clamped < 30 ? 'bullish' : clamped > 70 ? 'bearish' : 'neutral'
   const label = clamped < 30 ? 'Oversold' : clamped > 70 ? 'Overbought' : 'Neutral'
 
@@ -42,11 +44,11 @@ function RSIGauge({ value }: { value: number }) {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-300">RSI</span>
-          <span className="text-[10px] text-gray-600">14-period</span>
+          <span className="text-xs font-semibold text-zinc-300">RSI</span>
+          <span className="text-[10px] text-zinc-600">14-period</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-gray-600">{label}</span>
+          <span className="text-[10px] text-zinc-600">{label}</span>
           <Badge sentiment={sentiment} />
         </div>
       </div>
@@ -55,9 +57,9 @@ function RSIGauge({ value }: { value: number }) {
       <div className="relative h-3 rounded-full bg-[#1a1a1a] overflow-hidden">
         {/* Zones */}
         <div className="absolute inset-0 flex">
-          <div className="h-full" style={{ width: '30%', backgroundColor: '#14b8a610' }} />
+          <div className="h-full" style={{ width: '30%', backgroundColor: '#10b98110' }} />
           <div className="h-full" style={{ width: '40%', backgroundColor: '#6b728010' }} />
-          <div className="h-full flex-1" style={{ backgroundColor: '#ef444410' }} />
+          <div className="h-full flex-1" style={{ backgroundColor: '#f43f5e10' }} />
         </div>
         {/* Zone dividers */}
         <div className="absolute inset-y-0" style={{ left: '30%', width: '1px', backgroundColor: '#333' }} />
@@ -70,11 +72,11 @@ function RSIGauge({ value }: { value: number }) {
       </div>
 
       {/* Labels */}
-      <div className="flex justify-between text-[9px] text-gray-700">
+      <div className="flex justify-between text-[9px] text-zinc-700">
         <span>0</span>
-        <span className="text-[#14b8a6]">30</span>
+        <span className="text-[#10b981]">30</span>
         <span>50</span>
-        <span className="text-[#ef4444]">70</span>
+        <span className="text-[#f43f5e]">70</span>
         <span>100</span>
       </div>
 
@@ -97,7 +99,7 @@ function MACDDisplay({
 }) {
   const { macdLine, signalLine, histogram } = macd
   const isBullish = macdLine > signalLine
-  const histColor = histogram > 0 ? '#14b8a6' : '#ef4444'
+  const histColor = histogram > 0 ? '#10b981' : '#f43f5e'
   const sentiment: Sentiment = isBullish ? 'bullish' : 'bearish'
   const crossoverLabel = isBullish ? 'Bullish Crossover' : 'Bearish Crossover'
 
@@ -115,11 +117,11 @@ function MACDDisplay({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-300">MACD</span>
-          <span className="text-[10px] text-gray-600">12 / 26 / 9</span>
+          <span className="text-xs font-semibold text-zinc-300">MACD</span>
+          <span className="text-[10px] text-zinc-600">12 / 26 / 9</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-gray-500">{crossoverLabel}</span>
+          <span className="text-[10px] text-zinc-500">{crossoverLabel}</span>
           <Badge sentiment={sentiment} />
         </div>
       </div>
@@ -127,10 +129,10 @@ function MACDDisplay({
       <div className="grid grid-cols-3 gap-2">
         {/* MACD Line */}
         <div className="rounded-md border border-[#222] bg-[#0f0f0f] px-3 py-2 text-center">
-          <div className="text-[9px] uppercase tracking-widest text-gray-600 mb-1">MACD</div>
+          <div className="text-[9px] uppercase tracking-widest text-zinc-600 mb-1">MACD</div>
           <div
             className="font-mono text-sm font-bold"
-            style={{ color: macdLine >= 0 ? '#14b8a6' : '#ef4444' }}
+            style={{ color: macdLine >= 0 ? '#10b981' : '#f43f5e' }}
           >
             {fmt6(macdLine)}
           </div>
@@ -138,13 +140,13 @@ function MACDDisplay({
 
         {/* Signal Line */}
         <div className="rounded-md border border-[#222] bg-[#0f0f0f] px-3 py-2 text-center">
-          <div className="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Signal</div>
-          <div className="font-mono text-sm font-bold text-gray-300">{fmt6(signalLine)}</div>
+          <div className="text-[9px] uppercase tracking-widest text-zinc-600 mb-1">Signal</div>
+          <div className="font-mono text-sm font-bold text-zinc-300">{fmt6(signalLine)}</div>
         </div>
 
         {/* Histogram */}
         <div className="rounded-md border border-[#222] bg-[#0f0f0f] px-3 py-2 text-center">
-          <div className="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Hist</div>
+          <div className="text-[9px] uppercase tracking-widest text-zinc-600 mb-1">Hist</div>
           <div className="font-mono text-sm font-bold" style={{ color: histColor }}>
             {fmt6(histogram)}
           </div>
@@ -163,7 +165,7 @@ function MACDDisplay({
             }}
           />
         </div>
-        <span className="text-[9px] text-gray-600 flex-shrink-0">
+        <span className="text-[9px] text-zinc-600 flex-shrink-0">
           {histogram > 0 ? '▲' : '▼'} momentum
         </span>
       </div>
@@ -226,18 +228,18 @@ function EMADisplay({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-300">EMA</span>
-          <span className="text-[10px] text-gray-600">20 / 50 / 200</span>
+          <span className="text-xs font-semibold text-zinc-300">EMA</span>
+          <span className="text-[10px] text-zinc-600">20 / 50 / 200</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-gray-500">{alignmentLabel}</span>
+          <span className="text-[10px] text-zinc-500">{alignmentLabel}</span>
           <Badge sentiment={alignmentSentiment} />
         </div>
       </div>
 
       <div className="space-y-1.5">
         {emaRows.map(({ label, value, abovePrice }) => {
-          const positionColor = abovePrice ? '#ef4444' : '#14b8a6'
+          const positionColor = abovePrice ? '#f43f5e' : '#10b981'
           const positionLabel = abovePrice ? 'above price' : 'below price'
           return (
             <div
@@ -250,18 +252,18 @@ function EMADisplay({
                   style={{ backgroundColor: positionColor }}
                   aria-hidden="true"
                 />
-                <span className="text-xs text-gray-400">{label}</span>
+                <span className="text-xs text-zinc-400">{label}</span>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 {isFinite(value) ? (
                   <>
-                    <span className="text-[9px] text-gray-600">{positionLabel}</span>
+                    <span className="text-[9px] text-zinc-600">{positionLabel}</span>
                     <span className="font-mono text-xs font-bold text-gray-200">
                       {fmt(symbol, value)}
                     </span>
                   </>
                 ) : (
-                  <span className="text-[9px] text-gray-700">Insufficient data</span>
+                  <span className="text-[9px] text-zinc-700">Insufficient data</span>
                 )}
               </div>
             </div>
@@ -271,13 +273,13 @@ function EMADisplay({
 
       {/* Current price reference */}
       <div className="flex items-center gap-2 border-t border-[#222] pt-2">
-        <span className="text-[10px] uppercase tracking-widest text-gray-600">Current</span>
+        <span className="text-[10px] uppercase tracking-widest text-zinc-600">Current</span>
         <span className="font-mono text-sm font-bold text-white">{fmt(symbol, currentPrice)}</span>
         {bullishAlignment && (
-          <span className="text-[10px] text-[#14b8a6]">· price above all EMAs ↑</span>
+          <span className="text-[10px] text-[#10b981]">· price above all EMAs ↑</span>
         )}
         {bearishAlignment && (
-          <span className="text-[10px] text-[#ef4444]">· price below all EMAs ↓</span>
+          <span className="text-[10px] text-[#f43f5e]">· price below all EMAs ↓</span>
         )}
       </div>
     </div>
@@ -306,17 +308,17 @@ function BollingerDisplay({
     : 'Mid Range'
 
   const pctBClamped = Math.max(0, Math.min(1, percentB))
-  const pctColor = percentB < 0.2 ? '#14b8a6' : percentB > 0.8 ? '#ef4444' : '#6b7280'
+  const pctColor = percentB < 0.2 ? '#10b981' : percentB > 0.8 ? '#f43f5e' : '#6b7280'
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-300">Bollinger Bands</span>
-          <span className="text-[10px] text-gray-600">20, 2σ</span>
+          <span className="text-xs font-semibold text-zinc-300">Bollinger Bands</span>
+          <span className="text-[10px] text-zinc-600">20, 2σ</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-gray-500">{posLabel}</span>
+          <span className="text-[10px] text-zinc-500">{posLabel}</span>
           <Badge sentiment={sentiment} />
         </div>
       </div>
@@ -324,20 +326,20 @@ function BollingerDisplay({
       {/* Band values */}
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-md border border-[#222] bg-[#0f0f0f] px-3 py-2 text-center">
-          <div className="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Upper</div>
-          <div className="font-mono text-sm font-bold text-[#ef4444]">
+          <div className="text-[9px] uppercase tracking-widest text-zinc-600 mb-1">Upper</div>
+          <div className="font-mono text-sm font-bold text-[#f43f5e]">
             {fmt(symbol, upper)}
           </div>
         </div>
         <div className="rounded-md border border-[#222] bg-[#0f0f0f] px-3 py-2 text-center">
-          <div className="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Middle</div>
-          <div className="font-mono text-sm font-bold text-gray-300">
+          <div className="text-[9px] uppercase tracking-widest text-zinc-600 mb-1">Middle</div>
+          <div className="font-mono text-sm font-bold text-zinc-300">
             {fmt(symbol, middle)}
           </div>
         </div>
         <div className="rounded-md border border-[#222] bg-[#0f0f0f] px-3 py-2 text-center">
-          <div className="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Lower</div>
-          <div className="font-mono text-sm font-bold text-[#14b8a6]">
+          <div className="text-[9px] uppercase tracking-widest text-zinc-600 mb-1">Lower</div>
+          <div className="font-mono text-sm font-bold text-[#10b981]">
             {fmt(symbol, lower)}
           </div>
         </div>
@@ -346,16 +348,16 @@ function BollingerDisplay({
       {/* %B gauge */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-gray-600">%B Position</span>
+          <span className="text-[10px] text-zinc-600">%B Position</span>
           <span className="font-mono text-xs font-bold" style={{ color: pctColor }}>
             {(percentB * 100).toFixed(1)}%
           </span>
         </div>
         <div className="relative h-3 rounded-full bg-[#1a1a1a] overflow-hidden">
           <div className="absolute inset-0 flex">
-            <div className="h-full" style={{ width: '20%', backgroundColor: '#14b8a610' }} />
+            <div className="h-full" style={{ width: '20%', backgroundColor: '#10b98110' }} />
             <div className="h-full" style={{ width: '60%', backgroundColor: '#6b728010' }} />
-            <div className="h-full flex-1" style={{ backgroundColor: '#ef444410' }} />
+            <div className="h-full flex-1" style={{ backgroundColor: '#f43f5e10' }} />
           </div>
           <div className="absolute inset-y-0" style={{ left: '20%', width: '1px', backgroundColor: '#333' }} />
           <div className="absolute inset-y-0" style={{ left: '80%', width: '1px', backgroundColor: '#333' }} />
@@ -364,10 +366,10 @@ function BollingerDisplay({
             style={{ left: `calc(${pctBClamped * 100}% - 2px)`, backgroundColor: pctColor, boxShadow: `0 0 6px ${pctColor}` }}
           />
         </div>
-        <div className="flex justify-between text-[9px] text-gray-700">
-          <span className="text-[#14b8a6]">Oversold</span>
+        <div className="flex justify-between text-[9px] text-zinc-700">
+          <span className="text-[#10b981]">Oversold</span>
           <span>Bandwidth: {(bandwidth * 100).toFixed(2)}%</span>
-          <span className="text-[#ef4444]">Overbought</span>
+          <span className="text-[#f43f5e]">Overbought</span>
         </div>
       </div>
     </div>
@@ -386,17 +388,17 @@ function StochasticDisplay({ stochastic }: { stochastic: StochasticResult }) {
 
   const kClamped = Math.max(0, Math.min(100, k))
   const dClamped = Math.max(0, Math.min(100, d))
-  const kColor = isOversold ? '#14b8a6' : isOverbought ? '#ef4444' : '#6b7280'
+  const kColor = isOversold ? '#10b981' : isOverbought ? '#f43f5e' : '#6b7280'
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-300">Stochastic</span>
-          <span className="text-[10px] text-gray-600">14, 3, 3</span>
+          <span className="text-xs font-semibold text-zinc-300">Stochastic</span>
+          <span className="text-[10px] text-zinc-600">14, 3, 3</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-gray-500">{crossLabel}</span>
+          <span className="text-[10px] text-zinc-500">{crossLabel}</span>
           <Badge sentiment={sentiment} />
         </div>
       </div>
@@ -404,14 +406,14 @@ function StochasticDisplay({ stochastic }: { stochastic: StochasticResult }) {
       {/* %K and %D values */}
       <div className="grid grid-cols-2 gap-2">
         <div className="rounded-md border border-[#222] bg-[#0f0f0f] px-3 py-2 text-center">
-          <div className="text-[9px] uppercase tracking-widest text-gray-600 mb-1">%K</div>
+          <div className="text-[9px] uppercase tracking-widest text-zinc-600 mb-1">%K</div>
           <div className="font-mono text-xl font-bold" style={{ color: kColor }}>
             {k.toFixed(1)}
           </div>
         </div>
         <div className="rounded-md border border-[#222] bg-[#0f0f0f] px-3 py-2 text-center">
-          <div className="text-[9px] uppercase tracking-widest text-gray-600 mb-1">%D</div>
-          <div className="font-mono text-xl font-bold text-gray-300">
+          <div className="text-[9px] uppercase tracking-widest text-zinc-600 mb-1">%D</div>
+          <div className="font-mono text-xl font-bold text-zinc-300">
             {d.toFixed(1)}
           </div>
         </div>
@@ -420,9 +422,9 @@ function StochasticDisplay({ stochastic }: { stochastic: StochasticResult }) {
       {/* Gauge */}
       <div className="relative h-3 rounded-full bg-[#1a1a1a] overflow-hidden">
         <div className="absolute inset-0 flex">
-          <div className="h-full" style={{ width: '20%', backgroundColor: '#14b8a610' }} />
+          <div className="h-full" style={{ width: '20%', backgroundColor: '#10b98110' }} />
           <div className="h-full" style={{ width: '60%', backgroundColor: '#6b728010' }} />
-          <div className="h-full flex-1" style={{ backgroundColor: '#ef444410' }} />
+          <div className="h-full flex-1" style={{ backgroundColor: '#f43f5e10' }} />
         </div>
         <div className="absolute inset-y-0" style={{ left: '20%', width: '1px', backgroundColor: '#333' }} />
         <div className="absolute inset-y-0" style={{ left: '80%', width: '1px', backgroundColor: '#333' }} />
@@ -437,11 +439,11 @@ function StochasticDisplay({ stochastic }: { stochastic: StochasticResult }) {
           style={{ left: `calc(${kClamped}% - 2px)`, backgroundColor: kColor, boxShadow: `0 0 6px ${kColor}` }}
         />
       </div>
-      <div className="flex justify-between text-[9px] text-gray-700">
+      <div className="flex justify-between text-[9px] text-zinc-700">
         <span>0</span>
-        <span className="text-[#14b8a6]">20</span>
+        <span className="text-[#10b981]">20</span>
         <span>50</span>
-        <span className="text-[#ef4444]">80</span>
+        <span className="text-[#f43f5e]">80</span>
         <span>100</span>
       </div>
     </div>
@@ -461,9 +463,12 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
   const { indicators, loading, error } = useIndicators(symbol)
 
   return (
-    <div
-      className="rounded-lg border border-[#222] bg-[#111]"
-      style={{ borderTopColor: '#3b82f6', borderTopWidth: '2px' }}
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+      className="rounded-xl border border-white/[0.06] bg-[#111] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+      style={{ borderTopColor: '#10b981', borderTopWidth: '2px' }}
     >
       {/* Collapsible header */}
       <button
@@ -474,11 +479,11 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
         <div className="flex items-center gap-2 min-w-0">
           <span
             className="h-2 w-2 flex-shrink-0 rounded-full"
-            style={{ backgroundColor: '#3b82f6', boxShadow: '0 0 6px #3b82f6' }}
+            style={{ backgroundColor: '#10b981', boxShadow: '0 0 6px #10b981' }}
             aria-hidden="true"
           />
           <h3 className="text-sm font-semibold text-white">Technical Indicators</h3>
-          <span className="hidden sm:inline text-xs text-gray-600">
+          <span className="hidden sm:inline text-xs text-zinc-600">
             · {symbol} · RSI · MACD · EMA · BB · Stoch
           </span>
         </div>
@@ -490,7 +495,7 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
-          className={`text-gray-600 flex-shrink-0 transition-transform duration-200 ${collapsed ? '-rotate-90' : ''}`}
+          className={`text-zinc-600 flex-shrink-0 transition-transform duration-200 ${collapsed ? '-rotate-90' : ''}`}
           aria-hidden="true"
         >
           <polyline points="6 9 12 15 18 9" />
@@ -512,7 +517,7 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
 
           {/* Error state */}
           {!loading && error && (
-            <div className="mt-4 rounded-md border border-[#333] bg-[#1a1a1a] px-3 py-3 text-xs text-gray-500">
+            <div className="mt-4 rounded-md border border-[#333] bg-[#1a1a1a] px-3 py-3 text-xs text-zinc-500">
               Unable to load indicators · {error}
             </div>
           )}
@@ -527,10 +532,10 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
                 ) : (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-gray-300">RSI</span>
+                      <span className="text-xs font-semibold text-zinc-300">RSI</span>
                       <Badge sentiment="neutral" />
                     </div>
-                    <p className="text-[10px] text-gray-600">Insufficient price history</p>
+                    <p className="text-[10px] text-zinc-600">Insufficient price history</p>
                   </div>
                 )}
               </div>
@@ -542,10 +547,10 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
                 ) : (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-gray-300">MACD</span>
+                      <span className="text-xs font-semibold text-zinc-300">MACD</span>
                       <Badge sentiment="neutral" />
                     </div>
-                    <p className="text-[10px] text-gray-600">Insufficient price history</p>
+                    <p className="text-[10px] text-zinc-600">Insufficient price history</p>
                   </div>
                 )}
               </div>
@@ -572,10 +577,10 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
                 ) : (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-gray-300">Bollinger Bands</span>
+                      <span className="text-xs font-semibold text-zinc-300">Bollinger Bands</span>
                       <Badge sentiment="neutral" />
                     </div>
-                    <p className="text-[10px] text-gray-600">Insufficient price history</p>
+                    <p className="text-[10px] text-zinc-600">Insufficient price history</p>
                   </div>
                 )}
               </div>
@@ -587,10 +592,10 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
                 ) : (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-gray-300">Stochastic</span>
+                      <span className="text-xs font-semibold text-zinc-300">Stochastic</span>
                       <Badge sentiment="neutral" />
                     </div>
-                    <p className="text-[10px] text-gray-600">Insufficient price history</p>
+                    <p className="text-[10px] text-zinc-600">Insufficient price history</p>
                   </div>
                 )}
               </div>
@@ -598,6 +603,6 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
           )}
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }

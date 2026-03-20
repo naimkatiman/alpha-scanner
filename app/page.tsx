@@ -57,10 +57,10 @@ function getConnectionStatus(
 }
 
 const STATUS_DOT: Record<ConnectionStatus, string> = {
-  live: 'bg-[#22c55e]',
+  live: 'bg-emerald-500',
   stale: 'bg-yellow-400',
-  loading: 'bg-gray-500 animate-pulse',
-  error: 'bg-[#ef4444]',
+  loading: 'bg-zinc-500 animate-pulse',
+  error: 'bg-rose-500',
 }
 
 const STATUS_LABEL: Record<ConnectionStatus, string> = {
@@ -143,7 +143,7 @@ export default function Home() {
   const closeSidebar = () => setSidebarOpen(false)
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0a0a0a] overflow-x-hidden">
+    <div className="flex min-h-[100dvh] flex-col bg-[#0a0a0a] overflow-x-hidden">
       {/* Alert toast */}
       <AlertToast alert={alerts.toastAlert} onDismiss={alerts.dismissToast} />
 
@@ -163,7 +163,7 @@ export default function Home() {
         <aside
           className={[
             'fixed top-16 bottom-0 left-0 z-40 w-[280px] flex-shrink-0',
-            'overflow-y-auto border-r border-[#222] bg-[#111]',
+            'overflow-y-auto glass-panel-strong border-r border-white/[0.06]',
             'transition-transform duration-300 ease-in-out will-change-transform',
             'md:sticky md:top-16 md:h-[calc(100vh-4rem)] md:translate-x-0',
             sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full',
@@ -171,13 +171,13 @@ export default function Home() {
           aria-label="Sidebar controls"
         >
           {/* Sidebar header */}
-          <div className="flex h-10 items-center justify-between border-b border-[#222] px-4">
-            <span className="text-xs font-semibold uppercase tracking-widest text-gray-600">
+          <div className="flex h-10 items-center justify-between border-b border-white/[0.06] px-4">
+            <span className="text-xs font-semibold uppercase tracking-widest text-zinc-600">
               Controls
             </span>
             <button
               onClick={closeSidebar}
-              className="btn-icon rounded p-1.5 text-gray-600 hover:bg-[#1a1a1a] hover:text-gray-300 transition-colors md:hidden"
+              className="btn-icon rounded p-1.5 text-zinc-600 hover:bg-white/[0.05] hover:text-zinc-300 transition-colors md:hidden"
               aria-label="Close sidebar"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -218,7 +218,7 @@ export default function Home() {
 
             {/* Custom alert rules */}
             <ErrorBoundary fallbackTitle="Alert rules error">
-              <Suspense fallback={<div className="h-10 rounded bg-[#1a1a1a] animate-pulse" />}>
+              <Suspense fallback={<div className="h-10 rounded bg-white/[0.03] animate-pulse" />}>
                 <AlertRuleBuilder
                   rules={customAlerts.rules}
                   onAddRule={customAlerts.addRule}
@@ -230,7 +230,7 @@ export default function Home() {
 
             {/* Telegram alerts */}
             <ErrorBoundary fallbackTitle="Telegram error">
-              <Suspense fallback={<div className="h-10 rounded bg-[#1a1a1a] animate-pulse" />}>
+              <Suspense fallback={<div className="h-10 rounded bg-white/[0.03] animate-pulse" />}>
                 <TelegramSettings
                   config={telegram.config}
                   sending={telegram.sending}
@@ -265,19 +265,19 @@ export default function Home() {
                 className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${STATUS_DOT[connectionStatus]}`}
                 aria-hidden="true"
               />
-              <span className="font-mono text-[9px] text-gray-600 uppercase tracking-widest">
+              <span className="font-mono text-[9px] text-zinc-600 uppercase tracking-widest">
                 {STATUS_LABEL[connectionStatus]}
               </span>
               {lastUpdated && connectionStatus !== 'error' && (
-                <span className="font-mono text-[9px] text-gray-700">
+                <span className="font-mono text-[9px] text-zinc-700 tabular-nums">
                   · {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </span>
               )}
               {broker.state === 'connected' && (
                 <>
-                  <span className="text-gray-700">·</span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#8b5cf6]" />
-                  <span className="font-mono text-[9px] text-[#8b5cf6] uppercase tracking-widest">
+                  <span className="text-zinc-700">·</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  <span className="font-mono text-[9px] text-emerald-500 uppercase tracking-widest">
                     BROKER
                   </span>
                 </>

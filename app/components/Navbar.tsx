@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { Menu, X, Settings, Zap, BarChart3, Trophy, Radio } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface NavbarProps {
   onMenuToggle: () => void
@@ -9,29 +11,40 @@ interface NavbarProps {
 
 export default function Navbar({ onMenuToggle, sidebarOpen = false }: NavbarProps) {
   return (
-    <header className="sticky top-0 z-50 h-16 border-b border-[#222] bg-[#111]">
+    <header className="sticky top-0 z-50 h-16 glass-panel-strong border-b border-white/[0.06]">
       <div className="flex h-full items-center justify-between px-4 sm:px-5">
         {/* Logo + hamburger */}
         <div className="flex items-center gap-3">
-          {/* Mobile hamburger — animated to X when open */}
+          {/* Mobile hamburger */}
           <button
             onClick={onMenuToggle}
-            className="btn-icon flex items-center justify-center rounded-md p-2 text-gray-400 transition-all duration-200 hover:bg-[#1a1a1a] hover:text-white active:scale-95 md:hidden"
+            className="btn-icon flex items-center justify-center rounded-md p-2 text-zinc-400 transition-all duration-200 hover:bg-white/[0.05] hover:text-white active:scale-95 md:hidden"
             aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
             aria-expanded={sidebarOpen}
           >
-            {sidebarOpen ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            )}
+            <AnimatePresence mode="wait" initial={false}>
+              {sidebarOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <X size={18} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Menu size={18} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
 
           <Link
@@ -39,7 +52,7 @@ export default function Navbar({ onMenuToggle, sidebarOpen = false }: NavbarProp
             className="flex items-center gap-2 text-white transition-opacity hover:opacity-80"
             aria-label="Alpha Scanner home"
           >
-            <span className="text-xl leading-none text-[#3b82f6]" aria-hidden="true">⚡</span>
+            <Zap size={20} className="text-emerald-500" aria-hidden="true" />
             <span className="font-bold tracking-tight text-sm sm:text-base">Alpha Scanner</span>
           </Link>
         </div>
@@ -48,34 +61,33 @@ export default function Navbar({ onMenuToggle, sidebarOpen = false }: NavbarProp
         <nav className="flex items-center gap-1" aria-label="Top navigation">
           <Link
             href="/backtest"
-            className="hidden rounded-md px-3 py-2 text-xs font-medium text-gray-500 transition-colors hover:bg-[#1a1a1a] hover:text-gray-300 sm:block"
+            className="hidden rounded-md px-3 py-2 text-xs font-medium text-zinc-500 transition-colors hover:bg-white/[0.05] hover:text-zinc-300 sm:flex items-center gap-1.5"
           >
+            <BarChart3 size={14} />
             Backtest
           </Link>
           <Link
             href="/leaderboard"
-            className="hidden rounded-md px-3 py-2 text-xs font-medium text-gray-500 transition-colors hover:bg-[#1a1a1a] hover:text-gray-300 sm:block"
+            className="hidden rounded-md px-3 py-2 text-xs font-medium text-zinc-500 transition-colors hover:bg-white/[0.05] hover:text-zinc-300 sm:flex items-center gap-1.5"
           >
+            <Trophy size={14} />
             Leaderboard
           </Link>
 
-          <div className="mx-1 hidden h-4 w-px bg-[#333] sm:block" aria-hidden="true" />
+          <div className="mx-1 hidden h-4 w-px bg-white/[0.06] sm:block" aria-hidden="true" />
 
           {/* Settings icon */}
           <button
-            className="btn-icon flex items-center justify-center rounded-md p-2 text-gray-400 transition-colors hover:bg-[#1a1a1a] hover:text-white"
+            className="btn-icon flex items-center justify-center rounded-md p-2 text-zinc-400 transition-colors hover:bg-white/[0.05] hover:text-white"
             aria-label="Settings"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
+            <Settings size={16} />
           </button>
 
           {/* Live badge */}
-          <div className="ml-1 flex items-center gap-1.5 rounded-full border border-[#222] bg-[#1a1a1a] px-2.5 py-1.5">
-            <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#14b8a6] shadow-[0_0_4px_#14b8a6]" aria-hidden="true" />
-            <span className="text-xs font-medium text-gray-400 leading-none">Live</span>
+          <div className="ml-1 flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5">
+            <Radio size={10} className="text-emerald-500" />
+            <span className="text-xs font-medium text-zinc-400 leading-none">Live</span>
           </div>
         </nav>
       </div>

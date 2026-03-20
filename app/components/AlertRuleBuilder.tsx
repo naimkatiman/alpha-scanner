@@ -11,7 +11,7 @@ import {
 } from '../lib/alertRules'
 import { getAllSymbols } from '../lib/symbols'
 
-const ACCENT = '#f59e0b'
+const ACCENT = '#a1a1aa'
 const ALL_SYMBOLS = getAllSymbols()
 
 const INDICATOR_OPTIONS: IndicatorKey[] = [
@@ -69,27 +69,27 @@ function RuleForm({ onSave, onClose, initial }: RuleFormProps) {
   }
 
   return (
-    <div className="space-y-3 p-4 border-b border-[#222] bg-[#0f0f0f]">
+    <div className="space-y-3 p-4 border-b border-white/[0.06] bg-white/[0.02]">
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-[9px] uppercase tracking-widest text-gray-600 mb-1">
+          <label className="block text-[9px] uppercase tracking-widest text-zinc-600 mb-1">
             Rule Name
           </label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. RSI Oversold BTC"
-            className="w-full rounded border border-[#222] bg-[#1a1a1a] px-2.5 py-1.5 text-xs text-white placeholder-gray-700 outline-none focus:border-[#f59e0b]/50"
+            className="w-full rounded border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-xs text-white placeholder-gray-700 outline-none focus:border-[#f59e0b]/50"
           />
         </div>
         <div>
-          <label className="block text-[9px] uppercase tracking-widest text-gray-600 mb-1">
+          <label className="block text-[9px] uppercase tracking-widest text-zinc-600 mb-1">
             Symbol
           </label>
           <select
             value={symbol}
             onChange={(e) => setSymbol(e.target.value)}
-            className="w-full rounded border border-[#222] bg-[#1a1a1a] px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#f59e0b]/50"
+            className="w-full rounded border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#f59e0b]/50"
           >
             {ALL_SYMBOLS.map((s) => (
               <option key={s.symbol} value={s.symbol}>
@@ -102,7 +102,7 @@ function RuleForm({ onSave, onClose, initial }: RuleFormProps) {
 
       {/* AND / OR toggle */}
       <div className="flex items-center gap-2">
-        <span className="text-[9px] uppercase tracking-widest text-gray-600">Logic:</span>
+        <span className="text-[9px] uppercase tracking-widest text-zinc-600">Logic:</span>
         {(['AND', 'OR'] as const).map((l) => (
           <button
             key={l}
@@ -118,23 +118,23 @@ function RuleForm({ onSave, onClose, initial }: RuleFormProps) {
             {l}
           </button>
         ))}
-        <span className="text-[8px] text-gray-700">
+        <span className="text-[8px] text-zinc-700">
           {logic === 'AND' ? 'All conditions must match' : 'Any condition matches'}
         </span>
       </div>
 
       {/* Conditions */}
       <div className="space-y-2">
-        <span className="text-[9px] uppercase tracking-widest text-gray-600">Conditions</span>
+        <span className="text-[9px] uppercase tracking-widest text-zinc-600">Conditions</span>
         {conditions.map((cond, idx) => (
           <div key={cond.id} className="flex items-center gap-1.5 flex-wrap">
             {idx > 0 && (
-              <span className="text-[8px] font-bold uppercase text-gray-600 w-6">{logic}</span>
+              <span className="text-[8px] font-bold uppercase text-zinc-600 w-6">{logic}</span>
             )}
             <select
               value={cond.indicator}
               onChange={(e) => updateCondition(cond.id, 'indicator', e.target.value as IndicatorKey)}
-              className="rounded border border-[#222] bg-[#1a1a1a] px-2 py-1 text-[9px] text-white outline-none"
+              className="rounded border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-[9px] text-white outline-none"
             >
               {INDICATOR_OPTIONS.map((ind) => (
                 <option key={ind} value={ind}>
@@ -145,7 +145,7 @@ function RuleForm({ onSave, onClose, initial }: RuleFormProps) {
             <select
               value={cond.operator}
               onChange={(e) => updateCondition(cond.id, 'operator', e.target.value as Operator)}
-              className="rounded border border-[#222] bg-[#1a1a1a] px-2 py-1 text-[9px] text-white outline-none"
+              className="rounded border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-[9px] text-white outline-none"
             >
               {OPERATOR_OPTIONS.map((op) => (
                 <option key={op} value={op}>
@@ -157,12 +157,12 @@ function RuleForm({ onSave, onClose, initial }: RuleFormProps) {
               type="number"
               value={cond.value}
               onChange={(e) => updateCondition(cond.id, 'value', parseFloat(e.target.value) || 0)}
-              className="w-20 rounded border border-[#222] bg-[#1a1a1a] px-2 py-1 text-[9px] text-white outline-none"
+              className="w-20 rounded border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-[9px] text-white outline-none"
             />
             {conditions.length > 1 && (
               <button
                 onClick={() => setConditions((prev) => prev.filter((c) => c.id !== cond.id))}
-                className="text-gray-600 hover:text-[#ef4444] transition-colors text-[10px]"
+                className="text-zinc-600 hover:text-[#f43f5e] transition-colors text-[10px]"
               >
                 ✕
               </button>
@@ -171,7 +171,7 @@ function RuleForm({ onSave, onClose, initial }: RuleFormProps) {
         ))}
         <button
           onClick={() => setConditions((prev) => [...prev, makeCondition()])}
-          className="text-[9px] text-gray-600 hover:text-gray-400 transition-colors"
+          className="text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors"
         >
           + Add condition
         </button>
@@ -188,7 +188,7 @@ function RuleForm({ onSave, onClose, initial }: RuleFormProps) {
         </button>
         <button
           onClick={onClose}
-          className="rounded border border-[#222] bg-[#1a1a1a] px-3 py-1.5 text-[9px] text-gray-600 transition-colors hover:text-gray-400"
+          className="rounded border border-white/[0.06] bg-white/[0.03] px-3 py-1.5 text-[9px] text-zinc-600 transition-colors hover:text-zinc-400"
         >
           Cancel
         </button>
@@ -216,7 +216,7 @@ function RuleRow({
     : null
 
   return (
-    <div className="flex items-center justify-between rounded border border-[#222] bg-[#1a1a1a] px-3 py-2 gap-2">
+    <div className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] px-3 py-2 gap-2">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span
@@ -224,15 +224,15 @@ function RuleRow({
             style={{
               backgroundColor: rule.enabled
                 ? wasTriggered
-                  ? '#f59e0b'
+                  ? '#a1a1aa'
                   : '#22c55e'
                 : '#4b5563',
             }}
           />
           <span className="text-xs font-semibold text-white truncate">{rule.name}</span>
-          <span className="text-[8px] text-gray-600">{rule.symbol}</span>
+          <span className="text-[8px] text-zinc-600">{rule.symbol}</span>
         </div>
-        <div className="mt-0.5 text-[8px] text-gray-700">
+        <div className="mt-0.5 text-[8px] text-zinc-700">
           {rule.conditions.length} condition{rule.conditions.length !== 1 ? 's' : ''} · {rule.logic}
           {timeAgo && (
             <span className="ml-2 text-[#f59e0b]">Triggered {timeAgo}</span>
@@ -253,15 +253,15 @@ function RuleRow({
         </button>
         <button
           onClick={onEdit}
-          className="text-[9px] text-gray-600 hover:text-gray-400 transition-colors px-1"
+          className="text-[9px] text-zinc-600 hover:text-zinc-400 transition-colors px-1"
         >
-          ✏️
+          Edit
         </button>
         <button
           onClick={onDelete}
-          className="text-[9px] text-gray-600 hover:text-[#ef4444] transition-colors px-1"
+          className="text-[9px] text-zinc-600 hover:text-[#f43f5e] transition-colors px-1"
         >
-          🗑️
+          Del
         </button>
       </div>
     </div>
@@ -296,19 +296,19 @@ export default function AlertRuleBuilder({
 
   return (
     <div
-      className="rounded-lg border border-[#222] bg-[#111] overflow-hidden"
+      className="rounded-xl border border-white/[0.06] bg-[#111] overflow-hidden"
       style={{ borderTopColor: ACCENT, borderTopWidth: '2px' }}
     >
       {/* Header */}
       <button
         onClick={() => setIsExpanded((e) => !e)}
-        className="flex w-full items-center justify-between px-3 py-2.5 text-left transition-colors hover:bg-[#1a1a1a]"
+        className="flex w-full items-center justify-between px-3 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
       >
         <div className="flex items-center gap-2">
-          <span className="text-sm" aria-hidden="true">⚙️</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500 flex-shrink-0"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
           <span className="text-xs font-semibold text-white">Custom Alert Rules</span>
           {rules.length > 0 && (
-            <span className="rounded bg-[#1a1a1a] px-1.5 py-0.5 text-[8px] font-semibold text-gray-500">
+            <span className="rounded bg-white/[0.03] px-1.5 py-0.5 text-[8px] font-semibold text-zinc-500">
               {rules.filter((r) => r.enabled).length}/{rules.length} active
             </span>
           )}
@@ -321,14 +321,14 @@ export default function AlertRuleBuilder({
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
-          className={`text-gray-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          className={`text-zinc-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
 
       {isExpanded && (
-        <div className="border-t border-[#222]">
+        <div className="border-t border-white/[0.06]">
           {/* Add rule form */}
           {showForm && !editingRule && (
             <RuleForm onSave={onAddRule} onClose={() => setShowForm(false)} />
@@ -347,8 +347,8 @@ export default function AlertRuleBuilder({
           <div className="px-3 py-3 space-y-1.5">
             {rules.length === 0 ? (
               <div className="py-3 text-center">
-                <p className="text-[10px] text-gray-600">No custom rules yet</p>
-                <p className="text-[8px] text-gray-700">Create rules to trigger alerts when indicators meet conditions</p>
+                <p className="text-[10px] text-zinc-600">No custom rules yet</p>
+                <p className="text-[8px] text-zinc-700">Create rules to trigger alerts when indicators meet conditions</p>
               </div>
             ) : (
               rules.map((rule) => (
@@ -365,7 +365,7 @@ export default function AlertRuleBuilder({
             {!showForm && !editingRule && (
               <button
                 onClick={() => { setShowForm(true); setEditingRule(null) }}
-                className="w-full rounded border border-dashed border-[#222] py-2 text-[9px] text-gray-600 transition-colors hover:border-[#f59e0b]/30 hover:text-[#f59e0b]"
+                className="w-full rounded border border-dashed border-white/[0.06] py-2 text-[9px] text-zinc-600 transition-colors hover:border-[#f59e0b]/30 hover:text-[#f59e0b]"
               >
                 + New Alert Rule
               </button>

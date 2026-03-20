@@ -3,6 +3,10 @@
 import { fmt, fmtPips } from '../data/mockSignals'
 import type { TradingMode, RiskProfile } from '../data/mockSignals'
 import { useTpSl } from '../hooks/useTpSl'
+import { motion } from 'framer-motion'
+import { Radio } from 'lucide-react'
+
+const spring = { type: 'spring' as const, stiffness: 100, damping: 20 }
 
 interface TpSlDisplayProps {
   symbol: string
@@ -43,7 +47,7 @@ export default function TpSlDisplay({
 
   const isNeutral = direction === 'NEUTRAL'
   const dirColor =
-    direction === 'BUY' ? '#3b82f6' : direction === 'SELL' ? '#ef4444' : '#f59e0b'
+    direction === 'BUY' ? '#10b981' : direction === 'SELL' ? '#f43f5e' : '#a1a1aa'
   const dirBg =
     direction === 'BUY'
       ? 'rgba(59,130,246,0.15)'
@@ -79,7 +83,7 @@ export default function TpSlDisplay({
     {
       label: 'TP3',
       price: tp3,
-      color: '#818cf8',
+      color: '#34d399',
       tag: isNeutral ? '1.272 Fib' : '4.236 Fib',
       pips: fmtPips(symbol, tp3Distance),
       distPercent: (tp3Distance / totalRange) * 100,
@@ -87,7 +91,7 @@ export default function TpSlDisplay({
     {
       label: 'TP2',
       price: tp2,
-      color: '#3b82f6',
+      color: '#10b981',
       tag: isNeutral ? '1.272 Fib' : '2.618 Fib',
       pips: fmtPips(symbol, tp2Distance),
       distPercent: (tp2Distance / totalRange) * 100,
@@ -95,7 +99,7 @@ export default function TpSlDisplay({
     {
       label: 'TP1',
       price: tp1,
-      color: '#14b8a6',
+      color: '#10b981',
       tag: isNeutral ? '1.272 Fib' : '1.618 Fib',
       pips: fmtPips(symbol, tp1Distance),
       distPercent: (tp1Distance / totalRange) * 100,
@@ -103,7 +107,7 @@ export default function TpSlDisplay({
     {
       label: 'Stop Loss',
       price: sl,
-      color: '#ef4444',
+      color: '#f43f5e',
       tag: 'ATR-based',
       pips: fmtPips(symbol, slDistance),
       distPercent: (slDistance / totalRange) * 100,
@@ -114,9 +118,9 @@ export default function TpSlDisplay({
   const levels = direction === 'SELL' ? [...levelsRaw].reverse() : levelsRaw
 
   const rr = [
-    { label: 'TP1', ratio: data ? data.rr1.toFixed(2) : null, color: '#14b8a6' },
-    { label: 'TP2', ratio: data ? data.rr2.toFixed(2) : null, color: '#3b82f6' },
-    { label: 'TP3', ratio: data ? data.rr3.toFixed(2) : null, color: '#818cf8' },
+    { label: 'TP1', ratio: data ? data.rr1.toFixed(2) : null, color: '#10b981' },
+    { label: 'TP2', ratio: data ? data.rr2.toFixed(2) : null, color: '#10b981' },
+    { label: 'TP3', ratio: data ? data.rr3.toFixed(2) : null, color: '#34d399' },
   ]
 
   const pipValDisplay = data
@@ -129,32 +133,28 @@ export default function TpSlDisplay({
   const riskDisplay = data ? `$${data.riskAmount.toFixed(2)}` : '—'
 
   return (
-    <div
-      className="rounded-lg border border-[#222] bg-[#111] p-4 sm:p-5 transition-all duration-300 glow-teal"
-      style={{ borderTopColor: '#14b8a6', borderTopWidth: '2px' }}
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...spring, delay: 0.1 }}
+      className="rounded-xl border border-white/[0.06] bg-[#111] p-4 sm:p-5 transition-all duration-300 glow-teal shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+      style={{ borderTopColor: '#10b981', borderTopWidth: '2px' }}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-white">TP / SL Levels</h3>
-          <p className="mt-0.5 text-xs text-gray-600 truncate">
+          <p className="mt-0.5 text-xs text-zinc-600 truncate">
             Visual price levels · {symbol} · {mode.charAt(0).toUpperCase() + mode.slice(1)}
           </p>
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {!loading && (
-            <span
-              className="rounded px-1.5 py-0.5 font-mono text-[8px] font-bold tracking-wider"
-              style={{ backgroundColor: 'rgba(20,184,166,0.12)', color: '#14b8a6' }}
-            >
-              LIVE
+            <span className="flex items-center gap-1">
+              <Radio size={10} className="text-emerald-500 animate-pulse" />
+              <span className="text-[8px] font-bold tracking-wider text-emerald-500">LIVE</span>
             </span>
           )}
-          <span
-            className="h-2 w-2 rounded-full mt-0.5"
-            style={{ backgroundColor: '#14b8a6', boxShadow: '0 0 6px #14b8a6' }}
-            aria-hidden="true"
-          />
         </div>
       </div>
 
@@ -179,7 +179,7 @@ export default function TpSlDisplay({
             <div className="mb-3 flex items-center gap-2 sm:gap-3">
               <div className="flex-1 border-t border-dashed border-gray-700" aria-hidden="true" />
               <div className="flex items-center gap-2 rounded-md border border-gray-700 bg-[#1a1a1a] px-2.5 py-1.5 flex-shrink-0">
-                <span className="text-[10px] uppercase tracking-widest text-gray-500">Entry</span>
+                <span className="text-[10px] uppercase tracking-widest text-zinc-500">Entry</span>
                 <span className="font-mono text-sm font-bold text-white">
                   {fmt(symbol, entry)}
                 </span>
@@ -214,7 +214,7 @@ export default function TpSlDisplay({
                         }}
                         aria-hidden="true"
                       />
-                      <span className="text-xs font-semibold text-gray-300 flex-shrink-0">
+                      <span className="text-xs font-semibold text-zinc-300 flex-shrink-0">
                         {level.label}
                       </span>
                       <span
@@ -227,7 +227,7 @@ export default function TpSlDisplay({
 
                     {/* Right: price + pips */}
                     <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
-                      <span className="hidden xs:inline text-[10px] text-gray-600">
+                      <span className="hidden xs:inline text-[10px] text-zinc-600">
                         {level.pips}
                       </span>
                       <span
@@ -257,7 +257,7 @@ export default function TpSlDisplay({
 
           {/* Risk-Reward Summary */}
           <div className="mt-5 rounded-md border border-[#222] bg-[#1a1a1a] p-3">
-            <span className="mb-2 block text-[10px] uppercase tracking-widest text-gray-600">
+            <span className="mb-2 block text-[10px] uppercase tracking-widest text-zinc-600">
               Risk-Reward Ratios
             </span>
             <div className="grid grid-cols-3 gap-2">
@@ -266,7 +266,7 @@ export default function TpSlDisplay({
                   key={item.label}
                   className="flex flex-col items-center rounded border border-[#222] bg-[#111] py-2 transition-all duration-200"
                 >
-                  <span className="text-[10px] text-gray-600">{item.label}</span>
+                  <span className="text-[10px] text-zinc-600">{item.label}</span>
                   <span className="font-mono text-sm font-bold" style={{ color: item.color }}>
                     {item.ratio === null ? '—' : `1:${item.ratio}`}
                   </span>
@@ -274,7 +274,7 @@ export default function TpSlDisplay({
                     <div className="mt-1 h-1 w-10 sm:w-12 overflow-hidden rounded-full bg-[#222]">
                       <div className="flex h-full">
                         <div
-                          className="h-full bg-[#ef4444]"
+                          className="h-full bg-[#f43f5e]"
                           style={{ width: `${100 / (1 + parseFloat(item.ratio))}%` }}
                         />
                         <div className="h-full flex-1" style={{ backgroundColor: item.color }} />
@@ -290,16 +290,16 @@ export default function TpSlDisplay({
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#333] bg-[#1a1a1a] px-3 py-2">
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-1">
-                <span className="text-[10px] text-gray-600">Risk</span>
+                <span className="text-[10px] text-zinc-600">Risk</span>
                 <span
                   className="text-[10px] font-bold"
                   style={{
                     color:
                       risk === 'conservative'
-                        ? '#14b8a6'
+                        ? '#10b981'
                         : risk === 'balanced'
-                          ? '#3b82f6'
-                          : '#ef4444',
+                          ? '#10b981'
+                          : '#f43f5e',
                   }}
                 >
                   {riskPct}% ({riskDisplay})
@@ -307,21 +307,21 @@ export default function TpSlDisplay({
               </div>
               <div className="h-3 w-px bg-[#222]" aria-hidden="true" />
               <div className="flex items-center gap-1">
-                <span className="text-[10px] text-gray-600">Pip Value</span>
-                <span className="text-[10px] font-bold text-gray-400">{pipValDisplay}</span>
+                <span className="text-[10px] text-zinc-600">Pip Value</span>
+                <span className="text-[10px] font-bold text-zinc-400">{pipValDisplay}</span>
               </div>
               <div className="h-3 w-px bg-[#222]" aria-hidden="true" />
               <div className="flex items-center gap-1">
-                <span className="text-[10px] text-gray-600">Size</span>
-                <span className="font-mono text-[10px] font-bold text-gray-400">{posDisplay}</span>
+                <span className="text-[10px] text-zinc-600">Size</span>
+                <span className="font-mono text-[10px] font-bold text-zinc-400">{posDisplay}</span>
               </div>
             </div>
-            <span className="text-[9px] text-gray-700">
+            <span className="text-[9px] text-zinc-700">
               Lev 1:{leverage.toLocaleString()} · ${capital.toLocaleString()}
             </span>
           </div>
         </>
       )}
-    </div>
+    </motion.div>
   )
 }

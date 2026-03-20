@@ -138,15 +138,15 @@ export function useTelegram() {
       lastSentRef.current = key
 
       const cfg = getSymbolConfig(symbol)
-      const icon = direction === 'BUY' ? '🟢' : '🔴'
-      const arrow = direction === 'BUY' ? '📈' : '📉'
+      const icon = direction === 'BUY' ? '[BUY]' : '[SELL]'
+      const arrow = direction === 'BUY' ? '^' : 'v'
 
       let message = `${icon} <b>${direction} Signal — ${cfg?.icon ?? ''} ${symbol}</b>\n\n`
       message += `${arrow} Direction: <b>${direction}</b>\n`
-      message += `💪 Confidence: <b>${confidence}%</b>\n`
-      message += `💰 Entry: <b>${fmt(symbol, entryPrice)}</b>\n`
-      if (tp1) message += `🎯 TP1: <b>${fmt(symbol, tp1)}</b>\n`
-      if (sl) message += `🛡️ SL: <b>${fmt(symbol, sl)}</b>\n`
+      message += `Confidence: <b>${confidence}%</b>\n`
+      message += `Entry: <b>${fmt(symbol, entryPrice)}</b>\n`
+      if (tp1) message += `TP1: <b>${fmt(symbol, tp1)}</b>\n`
+      if (sl) message += `SL: <b>${fmt(symbol, sl)}</b>\n`
       message += `\n⏰ ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
       message += `\n\n<i>— Alpha Scanner</i>`
 

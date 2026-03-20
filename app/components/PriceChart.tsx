@@ -131,7 +131,7 @@ function drawChart(
   ctx.lineWidth = 0.7
   for (const s of srLevels.support) {
     if (s.price >= minP && s.price <= maxP) {
-      ctx.strokeStyle = '#22c55e80'
+      ctx.strokeStyle = '#10b98180'
       ctx.beginPath()
       ctx.moveTo(pad.left, toY(s.price))
       ctx.lineTo(W - pad.right, toY(s.price))
@@ -140,7 +140,7 @@ function drawChart(
   }
   for (const r of srLevels.resistance) {
     if (r.price >= minP && r.price <= maxP) {
-      ctx.strokeStyle = '#ef444480'
+      ctx.strokeStyle = '#f43f5e80'
       ctx.beginPath()
       ctx.moveTo(pad.left, toY(r.price))
       ctx.lineTo(W - pad.right, toY(r.price))
@@ -174,7 +174,7 @@ function drawChart(
     }
 
     drawEMA(indicators.ema20, '#eab30880')   // yellow, semi-transparent
-    drawEMA(indicators.ema50, '#3b82f680')   // blue
+    drawEMA(indicators.ema50, '#10b98180')   // blue
     drawEMA(indicators.ema200, '#a855f780')  // purple
   }
 
@@ -183,7 +183,7 @@ function drawChart(
     const c = displayCandles[i]
     const x = toX(i)
     const isUp = c.close >= c.open
-    const color = isUp ? '#22c55e' : '#ef4444'
+    const color = isUp ? '#10b981' : '#f43f5e'
     const isHovered = tooltip?.candleIndex === i
 
     ctx.strokeStyle = color
@@ -201,9 +201,9 @@ function drawChart(
     const bodyH = Math.max(1, bodyBot - bodyTop)
 
     if (isUp) {
-      ctx.fillStyle = isHovered ? '#22c55e' : '#22c55e80'
+      ctx.fillStyle = isHovered ? '#10b981' : '#10b98180'
     } else {
-      ctx.fillStyle = isHovered ? '#ef4444' : '#ef444480'
+      ctx.fillStyle = isHovered ? '#f43f5e' : '#f43f5e80'
     }
     ctx.fillRect(x - candleW / 2, bodyTop, candleW, bodyH)
   }
@@ -217,7 +217,7 @@ function drawChart(
 
     if (marker.direction === 'BUY') {
       const baseY = toY(c.low) + 10
-      ctx.fillStyle = '#22c55e'
+      ctx.fillStyle = '#10b981'
       ctx.beginPath()
       ctx.moveTo(x, baseY - 8)
       ctx.lineTo(x - 5, baseY)
@@ -226,7 +226,7 @@ function drawChart(
       ctx.fill()
     } else {
       const baseY = toY(c.high) - 10
-      ctx.fillStyle = '#ef4444'
+      ctx.fillStyle = '#f43f5e'
       ctx.beginPath()
       ctx.moveTo(x, baseY + 8)
       ctx.lineTo(x - 5, baseY)
@@ -357,19 +357,19 @@ export default function PriceChart({ symbol }: PriceChartProps) {
   const lastCandle = candles[candles.length - 1]
   const priceColor = lastCandle
     ? lastCandle.close >= lastCandle.open
-      ? '#22c55e'
-      : '#ef4444'
+      ? '#10b981'
+      : '#f43f5e'
     : '#6b7280'
 
   return (
     <div
-      className="rounded-lg border border-[#222] bg-[#111] overflow-hidden"
+      className="rounded-xl border border-white/[0.06] bg-[#111] overflow-hidden"
       style={{ borderTopColor: ACCENT, borderTopWidth: '2px' }}
     >
       {/* Header */}
       <button
         onClick={() => setIsExpanded((e) => !e)}
-        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 text-left transition-colors hover:bg-[#1a1a1a]"
+        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 text-left transition-colors hover:bg-white/[0.03]"
       >
         <div className="flex items-center gap-2">
           <span
@@ -395,9 +395,9 @@ export default function PriceChart({ symbol }: PriceChartProps) {
         </div>
         <div className="flex items-center gap-3">
           {/* EMA legend */}
-          <div className="hidden sm:flex items-center gap-2 text-[8px] text-gray-600">
+          <div className="hidden sm:flex items-center gap-2 text-[8px] text-zinc-600">
             <span style={{ color: '#eab308' }}>— EMA20</span>
-            <span style={{ color: '#3b82f6' }}>— EMA50</span>
+            <span style={{ color: '#10b981' }}>— EMA50</span>
             <span style={{ color: '#a855f7' }}>— EMA200</span>
           </div>
           <svg
@@ -408,7 +408,7 @@ export default function PriceChart({ symbol }: PriceChartProps) {
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
-            className={`text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            className={`text-zinc-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
           >
             <polyline points="6 9 12 15 18 9" />
           </svg>
@@ -416,26 +416,26 @@ export default function PriceChart({ symbol }: PriceChartProps) {
       </button>
 
       {isExpanded && (
-        <div className="border-t border-[#222]">
+        <div className="border-t border-white/[0.06]">
           {error ? (
             <div className="flex items-center justify-between px-4 py-3">
-              <p className="text-[10px] text-[#ef4444]">{error}</p>
+              <p className="text-[10px] text-[#f43f5e]">{error}</p>
               <button
                 onClick={load}
-                className="text-[9px] text-gray-600 hover:text-gray-400"
+                className="text-[9px] text-zinc-600 hover:text-zinc-400"
               >
                 Retry
               </button>
             </div>
           ) : loading ? (
             <div className="h-[300px] flex items-center justify-center">
-              <div className="text-[10px] text-gray-600 animate-pulse">Loading chart…</div>
+              <div className="text-[10px] text-zinc-600 animate-pulse">Loading chart…</div>
             </div>
           ) : (
             <div className="relative px-2 py-2">
               <canvas
                 ref={canvasRef}
-                className="w-full rounded-md border border-[#222] cursor-crosshair"
+                className="w-full rounded-md border border-white/[0.06] cursor-crosshair"
                 style={{ height: '300px', backgroundColor: '#0a0a0a' }}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
@@ -450,20 +450,20 @@ export default function PriceChart({ symbol }: PriceChartProps) {
                     top: Math.max(4, tooltip.y - 60),
                   }}
                 >
-                  <div className="text-gray-400 mb-1">
+                  <div className="text-zinc-400 mb-1">
                     {new Date(tooltip.candle.time).toLocaleDateString([], {
                       month: 'short',
                       day: 'numeric',
                     })}
                   </div>
                   <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
-                    <span className="text-gray-600">O</span>
+                    <span className="text-zinc-600">O</span>
                     <span className="text-white">{tooltip.candle.open.toFixed(4)}</span>
-                    <span className="text-gray-600">H</span>
-                    <span className="text-[#22c55e]">{tooltip.candle.high.toFixed(4)}</span>
-                    <span className="text-gray-600">L</span>
-                    <span className="text-[#ef4444]">{tooltip.candle.low.toFixed(4)}</span>
-                    <span className="text-gray-600">C</span>
+                    <span className="text-zinc-600">H</span>
+                    <span className="text-[#10b981]">{tooltip.candle.high.toFixed(4)}</span>
+                    <span className="text-zinc-600">L</span>
+                    <span className="text-[#f43f5e]">{tooltip.candle.low.toFixed(4)}</span>
+                    <span className="text-zinc-600">C</span>
                     <span className="text-white">{tooltip.candle.close.toFixed(4)}</span>
                   </div>
                 </div>
@@ -471,19 +471,19 @@ export default function PriceChart({ symbol }: PriceChartProps) {
 
               {/* Legend for S/R */}
               <div className="mt-1 flex items-center gap-3 px-1 text-[8px]">
-                <span className="flex items-center gap-1 text-gray-700">
-                  <span className="inline-block h-px w-4 border-t border-dashed border-[#22c55e80]" />
+                <span className="flex items-center gap-1 text-zinc-700">
+                  <span className="inline-block h-px w-4 border-t border-dashed border-[#10b98180]" />
                   Support
                 </span>
-                <span className="flex items-center gap-1 text-gray-700">
-                  <span className="inline-block h-px w-4 border-t border-dashed border-[#ef444480]" />
+                <span className="flex items-center gap-1 text-zinc-700">
+                  <span className="inline-block h-px w-4 border-t border-dashed border-[#f43f5e80]" />
                   Resistance
                 </span>
-                <span className="flex items-center gap-1 text-gray-700">
-                  <span className="text-[#22c55e]">▲</span> BUY
+                <span className="flex items-center gap-1 text-zinc-700">
+                  <span className="text-[#10b981]">▲</span> BUY
                 </span>
-                <span className="flex items-center gap-1 text-gray-700">
-                  <span className="text-[#ef4444]">▼</span> SELL
+                <span className="flex items-center gap-1 text-zinc-700">
+                  <span className="text-[#f43f5e]">▼</span> SELL
                 </span>
               </div>
             </div>

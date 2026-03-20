@@ -83,7 +83,7 @@ function EquityCurve({ snapshots }: { snapshots: EquitySnapshot[] }) {
 
     // Equity line
     const isUp = equities[equities.length - 1] >= equities[0]
-    const lineColor = isUp ? '#22c55e' : '#ef4444'
+    const lineColor = isUp ? '#10b981' : '#f43f5e'
 
     ctx.strokeStyle = lineColor
     ctx.lineWidth = 1.5
@@ -145,11 +145,11 @@ function EquityCurve({ snapshots }: { snapshots: EquitySnapshot[] }) {
 
   if (snapshots.length < 2) {
     return (
-      <div className="flex items-center justify-center h-40 rounded-md border border-[#222] bg-[#0a0a0a]">
+      <div className="flex items-center justify-center h-40 rounded-md border border-white/[0.06] bg-[#0a0a0a]">
         <div className="text-center">
-          <div className="text-xl opacity-30 mb-1">📈</div>
-          <p className="text-[10px] text-gray-600">Not enough data for equity curve</p>
-          <p className="text-[8px] text-gray-700">Start paper trading to build history</p>
+          <div className="opacity-30 mb-1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-zinc-600"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <p className="text-[10px] text-zinc-600">Not enough data for equity curve</p>
+          <p className="text-[8px] text-zinc-700">Start paper trading to build history</p>
         </div>
       </div>
     )
@@ -158,7 +158,7 @@ function EquityCurve({ snapshots }: { snapshots: EquitySnapshot[] }) {
   return (
     <canvas
       ref={canvasRef}
-      className="w-full rounded-md border border-[#222]"
+      className="w-full rounded-md border border-white/[0.06]"
       style={{ height: '160px', backgroundColor: '#0a0a0a' }}
     />
   )
@@ -175,17 +175,17 @@ export default function PerformanceAnalytics({
   const [tab, setTab] = useState<'overview' | 'breakdown'>('overview')
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
-  const plColor = metrics.totalPL >= 0 ? '#22c55e' : '#ef4444'
+  const plColor = metrics.totalPL >= 0 ? '#10b981' : '#f43f5e'
 
   return (
     <div
-      className="rounded-lg border border-[#222] bg-[#111] overflow-hidden"
+      className="rounded-xl border border-white/[0.06] bg-[#111] overflow-hidden"
       style={{ borderTopColor: '#f97316', borderTopWidth: '2px' }}
     >
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 text-left transition-colors hover:bg-[#1a1a1a]"
+        className="flex w-full items-center justify-between px-4 py-3 sm:px-5 text-left transition-colors hover:bg-white/[0.03]"
       >
         <div className="flex items-center gap-2">
           <span
@@ -214,16 +214,16 @@ export default function PerformanceAnalytics({
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
-          className={`text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          className={`text-zinc-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
 
       {isExpanded && (
-        <div className="border-t border-[#222]">
+        <div className="border-t border-white/[0.06]">
           {/* Tabs */}
-          <div className="flex border-b border-[#222]">
+          <div className="flex border-b border-white/[0.06]">
             <button
               onClick={() => setTab('overview')}
               className="flex-1 py-2 text-[10px] font-semibold uppercase tracking-widest transition-colors"
@@ -250,7 +250,7 @@ export default function PerformanceAnalytics({
             <div className="px-4 py-4 sm:px-5 space-y-4">
               {/* Equity Curve */}
               <div>
-                <span className="block text-[10px] uppercase tracking-widest text-gray-600 mb-2">
+                <span className="block text-[10px] uppercase tracking-widest text-zinc-600 mb-2">
                   Equity Curve
                 </span>
                 <EquityCurve snapshots={snapshots} />
@@ -268,19 +268,19 @@ export default function PerformanceAnalytics({
                   label="Max Drawdown"
                   value={`$${metrics.maxDrawdown.toFixed(2)}`}
                   sub={`${metrics.maxDrawdownPct.toFixed(1)}%`}
-                  color="#ef4444"
+                  color="#f43f5e"
                 />
                 <MetricCard
                   label="Profit Factor"
                   value={metrics.profitFactor === Infinity ? '∞' : metrics.profitFactor.toFixed(2)}
                   sub={metrics.profitFactor >= 1.5 ? 'Good' : metrics.profitFactor >= 1 ? 'Break-even' : 'Negative'}
-                  color={metrics.profitFactor >= 1.5 ? '#22c55e' : metrics.profitFactor >= 1 ? '#f59e0b' : '#ef4444'}
+                  color={metrics.profitFactor >= 1.5 ? '#10b981' : metrics.profitFactor >= 1 ? '#a1a1aa' : '#f43f5e'}
                 />
                 <MetricCard
                   label="Peak Equity"
                   value={`$${metrics.peakEquity.toFixed(0)}`}
                   sub={`Current: $${metrics.currentEquity.toFixed(0)}`}
-                  color="#3b82f6"
+                  color="#10b981"
                 />
               </div>
 
@@ -290,25 +290,25 @@ export default function PerformanceAnalytics({
                   label="Avg Win"
                   value={`$${metrics.avgWin.toFixed(2)}`}
                   sub={`Best: $${metrics.largestWin.toFixed(2)}`}
-                  color="#22c55e"
+                  color="#10b981"
                 />
                 <MetricCard
                   label="Avg Loss"
                   value={`$${metrics.avgLoss.toFixed(2)}`}
                   sub={`Worst: $${Math.abs(metrics.largestLoss).toFixed(2)}`}
-                  color="#ef4444"
+                  color="#f43f5e"
                 />
                 <MetricCard
                   label="Win Streak"
                   value={String(metrics.winStreak)}
                   sub={`Current: ${metrics.currentStreak > 0 ? `${metrics.currentStreak}W` : metrics.currentStreak < 0 ? `${Math.abs(metrics.currentStreak)}L` : '—'}`}
-                  color="#22c55e"
+                  color="#10b981"
                 />
                 <MetricCard
                   label="Loss Streak"
                   value={String(metrics.lossStreak)}
                   sub="Consecutive"
-                  color="#ef4444"
+                  color="#f43f5e"
                 />
               </div>
             </div>
@@ -317,7 +317,7 @@ export default function PerformanceAnalytics({
               {/* By Symbol */}
               {Object.keys(metrics.bySymbol).length > 0 ? (
                 <div>
-                  <span className="block text-[10px] uppercase tracking-widest text-gray-600 mb-2">
+                  <span className="block text-[10px] uppercase tracking-widest text-zinc-600 mb-2">
                     Profit by Symbol
                   </span>
                   <div className="space-y-1.5">
@@ -339,16 +339,16 @@ export default function PerformanceAnalytics({
                 </div>
               ) : (
                 <div className="py-6 text-center">
-                  <div className="text-xl opacity-30 mb-1">📊</div>
-                  <p className="text-xs text-gray-500">No trade data yet</p>
-                  <p className="text-[9px] text-gray-700">Paper trade to see breakdown</p>
+                  <div className="opacity-30 mb-1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-zinc-600"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+                  <p className="text-xs text-zinc-500">No trade data yet</p>
+                  <p className="text-[9px] text-zinc-700">Paper trade to see breakdown</p>
                 </div>
               )}
 
               {/* By Mode */}
               {Object.keys(metrics.byMode).length > 0 && (
                 <div>
-                  <span className="block text-[10px] uppercase tracking-widest text-gray-600 mb-2">
+                  <span className="block text-[10px] uppercase tracking-widest text-zinc-600 mb-2">
                     Profit by Mode
                   </span>
                   <div className="space-y-1.5">
@@ -373,32 +373,32 @@ export default function PerformanceAnalytics({
           )}
 
           {/* Footer */}
-          <div className="flex items-center justify-between border-t border-[#222] px-4 py-2">
+          <div className="flex items-center justify-between border-t border-white/[0.06] px-4 py-2">
             {!showResetConfirm ? (
               <button
                 onClick={() => setShowResetConfirm(true)}
-                className="text-[9px] text-gray-700 hover:text-gray-500 transition-colors"
+                className="text-[9px] text-zinc-700 hover:text-zinc-500 transition-colors"
               >
                 Reset Analytics
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-[9px] text-gray-500">Clear all data?</span>
+                <span className="text-[9px] text-zinc-500">Clear all data?</span>
                 <button
                   onClick={() => { onReset(); setShowResetConfirm(false) }}
-                  className="text-[9px] text-[#ef4444] font-semibold"
+                  className="text-[9px] text-[#f43f5e] font-semibold"
                 >
                   Yes
                 </button>
                 <button
                   onClick={() => setShowResetConfirm(false)}
-                  className="text-[9px] text-gray-600"
+                  className="text-[9px] text-zinc-600"
                 >
                   No
                 </button>
               </div>
             )}
-            <span className="text-[8px] text-gray-700">
+            <span className="text-[8px] text-zinc-700">
               {snapshots.length} snapshots
             </span>
           </div>
@@ -422,14 +422,14 @@ function MetricCard({
   color: string
 }) {
   return (
-    <div className="rounded border border-[#222] bg-[#1a1a1a] px-2.5 py-2 text-center">
-      <span className="block text-[8px] uppercase tracking-widest text-gray-600 mb-0.5">
+    <div className="rounded border border-white/[0.06] bg-white/[0.03] px-2.5 py-2 text-center">
+      <span className="block text-[8px] uppercase tracking-widest text-zinc-600 mb-0.5">
         {label}
       </span>
       <span className="font-mono text-sm font-bold" style={{ color }}>
         {value}
       </span>
-      <span className="block text-[8px] text-gray-700 mt-0.5">{sub}</span>
+      <span className="block text-[8px] text-zinc-700 mt-0.5">{sub}</span>
     </div>
   )
 }
@@ -445,11 +445,11 @@ function BreakdownBar({
   trades: number
   maxValue: number
 }) {
-  const color = value >= 0 ? '#22c55e' : '#ef4444'
+  const color = value >= 0 ? '#10b981' : '#f43f5e'
   const pct = maxValue > 0 ? (Math.abs(value) / maxValue) * 100 : 0
 
   return (
-    <div className="flex items-center justify-between rounded border border-[#222] bg-[#1a1a1a] px-3 py-2">
+    <div className="flex items-center justify-between rounded border border-white/[0.06] bg-white/[0.03] px-3 py-2">
       <div className="flex items-center gap-2 min-w-0 flex-1">
         <span className="text-xs font-semibold text-white capitalize w-20 truncate">{label}</span>
         <div className="flex-1 h-1.5 rounded-full bg-[#222] overflow-hidden">
@@ -460,7 +460,7 @@ function BreakdownBar({
         </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-        <span className="text-[8px] text-gray-600">{trades} trades</span>
+        <span className="text-[8px] text-zinc-600">{trades} trades</span>
         <span className="font-mono text-[10px] font-bold w-16 text-right" style={{ color }}>
           {value >= 0 ? '+' : ''}${value.toFixed(2)}
         </span>

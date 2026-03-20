@@ -87,19 +87,19 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
 
   return (
     <div
-      className="rounded-lg border border-[#222] bg-[#111]"
+      className="rounded-xl border border-white/[0.06] bg-[#111]"
       style={{ borderTopColor: '#374151', borderTopWidth: '2px' }}
     >
       {/* Collapsible header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between p-4 sm:p-5 text-left transition-colors hover:bg-[#1a1a1a]"
+        className="flex w-full items-center justify-between p-4 sm:p-5 text-left transition-colors hover:bg-white/[0.03]"
         aria-expanded={isExpanded}
         aria-controls="settings-panel-content"
       >
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-white">Settings</h3>
-          <span className="rounded bg-[#1a1a1a] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-gray-500">
+          <span className="rounded bg-white/[0.03] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
             Config
           </span>
         </div>
@@ -119,7 +119,7 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
-            className={`text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            className={`text-zinc-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
             aria-hidden="true"
           >
             <polyline points="6 9 12 15 18 9" />
@@ -130,12 +130,12 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
       {isExpanded && (
         <div
           id="settings-panel-content"
-          className="space-y-5 border-t border-[#222] px-4 sm:px-5 pb-5 pt-4"
+          className="space-y-5 border-t border-white/[0.06] px-4 sm:px-5 pb-5 pt-4"
         >
           {/* Leverage */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-widest text-gray-600">Leverage</span>
+              <span className="text-[10px] uppercase tracking-widest text-zinc-600">Leverage</span>
               <span className="font-mono text-xs font-bold text-white">
                 1:{settings.leverage.toLocaleString()}
               </span>
@@ -173,7 +173,7 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
           {/* Capital */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-widest text-gray-600">Capital</span>
+              <span className="text-[10px] uppercase tracking-widest text-zinc-600">Capital</span>
               <span className="font-mono text-xs font-bold text-white">
                 ${settings.capital.toLocaleString()}
               </span>
@@ -212,7 +212,7 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
             {isCustomCapital && (
               <div className="mt-2 flex gap-2">
                 <div className="relative flex-1">
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-500" aria-hidden="true">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-zinc-500" aria-hidden="true">
                     $
                   </span>
                   <input
@@ -221,7 +221,7 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
                     onChange={(e) => setCustomCapital(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleCustomCapitalSubmit()}
                     placeholder="Enter amount"
-                    className="w-full rounded border border-[#222] bg-[#1a1a1a] py-2.5 pl-6 pr-3 font-mono text-xs text-white placeholder-gray-600 outline-none focus:border-[#14b8a6]/50 transition-colors"
+                    className="w-full rounded border border-white/[0.06] bg-white/[0.03] py-2.5 pl-6 pr-3 font-mono text-xs text-white placeholder-gray-600 outline-none focus:border-[#10b981]/50 transition-colors"
                     min="1"
                     autoFocus
                     aria-label="Custom capital amount"
@@ -229,7 +229,7 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
                 </div>
                 <button
                   onClick={handleCustomCapitalSubmit}
-                  className="rounded border border-[#14b8a6]/30 bg-[#14b8a6]/10 px-3 py-2.5 text-[10px] font-semibold text-[#5eead4] transition-colors hover:bg-[#14b8a6]/20 active:scale-95"
+                  className="rounded border border-[#10b981]/30 bg-[#10b981]/10 px-3 py-2.5 text-[10px] font-semibold text-[#5eead4] transition-colors hover:bg-[#10b981]/20 active:scale-95"
                 >
                   Set
                 </button>
@@ -240,10 +240,10 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
           {/* TP1 Fibonacci Ratio */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-widest text-gray-600">
+              <span className="text-[10px] uppercase tracking-widest text-zinc-600">
                 TP1 Fibonacci Extension
               </span>
-              <span className="font-mono text-xs font-bold text-[#14b8a6]">
+              <span className="font-mono text-xs font-bold text-[#10b981]">
                 {settings.tp1Ratio.toFixed(3)}
               </span>
             </div>
@@ -268,26 +268,26 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
               })}
             </div>
             {/* TP chain display */}
-            <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-3 rounded border border-[#222] bg-[#1a1a1a] px-3 py-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-3 rounded border border-white/[0.06] bg-white/[0.03] px-3 py-2">
               <div className="flex items-center gap-1.5">
-                <span className="h-1 w-1 rounded-full bg-[#14b8a6]" aria-hidden="true" />
-                <span className="text-[9px] text-gray-500">TP1</span>
-                <span className="font-mono text-[10px] font-semibold text-[#14b8a6]">
+                <span className="h-1 w-1 rounded-full bg-[#10b981]" aria-hidden="true" />
+                <span className="text-[9px] text-zinc-500">TP1</span>
+                <span className="font-mono text-[10px] font-semibold text-[#10b981]">
                   {settings.tp1Ratio.toFixed(3)}
                 </span>
               </div>
-              <span className="text-[8px] text-gray-600" aria-hidden="true">→</span>
+              <span className="text-[8px] text-zinc-600" aria-hidden="true">→</span>
               <div className="flex items-center gap-1.5">
-                <span className="h-1 w-1 rounded-full bg-[#3b82f6]" aria-hidden="true" />
-                <span className="text-[9px] text-gray-500">TP2</span>
-                <span className="font-mono text-[10px] font-semibold text-[#3b82f6]">
+                <span className="h-1 w-1 rounded-full bg-[#10b981]" aria-hidden="true" />
+                <span className="text-[9px] text-zinc-500">TP2</span>
+                <span className="font-mono text-[10px] font-semibold text-[#10b981]">
                   {settings.tp2Ratio.toFixed(3)}
                 </span>
               </div>
-              <span className="text-[8px] text-gray-600" aria-hidden="true">→</span>
+              <span className="text-[8px] text-zinc-600" aria-hidden="true">→</span>
               <div className="flex items-center gap-1.5">
                 <span className="h-1 w-1 rounded-full bg-[#818cf8]" aria-hidden="true" />
-                <span className="text-[9px] text-gray-500">TP3</span>
+                <span className="text-[9px] text-zinc-500">TP3</span>
                 <span className="font-mono text-[10px] font-semibold text-[#818cf8]">
                   {settings.tp3Ratio.toFixed(3)}
                 </span>
@@ -296,32 +296,32 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
           </div>
 
           {/* Position Info Summary */}
-          <div className="rounded border border-[#222] bg-[#1a1a1a] p-3">
-            <span className="mb-2 block text-[10px] uppercase tracking-widest text-gray-600">
+          <div className="rounded border border-white/[0.06] bg-white/[0.03] p-3">
+            <span className="mb-2 block text-[10px] uppercase tracking-widest text-zinc-600">
               Position Summary
             </span>
             <div className="grid grid-cols-2 gap-2">
               <div className="flex items-center justify-between gap-1">
-                <span className="text-[10px] text-gray-500">Margin Used</span>
-                <span className="font-mono text-[10px] font-semibold text-gray-300">
+                <span className="text-[10px] text-zinc-500">Margin Used</span>
+                <span className="font-mono text-[10px] font-semibold text-zinc-300">
                   ${marginUsed.toFixed(2)}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-1">
-                <span className="text-[10px] text-gray-500">Exposure</span>
-                <span className="font-mono text-[10px] font-semibold text-gray-300">
+                <span className="text-[10px] text-zinc-500">Exposure</span>
+                <span className="font-mono text-[10px] font-semibold text-zinc-300">
                   ${effectiveExposure.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-1">
-                <span className="text-[10px] text-gray-500">Leverage</span>
+                <span className="text-[10px] text-zinc-500">Leverage</span>
                 <span className="font-mono text-[10px] font-semibold text-white">
                   1:{settings.leverage.toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-1">
-                <span className="text-[10px] text-gray-500">TP Method</span>
-                <span className="font-mono text-[10px] font-semibold text-[#14b8a6]">
+                <span className="text-[10px] text-zinc-500">TP Method</span>
+                <span className="font-mono text-[10px] font-semibold text-[#10b981]">
                   Fibonacci
                 </span>
               </div>
@@ -332,7 +332,7 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
           {!isDefault && (
             <button
               onClick={handleReset}
-              className="flex w-full items-center justify-center gap-1.5 rounded border border-[#222] bg-[#1a1a1a] py-2.5 text-[10px] font-semibold text-gray-500 transition-all hover:border-gray-500 hover:text-gray-300 active:scale-[0.99]"
+              className="flex w-full items-center justify-center gap-1.5 rounded border border-white/[0.06] bg-white/[0.03] py-2.5 text-[10px] font-semibold text-zinc-500 transition-all hover:border-gray-500 hover:text-zinc-300 active:scale-[0.99]"
             >
               <svg
                 width="10"
