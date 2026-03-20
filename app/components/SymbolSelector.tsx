@@ -28,7 +28,7 @@ type Props = {
 const CATEGORIES = [
   { key: 'Metals' as const, label: 'Metals', color: '#f59e0b' },
   { key: 'Crypto' as const, label: 'Cryptocurrencies', color: '#8b5cf6' },
-  { key: 'Forex' as const, label: 'Forex Pairs', color: '#3b82f6' },
+  { key: 'Forex' as const, label: 'Forex Pairs', color: '#10b981' },
 ]
 
 function formatChange(change: number): { text: string; positive: boolean } {
@@ -104,7 +104,7 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
         </div>
         <div className="flex items-center gap-2">
           {selectedInfo && (
-            <span className="rounded bg-[#111] px-1.5 py-0.5 font-mono text-[10px] text-[#3b82f6]">
+            <span className="rounded bg-[#111] px-1.5 py-0.5 font-mono text-[10px] text-[#10b981]">
               {selectedInfo.symbol}
             </span>
           )}
@@ -198,9 +198,9 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
                           className={[
                             'group flex items-center justify-between rounded-md border px-2.5 py-2.5 transition-all duration-150 active:scale-[0.98]',
                             isActive
-                              ? 'border-[#3b82f6]/40 bg-[#3b82f6]/10'
+                              ? 'border-[#10b981]/40 bg-[#10b981]/10'
                               : 'border-white/[0.06] bg-[#111] hover:border-[#333] hover:bg-white/[0.03]',
-                            isFlashing ? 'ring-1 ring-[#22c55e]/40' : '',
+                            isFlashing ? 'ring-1 ring-[#10b981]/40' : '',
                           ].join(' ')}
                           style={isActive ? { boxShadow: '0 0 10px rgba(59,130,246,0.12)' } : undefined}
                         >
@@ -210,7 +210,7 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
                               <span
                                 className={[
                                   'font-mono text-[11px] font-bold',
-                                  isActive ? 'text-[#3b82f6]' : 'text-gray-300',
+                                  isActive ? 'text-[#10b981]' : 'text-zinc-300',
                                 ].join(' ')}
                               >
                                 {s.symbol}
@@ -232,7 +232,7 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
                               <span
                                 className={[
                                   'hidden sm:inline font-mono text-[10px] transition-colors',
-                                  isFlashing ? 'text-[#22c55e]' : 'text-gray-500',
+                                  isFlashing ? 'text-[#10b981]' : 'text-gray-500',
                                 ].join(' ')}
                               >
                                 {displayPrice}
@@ -241,7 +241,7 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
                             <span
                               className={[
                                 'font-mono text-[9px] font-semibold',
-                                changePositive ? 'text-[#22c55e]' : 'text-[#ef4444]',
+                                changePositive ? 'text-[#10b981]' : 'text-[#f43f5e]',
                               ].join(' ')}
                             >
                               {displayChange}

@@ -76,7 +76,7 @@ function EquityCurve({ data }: { data: number[] }) {
     ctx.beginPath()
     ctx.moveTo(toX(0), toY(data[0]))
     for (let i = 1; i < data.length; i++) ctx.lineTo(toX(i), toY(data[i]))
-    ctx.strokeStyle = isPositive ? '#22c55e' : '#ef4444'
+    ctx.strokeStyle = isPositive ? '#10b981' : '#f43f5e'
     ctx.lineWidth = 1.5
     ctx.stroke()
 
@@ -147,13 +147,13 @@ function TradesTable({ trades, symbol }: { trades: BacktestTrade[]; symbol: stri
             <tr key={t.id} className="border-b border-[#1a1a1a] hover:bg-[#1a1a1a] transition-colors">
               <td className="px-2 py-1.5 text-zinc-500">{t.id}</td>
               <td className="px-2 py-1.5">
-                <span className={`font-semibold ${t.direction === 'BUY' ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+                <span className={`font-semibold ${t.direction === 'BUY' ? 'text-[#10b981]' : 'text-[#f43f5e]'}`}>
                   {t.direction}
                 </span>
               </td>
               <td className="px-2 py-1.5 text-right font-mono text-zinc-300">{fmt(symbol, t.entryPrice)}</td>
               <td className="px-2 py-1.5 text-right font-mono text-zinc-300">{fmt(symbol, t.exitPrice)}</td>
-              <td className={`px-2 py-1.5 text-right font-mono font-semibold ${t.pnlPercent >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'}`}>
+              <td className={`px-2 py-1.5 text-right font-mono font-semibold ${t.pnlPercent >= 0 ? 'text-[#10b981]' : 'text-[#f43f5e]'}`}>
                 {t.pnlPercent >= 0 ? '+' : ''}{t.pnlPercent.toFixed(2)}%
               </td>
               <td className="px-2 py-1.5 text-zinc-500 uppercase">{t.exitReason}</td>
@@ -255,7 +255,7 @@ export default function BacktestDashboard() {
       )}
 
       {error && (
-        <div className="rounded-lg border border-[#ef4444]/30 bg-[#111] p-4 text-center text-xs text-[#ef4444]">
+        <div className="rounded-lg border border-[#f43f5e]/30 bg-[#111] p-4 text-center text-xs text-[#f43f5e]">
           {error}
         </div>
       )}
@@ -272,37 +272,37 @@ export default function BacktestDashboard() {
             <MetricCard
               label="Win Rate"
               value={`${result.winRate.toFixed(1)}%`}
-              color={result.winRate >= 50 ? 'text-[#22c55e]' : 'text-[#ef4444]'}
+              color={result.winRate >= 50 ? 'text-[#10b981]' : 'text-[#f43f5e]'}
             />
             <MetricCard
               label="Profit Factor"
               value={result.profitFactor === Infinity ? '∞' : result.profitFactor.toFixed(2)}
-              color={result.profitFactor >= 1 ? 'text-[#22c55e]' : 'text-[#ef4444]'}
+              color={result.profitFactor >= 1 ? 'text-[#10b981]' : 'text-[#f43f5e]'}
             />
             <MetricCard
               label="Max Drawdown"
               value={`${result.maxDrawdownPercent.toFixed(1)}%`}
-              color="text-[#ef4444]"
+              color="text-[#f43f5e]"
             />
             <MetricCard
               label="Total Return"
               value={`${result.totalReturnPercent >= 0 ? '+' : ''}${result.totalReturnPercent.toFixed(2)}%`}
-              color={result.totalReturnPercent >= 0 ? 'text-[#22c55e]' : 'text-[#ef4444]'}
+              color={result.totalReturnPercent >= 0 ? 'text-[#10b981]' : 'text-[#f43f5e]'}
             />
             <MetricCard
               label="Avg R:R"
               value={result.avgRR === Infinity ? '∞' : result.avgRR.toFixed(2)}
-              color="text-[#3b82f6]"
+              color="text-[#10b981]"
             />
             <MetricCard
               label="Best Trade"
               value={`+${result.bestTradePercent.toFixed(2)}%`}
-              color="text-[#22c55e]"
+              color="text-[#10b981]"
             />
             <MetricCard
               label="Worst Trade"
               value={`${result.worstTradePercent.toFixed(2)}%`}
-              color="text-[#ef4444]"
+              color="text-[#f43f5e]"
             />
           </div>
 
