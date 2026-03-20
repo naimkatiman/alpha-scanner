@@ -1,7 +1,7 @@
 project: alpha-scanner
-updated: 2026-03-20T10:40:00+08:00
+updated: 2026-03-20T13:20:00+08:00
 repo: https://github.com/naimkatiman/alpha-scanner
-phase: 2 # 1=frontend UI✅, 2=scanner engine, 3=multi-asset, 4=broker API
+phase: 4 # 1=frontend UI✅, 2=scanner engine✅, 3=multi-asset expansion✅, 4=broker API
 
 tasks:
   # Phase 1 — DONE
@@ -36,39 +36,124 @@ tasks:
     status: done
     output: "Mobile responsiveness + final polish. Commit f67e2a8."
 
-  # Phase 2 — Scanner Engine
+  # Phase 2 — Scanner Engine — DONE
   - id: TASK-011
     status: done
-    owner: pm-alpha-scanner
-    notes: "Real-time price fetching — CoinGecko for crypto (BTCUSD, ETHUSD, XRPUSD), free forex/metals API for XAUUSD, XAGUSD. Create /api/prices route, refresh every 30s on frontend."
     output: "Real-time price fetching with CoinGecko + metals APIs, 30s cache, usePrices hook, live status indicator. Commit fb68e70."
-
   - id: TASK-012
     status: done
-    owner: pm-alpha-scanner
-    notes: "Support & Resistance detection — identify key S/R levels from recent price history per symbol. Store in /data or compute via API."
     output: "S/R detection engine with pivot clustering algo, history API (CoinGecko OHLC + synthetic metals), /api/sr route, useSR hook (60s refresh), SRLevels visual component (price ladder with strength bars). Commit 97f940f."
-
   - id: TASK-013
     status: done
-    owner: pm-alpha-scanner
-    notes: "Technical indicator calculations — RSI, MACD, EMA (20/50/200). Compute from real price data instead of mock values."
-    output: "technicalAnalysis.ts (Wilder RSI, EMA, MACD), /api/indicators route (60s cache), useIndicators hook, IndicatorsPanel component (RSI gauge, MACD grid, EMA alignment). Integrated in page.tsx. Commit 74bb054."
-
+    output: "technicalAnalysis.ts (Wilder RSI, EMA, MACD), /api/indicators route (60s cache), useIndicators hook, IndicatorsPanel component (RSI gauge, MACD grid, EMA alignment). Commit 74bb054."
   - id: TASK-014
     status: done
-    owner: pm-alpha-scanner
-    notes: "Signal generation logic — use RSI/MACD/EMA/S&R to produce BUY/SELL/NEUTRAL per symbol+mode combination. Replace mock signals with computed ones."
     output: "Signal engine with weighted RSI/MACD/EMA/S&R scoring, /api/signals route (30s cache), useSignals hook, SignalPanel wired to live data with NEUTRAL support. Commit 7c18f63."
-
   - id: TASK-015
     status: done
-    owner: pm-alpha-scanner
-    notes: "TP/SL calculation engine — compute entry, TP1/2/3 (Fibonacci extensions), SL based on risk profile + leverage + volatility. Replace hardcoded values."
-    output: "TP/SL engine with ATR-based SL (mode multipliers: swing=2×, intraday=1.5×, scalper=1×), S/R snapping (within 1.2×ATR), Fibonacci TPs (1.618/2.618/4.236), real position sizing. /api/tpsl route (30s cache), useTpSl hook, TpSlDisplay wired to live data with LIVE badge + shimmer. NEUTRAL: 0.75× tighter SL, TP1 at 1.272 Fib. Commit b837cfe."
+    output: "TP/SL engine with ATR-based SL, S/R snapping, Fibonacci TPs, real position sizing. /api/tpsl route (30s cache), useTpSl hook, TpSlDisplay wired to live data. Commit b837cfe."
+
+  # Phase 3 — Multi-Asset Expansion — DONE
+  - id: TASK-016
+    status: done
+    owner: coding-agent
+    output: "SymbolConfig type + SYMBOL_REGISTRY with 12 symbols (2 metals, 6 crypto, 4 forex)."
+  - id: TASK-017
+    status: done
+    owner: coding-agent
+    output: "prices/route.ts: fetchForexPrices() via fawazahmed0 USD rates, expanded CoinGecko for SOL/DOGE/ADA. history/route.ts: registry-driven lookups."
+  - id: TASK-018
+    status: done
+    owner: coding-agent
+    output: "All 5 API routes now use getAllSymbols() for VALID_SYMBOLS. tpslEngine.ts imports from symbols.ts."
+  - id: TASK-019
+    status: done
+    owner: coding-agent
+    output: "Registry-driven SymbolSelector with 3 independently collapsible categories."
+  - id: TASK-020
+    status: done
+    owner: coding-agent
+    output: "Clean TypeScript build. Commit 8339100: 'feat: Phase 3 - Multi-asset expansion'. Pushed to GitHub."
+
+  # Phase 4 — Broker API Integration — IN PROGRESS
+  - id: TASK-021
+    status: in-progress
+    owner: coding-agent
+    notes: >
+      MetaApi SDK + broker connection library.
+      Install metaapi.cloud-sdk. Create app/lib/brokerApi.ts with MetaApi wrapper.
+      Types for account info (balance, equity, margin, free margin), positions, connection state.
+      In-memory session store (token + accountId per session) for serverless API routes.
+    output: null
+
+  - id: TASK-022
+    status: pending
+    owner: coding-agent
+    notes: >
+      Broker API routes:
+      POST /api/broker/connect — accept MetaApi token + MT4/MT5 account ID, deploy & connect
+      GET /api/broker/account — fetch account info (balance, equity, margin level, free margin)
+      GET /api/broker/positions — fetch open positions with live P&L
+      POST /api/broker/disconnect — clean up connection
+      All routes use in-memory session store, return proper error codes.
+    output: null
+
+  - id: TASK-023
+    status: pending
+    owner: coding-agent
+    notes: >
+      Broker connection UI:
+      BrokerConnect component — slide-out panel or modal to enter MetaApi token + account ID.
+      AccountInfo component — show balance, equity, margin level, free margin, leverage.
+      Connection status indicator in navbar or sidebar.
+      useBroker hook to manage connection state (localStorage persistence for reconnect).
+    output: null
+
+  - id: TASK-024
+    status: pending
+    owner: coding-agent
+    notes: >
+      Live positions panel:
+      PositionsPanel component — table of open trades (symbol, type, volume, open price, current price, P&L, swap).
+      Highlight active symbols in SymbolSelector when user has open trades on them.
+      Auto-refresh positions every 5s when connected.
+      usePositions hook.
+    output: null
+
+  - id: TASK-025
+    status: pending
+    owner: coding-agent
+    notes: >
+      Signal alerts system:
+      Watchlist management — add/remove symbols to watch.
+      Signal change detection — track previous signal state, detect BUY/SELL transitions.
+      Browser Notification API for desktop alerts (with permission request).
+      In-app alert toast/banner when new signal fires.
+      AlertsPanel component showing alert history.
+      useAlerts hook with localStorage persistence.
+    output: null
+
+  - id: TASK-026
+    status: pending
+    owner: coding-agent
+    notes: >
+      Paper trading mode:
+      PaperTrading component — virtual balance ($10,000 default), open/close simulated positions.
+      Auto-entry mode — automatically open paper trades when scanner signals fire.
+      Position tracking with live P&L using scanner prices.
+      Trade history with win/loss stats.
+      usePaperTrading hook with localStorage persistence.
+      Toggle between Live Broker and Paper Trading modes.
+    output: null
+
+  - id: TASK-027
+    status: pending
+    owner: coding-agent
+    notes: "Build verification (next build), git add + commit + push."
+    output: null
 
 next_actions:
-  - "Phase 2 COMPLETE. All 5 tasks (TASK-011 through TASK-015) done. Ready for Phase 3 (multi-asset expansion)."
+  - "TASK-021 in progress — coding agent implementing MetaApi SDK integration"
 
 approval_pending: false
 pending_commit_summary: null

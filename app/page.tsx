@@ -11,8 +11,15 @@ import TpSlDisplay from './components/TpSlDisplay'
 import SettingsPanel, { DEFAULT_SETTINGS, type ScannerSettings } from './components/SettingsPanel'
 import SRLevels from './components/SRLevels'
 import IndicatorsPanel from './components/IndicatorsPanel'
+import BrokerConnect from './components/BrokerConnect'
+import PositionsPanel from './components/PositionsPanel'
+import AlertsPanel, { AlertToast } from './components/AlertsPanel'
+import PaperTrading from './components/PaperTrading'
 import { usePrices } from './hooks/usePrices'
 import { useSignals } from './hooks/useSignals'
+import { useBroker } from './hooks/useBroker'
+import { useAlerts } from './hooks/useAlerts'
+import { usePaperTrading } from './hooks/usePaperTrading'
 
 type ConnectionStatus = 'loading' | 'live' | 'stale' | 'error'
 
@@ -53,13 +60,28 @@ export default function Home() {
   const { signal } = useSignals(selectedSymbol, selectedMode, selectedRisk)
   const connectionStatus = getConnectionStatus(pricesLoading, pricesError, lastUpdated)
 
+  // Phase 4 hooks
+  const broker = useBroker()
+  const alerts = useAlerts(selectedMode)
+  const paper = usePaperTrading(
+    prices,
+    signal?.direction,
+    selectedSymbol,
+  )
+
   const currentPrice = prices?.[selectedSymbol]?.price ?? 0
   const direction = signal?.direction ?? 'NEUTRAL'
+
+  // Symbols with open broker positions (for highlighting in selector)
+  const positionSymbols = new Set(broker.positions.map((p) => p.symbol))
 
   const closeSidebar = () => setSidebarOpen(false)
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0a0a0a] overflow-x-hidden">
+      {/* Alert toast */}
+      <AlertToast alert={alerts.toastAlert} onDismiss={alerts.dismissToast} />
+
       <Navbar onMenuToggle={() => setSidebarOpen((o) => !o)} sidebarOpen={sidebarOpen} />
 
       <div className="relative flex flex-1">
@@ -107,6 +129,7 @@ export default function Home() {
               onSelect={(s) => { setSelectedSymbol(s); closeSidebar() }}
               prices={prices}
               pricesLoading={pricesLoading}
+              positionSymbols={positionSymbols}
             />
 
             <ModeSelector
@@ -117,6 +140,15 @@ export default function Home() {
             <RiskSelector
               selected={selectedRisk}
               onSelect={(r) => { setSelectedRisk(r) }}
+            />
+
+            {/* Broker connection */}
+            <BrokerConnect
+              state={broker.state}
+              account={broker.account}
+              error={broker.error}
+              onConnect={broker.connect}
+              onDisconnect={broker.disconnect}
             />
           </div>
         </aside>
@@ -149,6 +181,15 @@ export default function Home() {
                   · {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </span>
               )}
+              {broker.state === 'connected' && (
+                <>
+                  <span className="text-gray-700">·</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#8b5cf6]" />
+                  <span className="font-mono text-[9px] text-[#8b5cf6] uppercase tracking-widest">
+                    BROKER
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Signal Panel — full width */}
@@ -168,10 +209,48 @@ export default function Home() {
               <SettingsPanel settings={settings} onSettingsChange={setSettings} />
             </div>
 
-            {/* Third row: Support & Resistance */}
+            {/* Broker positions (only when connected) */}
+            <PositionsPanel
+              state={broker.state}
+              positions={broker.positions}
+              totalProfit={broker.totalProfit}
+            />
+
+            {/* Paper trading */}
+            <PaperTrading
+              enabled={paper.enabled}
+              autoTrade={paper.autoTrade}
+              account={paper.account}
+              equity={paper.equity}
+              unrealizedPL={paper.unrealizedPL}
+              stats={paper.stats}
+              lotSize={paper.lotSize}
+              selectedSymbol={selectedSymbol}
+              currentPrice={currentPrice}
+              onSetLotSize={paper.setLotSize}
+              onToggleEnabled={paper.toggleEnabled}
+              onToggleAutoTrade={paper.toggleAutoTrade}
+              onOpenTrade={paper.openTrade}
+              onCloseTrade={paper.closeTrade}
+              onCloseAll={paper.closeAllTrades}
+              onReset={paper.resetAccount}
+              prices={prices}
+            />
+
+            {/* Signal alerts */}
+            <AlertsPanel
+              watchlist={alerts.watchlist}
+              alerts={alerts.alerts}
+              notificationsEnabled={alerts.notificationsEnabled}
+              onToggleWatch={alerts.toggleWatchlist}
+              onClearAlerts={alerts.clearAlerts}
+              onEnableNotifications={alerts.enableNotifications}
+            />
+
+            {/* Support & Resistance */}
             <SRLevels symbol={selectedSymbol} />
 
-            {/* Fourth row: Technical Indicators */}
+            {/* Technical Indicators */}
             <IndicatorsPanel symbol={selectedSymbol} />
           </div>
         </main>

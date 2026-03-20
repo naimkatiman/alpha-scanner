@@ -9,6 +9,7 @@ type Props = {
   onSelect: (symbol: string) => void
   prices?: Record<string, SymbolPrice> | null
   pricesLoading?: boolean
+  positionSymbols?: Set<string>
 }
 
 const CATEGORIES = [
@@ -22,7 +23,7 @@ function formatChange(change: number): { text: string; positive: boolean } {
   return { text: `${positive ? '+' : ''}${change.toFixed(2)}%`, positive }
 }
 
-export default function SymbolSelector({ selected, onSelect, prices, pricesLoading }: Props) {
+export default function SymbolSelector({ selected, onSelect, prices, pricesLoading, positionSymbols }: Props) {
   const [expanded, setExpanded] = useState(true)
   const [catExpanded, setCatExpanded] = useState<Record<string, boolean>>({
     Metals: true,
@@ -158,6 +159,7 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
                       const isActive = s.symbol === selected
                       const livePrice = prices?.[s.symbol]
                       const isFlashing = flashingSymbols[s.symbol] ?? false
+                      const hasPosition = positionSymbols?.has(s.symbol) ?? false
 
                       let displayPrice: string
                       let displayChange: string
@@ -201,6 +203,12 @@ export default function SymbolSelector({ selected, onSelect, prices, pricesLoadi
                                 {s.symbol}
                               </span>
                               <span className="ml-1.5 text-[9px] text-gray-600">{s.name}</span>
+                              {hasPosition && (
+                                <span
+                                  className="ml-1 h-1.5 w-1.5 rounded-full bg-[#8b5cf6] inline-block flex-shrink-0"
+                                  title="Open position"
+                                />
+                              )}
                             </div>
                           </div>
 
