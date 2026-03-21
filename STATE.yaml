@@ -224,10 +224,34 @@ tasks:
     notes: "Telegram Bot Integration — signal alerts via Telegram Bot API"
     output: "/api/telegram/send + /api/telegram/test routes. useTelegram hook (localStorage config, auto-send on direction change, HTML-formatted alerts with entry/TP/SL). TelegramSettings component in sidebar (token/chatID inputs, show/hide toggle, test connection, auto-send toggle, BotFather instructions). Clean build."
 
+  # Phase 8 — Production Hardening + AI Signals + User Accounts
+  - id: TASK-046
+    status: in_progress
+    owner: pm-agent
+    notes: "User accounts + saved settings — NextAuth.js (Telegram OAuth provider). UserSettings Prisma model: saved symbol watchlist, preferred mode, risk profile, leverage/capital, Telegram bot config. Persist all settings to DB. Load on login. Guest mode still works without login."
+
+  - id: TASK-047
+    status: pending
+    owner: pm-agent
+    notes: "AI signal commentary — GPT-4o-mini integration. After signal generation, call OpenAI to write a 2-sentence plain-English explanation of WHY the signal fired (which indicators aligned, what the key confluence was). Display in SignalPanel below the main signal card. Fallback gracefully if API unavailable."
+
+  - id: TASK-048
+    status: pending
+    owner: pm-agent
+    notes: "Signal accuracy tracker v2 — server-side accuracy tracking via PostgreSQL (not just localStorage). SignalRecord model: symbol, mode, direction, entryPrice, tp1, sl, timestamp, outcome (HIT_TP1/HIT_SL/EXPIRED/PENDING). Cron job checks open signals every 15min against live price. Public accuracy stats at /accuracy page per symbol."
+
+  - id: TASK-049
+    status: pending
+    owner: pm-agent
+    notes: "Webhook outbound — allow users to configure a custom webhook URL. On every new signal, POST a JSON payload (symbol, direction, entry, TP/SL, confidence, timestamp) to their URL. Retry 3x with backoff. Admin dashboard to see webhook delivery logs. Useful for connecting to trading bots."
+
+  - id: TASK-050
+    status: pending
+    owner: pm-agent
+    notes: "taste-skill frontend redesign — install taste-skill (npx skills add https://github.com/Leonxlnx/taste-skill --yes), read .agents/skills/redesign-existing-projects/SKILL.md and .agents/skills/high-end-visual-design/SKILL.md, apply Ethereal Glass vibe (OLED dark #050505, emerald #10B981 accent). Redesign: globals.css, layout, Navbar (floating glass pill), dashboard cards, signal panel, chart, leaderboard, backtest page. framer-motion animations. Build must pass."
+
 next_actions:
-  - "Phase 7 COMPLETE. All 5 tasks (TASK-041 through TASK-045) done."
-  - "Commit 095e577 pushed to GitHub. 17 files changed, 2808 insertions."
-  - "Ready for Phase 8 when approved."
+  - "Phase 8 defined: 5 tasks (TASK-046 to TASK-050). Start with TASK-046."
 
 approval_pending: false
 pending_commit_summary: null

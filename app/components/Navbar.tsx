@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Menu, X, Settings, Zap, BarChart3, Trophy, Radio } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import UserMenu from './UserMenu'
 
 interface NavbarProps {
   onMenuToggle: () => void
@@ -89,6 +90,11 @@ export default function Navbar({ onMenuToggle, sidebarOpen = false }: NavbarProp
             <Radio size={10} className="text-emerald-500" />
             <span className="text-xs font-medium text-zinc-400 leading-none">Live</span>
           </div>
+
+          <div className="mx-1 hidden h-4 w-px bg-white/[0.06] sm:block" aria-hidden="true" />
+
+          {/* User menu */}
+          <UserMenu />
         </nav>
       </div>
     </header>

@@ -1,0 +1,32 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  settings     UserSettings?
+}
+
+model UserSettings {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  watchlist        String   @default("[]")
+  preferredMode    String   @default("swing")
+  riskProfile      String   @default("balanced")
+  leverage         Float    @default(100)
+  capital          Float    @default(10000)
+  telegramBotToken String?
+  telegramChatId   String?
+  updatedAt        DateTime @updatedAt
+}

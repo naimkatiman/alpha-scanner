@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { ServiceWorkerRegistrar } from './components/ServiceWorkerRegistrar'
+import AuthProvider from './components/AuthProvider'
 
 const geist = Geist({
   variable: '--font-geist',
@@ -90,7 +91,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
       <body className="bg-background text-white antialiased">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <ServiceWorkerRegistrar />
       </body>
     </html>
