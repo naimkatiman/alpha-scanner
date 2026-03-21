@@ -257,12 +257,13 @@ tasks:
 
   # Phase 9 — Social + Community + Deployment
   - id: TASK-051
-    status: in_progress
+    status: done
     owner: pm-agent
     notes: "Signal leaderboard — public /leaderboard page ranking users by signal accuracy (server-side, from SignalRecord DB). Show top 20 traders, win rate %, total signals, streak. Weekly/monthly/all-time tabs. No auth required. OG metadata for shareability."
+    output: "/api/leaderboard GET route (SignalRecord groupBy symbol+mode, win rate/streak calc, period filter weekly/monthly/all, top 20 min 3 signals, rate limited). useLeaderboard hook (60s auto-refresh). Leaderboard component (3 tab buttons, summary cards, trophy-ranked table with emerald win rate bars, loading skeleton). LeaderboardClient.tsx split for server metadata. OG metadata via generateMetadata. Commit 680009b."
 
   - id: TASK-052
-    status: pending
+    status: in_progress
     owner: pm-agent
     notes: "One-click deploy — add Deploy to Vercel + Deploy to Railway buttons to README. Create vercel.json + railway.json with correct env var prompts. Document all required env vars in .env.example. Deployment guide in docs/DEPLOY.md."
 
