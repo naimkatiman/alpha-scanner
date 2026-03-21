@@ -9,6 +9,7 @@ import RiskSelector, { type RiskProfile } from './components/RiskSelector'
 import SignalPanel from './components/SignalPanel'
 import TpSlDisplay from './components/TpSlDisplay'
 import SettingsPanel, { DEFAULT_SETTINGS, type ScannerSettings } from './components/SettingsPanel'
+import StrategyPicker, { type StrategyConfig } from './components/StrategyPicker'
 import BrokerConnect from './components/BrokerConnect'
 import PositionsPanel from './components/PositionsPanel'
 import { AlertToast } from './components/AlertsPanel'
@@ -79,6 +80,27 @@ export default function Home() {
   const [selectedMode, setSelectedMode] = useState<TradingMode>('swing')
   const [selectedRisk, setSelectedRisk] = useState<RiskProfile>('balanced')
   const [settings, setSettings] = useState<ScannerSettings>(DEFAULT_SETTINGS)
+
+  // Apply strategy config from URL params (e.g. from /strategy/[slug] share page)
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search)
+    const symbol = sp.get('symbol')
+    const mode = sp.get('mode') as TradingMode | null
+    const risk = sp.get('risk') as RiskProfile | null
+    const leverage = sp.get('leverage')
+    const capital = sp.get('capital')
+    if (symbol) setSelectedSymbol(symbol)
+    if (mode) setSelectedMode(mode)
+    if (risk) setSelectedRisk(risk)
+    if (leverage || capital) {
+      setSettings((prev) => ({
+        ...prev,
+        ...(leverage ? { leverage: Number(leverage) } : {}),
+        ...(capital ? { capital: Number(capital) } : {}),
+      }))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const { prices, loading: pricesLoading, error: pricesError, lastUpdated, rateLimited } = usePrices()
   const { signal } = useSignals(selectedSymbol, selectedMode, selectedRisk)
@@ -213,6 +235,25 @@ export default function Home() {
             <RiskSelector
               selected={selectedRisk}
               onSelect={(r) => { setSelectedRisk(r) }}
+            />
+
+            {/* Strategy templates */}
+            <StrategyPicker
+              currentSymbol={selectedSymbol}
+              currentMode={selectedMode}
+              currentRisk={selectedRisk}
+              currentLeverage={settings.leverage}
+              currentCapital={settings.capital}
+              onApply={(config: StrategyConfig) => {
+                if (config.symbols?.length) setSelectedSymbol(config.symbols[0])
+                setSelectedMode(config.mode)
+                setSelectedRisk(config.riskProfile)
+                setSettings((prev) => ({
+                  ...prev,
+                  leverage: config.leverage,
+                  capital: config.capital,
+                }))
+              }}
             />
 
             {/* Broker connection */}
