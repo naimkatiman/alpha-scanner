@@ -255,8 +255,34 @@ tasks:
     notes: "taste-skill frontend redesign — install taste-skill (npx skills add https://github.com/Leonxlnx/taste-skill --yes), read .agents/skills/redesign-existing-projects/SKILL.md and .agents/skills/high-end-visual-design/SKILL.md, apply Ethereal Glass vibe (OLED dark #050505, emerald #10B981 accent). Redesign: globals.css, layout, Navbar (floating glass pill), dashboard cards, signal panel, chart, leaderboard, backtest page. framer-motion animations. Build must pass."
     output: "Full Ethereal Glass redesign. globals.css: OLED #050505 base, glass-panel/glass-card with blur+saturate+emerald inner glow, floating-navbar class (rounded-full glass pill), ambient-glow animation (radial emerald), text-gradient-emerald, refined scrollbars+shadows. Navbar: floating pill with rounded-full links, animated Zap logo, emerald LIVE badge. Layout: #050505 body. All 14 panel components: bg-[#0a0a0a] cards. Auth/accuracy/backtest/leaderboard pages: #050505 backgrounds. framer-motion on navbar logo+hamburger. Commit 609430c."
 
+  # Phase 9 — Social + Community + Deployment
+  - id: TASK-051
+    status: in_progress
+    owner: pm-agent
+    notes: "Signal leaderboard — public /leaderboard page ranking users by signal accuracy (server-side, from SignalRecord DB). Show top 20 traders, win rate %, total signals, streak. Weekly/monthly/all-time tabs. No auth required. OG metadata for shareability."
+
+  - id: TASK-052
+    status: pending
+    owner: pm-agent
+    notes: "One-click deploy — add Deploy to Vercel + Deploy to Railway buttons to README. Create vercel.json + railway.json with correct env var prompts. Document all required env vars in .env.example. Deployment guide in docs/DEPLOY.md."
+
+  - id: TASK-053
+    status: pending
+    owner: pm-agent
+    notes: "Signal feed — public /feed page showing live signal stream across all symbols, sorted by recency. Each card: symbol, direction badge, confidence %, timeframe, timestamp. No auth. Auto-refresh every 30s. RSS feed at /feed.xml for external subscribers."
+
+  - id: TASK-054
+    status: pending
+    owner: pm-agent
+    notes: "Strategy templates — let users save/load signal configurations as named strategies (e.g. 'Conservative Gold', 'Aggressive BTC Scalper'). StrategyTemplate Prisma model (userId, name, config JSON). CRUD API. Strategy picker dropdown in sidebar. Share strategy via public link."
+
+  - id: TASK-055
+    status: pending
+    owner: pm-agent
+    notes: "CI/CD pipeline — GitHub Actions workflow: lint + tsc + build on every PR, auto-deploy to Railway on merge to main, Lighthouse CI score check (performance > 80, accessibility > 90). Badge in README. Telegram notification on deploy success/failure."
+
 next_actions:
-  - "Phase 8 complete! All 5 tasks (TASK-046 to TASK-050) done. 50 tasks total across 8 phases."
+  - "Phase 9 defined: 5 tasks (TASK-051 to TASK-055). Start with TASK-051."
 
 approval_pending: false
 pending_commit_summary: null
