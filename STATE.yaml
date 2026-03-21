@@ -263,12 +263,13 @@ tasks:
     output: "/api/leaderboard GET route (SignalRecord groupBy symbol+mode, win rate/streak calc, period filter weekly/monthly/all, top 20 min 3 signals, rate limited). useLeaderboard hook (60s auto-refresh). Leaderboard component (3 tab buttons, summary cards, trophy-ranked table with emerald win rate bars, loading skeleton). LeaderboardClient.tsx split for server metadata. OG metadata via generateMetadata. Commit 680009b."
 
   - id: TASK-052
-    status: in_progress
+    status: done
     owner: pm-agent
     notes: "One-click deploy — add Deploy to Vercel + Deploy to Railway buttons to README. Create vercel.json + railway.json with correct env var prompts. Document all required env vars in .env.example. Deployment guide in docs/DEPLOY.md."
+    output: "vercel.json (prisma generate + build), railway.toml (build+deploy config), .env.example (6 env vars documented), docs/DEPLOY.md (full guide: Vercel/Railway step-by-step, env table, DB notes, troubleshooting), README.md with deploy buttons. Commit 93d054f."
 
   - id: TASK-053
-    status: pending
+    status: in_progress
     owner: pm-agent
     notes: "Signal feed — public /feed page showing live signal stream across all symbols, sorted by recency. Each card: symbol, direction badge, confidence %, timeframe, timestamp. No auth. Auto-refresh every 30s. RSS feed at /feed.xml for external subscribers."
 
