@@ -1,0 +1,157 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── Build & Type-check ────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # No ESLint config found at project root — lint step skipped intentionally.
+      # To enable linting, add an ESLint config (e.g. eslint.config.mjs) and
+      # uncomment the step below:
+      # - name: Lint
+      #   run: npm run lint
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          # Prisma needs a DATABASE_URL at build time; use a dummy SQLite path
+          # for the CI build so the Prisma client generates correctly.
+          DATABASE_URL: file:./ci.db
+          NEXTAUTH_SECRET: ci-secret-placeholder
+          NEXTAUTH_URL: http://localhost:3000
+
+  # ─── Lighthouse CI ─────────────────────────────────────────────────────────
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    needs: build
+    # Only run on PRs so we have a URL to audit; skip on bare pushes to main
+    # where there is no preview deployment yet.
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: file:./ci.db
+          NEXTAUTH_SECRET: ci-secret-placeholder
+          NEXTAUTH_URL: http://localhost:3000
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: './lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  # ─── Deploy to Railway (push to main only) ─────────────────────────────────
+  # SETUP REQUIRED:
+  #   1. Go to your Railway project → Settings → Tokens → Create a new token
+  #   2. In GitHub: repo Settings → Secrets and variables → Actions → New secret
+  #      Name: RAILWAY_TOKEN   Value: <your Railway token>
+  deploy:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    needs: build
+    # Only deploy when code lands on main (not on PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      - name: Deploy
+        run: railway up --detach
+        env:
+          # Set RAILWAY_TOKEN in GitHub repo secrets:
+          # GitHub → repo Settings → Secrets and variables → Actions → RAILWAY_TOKEN
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+  # ─── Telegram notification ─────────────────────────────────────────────────
+  # SETUP REQUIRED:
+  #   1. Create a Telegram bot via @BotFather and copy the token
+  #   2. Add the bot to your channel/group and get the chat ID
+  #   3. In GitHub: repo Settings → Secrets and variables → Actions → New secrets:
+  #      TELEGRAM_BOT_TOKEN  — bot token from BotFather
+  #      TELEGRAM_CHAT_ID    — your chat or channel ID (e.g. -1001234567890)
+  notify:
+    name: Telegram Notification
+    runs-on: ubuntu-latest
+    needs: deploy
+    # Run even if deploy fails so you always get notified
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Send Telegram message
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DEPLOY_STATUS: ${{ needs.deploy.result }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ "$DEPLOY_STATUS" = "success" ]; then
+            STATUS_ICON="✅ success"
+          else
+            STATUS_ICON="❌ $DEPLOY_STATUS"
+          fi
+
+          SHORT_SHA="${SHA:0:7}"
+          RUN_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
+
+          MESSAGE="*Alpha Scanner Deploy*
+          Repo: \`${REPO}\`
+          Commit: \`${SHORT_SHA}\` — ${COMMIT_MSG}
+          Status: ${STATUS_ICON}
+          [View run](${RUN_URL})"
+
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            -d parse_mode="Markdown" \
+            -d text="${MESSAGE}"

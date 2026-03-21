@@ -1,5 +1,7 @@
 # Alpha Scanner
 
+![CI/CD](https://github.com/naimkatiman/alpha-scanner/actions/workflows/ci.yml/badge.svg)
+
 AI-powered trading signal dashboard for 12 symbols — BUY/SELL signals, full technical analysis, paper trading, backtesting, and a Telegram bot.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/naimkatiman/alpha-scanner&env=NEXTAUTH_SECRET,NEXTAUTH_URL&envDescription=Required%20environment%20variables&project-name=alpha-scanner)

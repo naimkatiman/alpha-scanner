@@ -1,5 +1,5 @@
 project: alpha-scanner
-updated: 2026-03-20T14:05:00+08:00
+updated: 2026-03-21T00:00:00+08:00
 repo: https://github.com/naimkatiman/alpha-scanner
 phase: 8 # 1=frontend UI✅, 2=scanner engine✅, 3=multi-asset expansion✅, 4=broker API✅, 5=production hardening✅, 6=advanced analytics✅, 7=backtesting+charts+alerts✅, 8=prod hardening+AI+accounts✅
 
@@ -269,17 +269,19 @@ tasks:
     output: "vercel.json (prisma generate + build), railway.toml (build+deploy config), .env.example (6 env vars documented), docs/DEPLOY.md (full guide: Vercel/Railway step-by-step, env table, DB notes, troubleshooting), README.md with deploy buttons. Commit 93d054f."
 
   - id: TASK-053
-    status: in_progress
+    status: done
     owner: pm-agent
     notes: "Signal feed — public /feed page showing live signal stream across all symbols, sorted by recency. Each card: symbol, direction badge, confidence %, timeframe, timestamp. No auth. Auto-refresh every 30s. RSS feed at /feed.xml for external subscribers."
+    output: "/api/feed GET (last 50 signals, symbol/limit filters, rate limited). /feed page with FeedClient (30s auto-refresh, symbol filter dropdown, glass signal cards with direction/confidence/entry/TP/SL/timestamp). /feed.xml RSS 2.0 route. Navbar Feed link with RSS icon. Commit ffa2ab3."
 
   - id: TASK-054
-    status: pending
+    status: done
     owner: pm-agent
     notes: "Strategy templates — let users save/load signal configurations as named strategies (e.g. 'Conservative Gold', 'Aggressive BTC Scalper'). StrategyTemplate Prisma model (userId, name, config JSON). CRUD API. Strategy picker dropdown in sidebar. Share strategy via public link."
+    output: "StrategyTemplate Prisma model (userId, name, description, config JSON, isPublic, shareSlug@unique). /api/strategies GET+POST, /api/strategies/[id] GET+PUT+DELETE. StrategyPicker sidebar component (save current config, list/apply/delete/share strategies, guest localStorage fallback max 5). /strategy/[slug] public share page with OG metadata and 'Use This Strategy' CTA. URL param hydration on homepage (?symbol=&mode=&risk=&leverage=&capital=). Clean build."
 
   - id: TASK-055
-    status: pending
+    status: in_progress
     owner: pm-agent
     notes: "CI/CD pipeline — GitHub Actions workflow: lint + tsc + build on every PR, auto-deploy to Railway on merge to main, Lighthouse CI score check (performance > 80, accessibility > 90). Badge in README. Telegram notification on deploy success/failure."
 
