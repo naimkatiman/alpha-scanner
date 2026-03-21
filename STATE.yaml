@@ -288,12 +288,13 @@ tasks:
 
   # Phase 10 — Open Source Launch + Monetisation
   - id: TASK-056
-    status: in_progress
+    status: done
     owner: pm-agent
     notes: "GitHub repo polish for open source launch — clean README with hero banner (badges: stars, forks, license, CI status), feature list with screenshots/GIFs, quick-start guide (Docker + manual), architecture diagram (Mermaid), contributing guide (CONTRIBUTING.md), issue templates (bug, feature request), PR template. Make it star-worthy."
+    output: "README with hero banner, 5 badges (CI/license/stars/forks/social), 17-feature table, Mermaid architecture diagram, tech stack table, quick-start (manual+Docker), env vars table, deploy buttons, star history chart. CONTRIBUTING.md (fork/branch/PR workflow, code standards, commit convention). Issue templates (bug_report.md, feature_request.md). PR template. MIT LICENSE. Commit d131f64."
 
   - id: TASK-057
-    status: pending
+    status: in_progress
     owner: pm-agent
     notes: "Docker support — Dockerfile (multi-stage: builder + runner), docker-compose.yml (app + postgres), .dockerignore, health check endpoint at /api/health (returns version, uptime, DB status). Document Docker setup in README and docs/DEPLOY.md. Image should be < 200MB."
 

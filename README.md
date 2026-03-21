@@ -129,16 +129,30 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ### Docker Setup
 
+Requires Docker and Docker Compose v2.
+
 ```bash
-# Clone and start
+# Clone the repo
 git clone https://github.com/naimkatiman/alpha-scanner.git
 cd alpha-scanner
 
-# Build and run
+# Build and start (app + PostgreSQL)
 docker compose up -d
 
+# Run database migrations
+docker compose exec app npx prisma migrate deploy
+
 # App available at http://localhost:3000
+# Health check at http://localhost:3000/api/health
 ```
+
+To stop:
+
+```bash
+docker compose down
+```
+
+> For custom secrets, copy `.env.example` to `.env` and set `NEXTAUTH_SECRET` before running. See [docs/DEPLOY.md](docs/DEPLOY.md#docker) for full details.
 
 ---
 

@@ -34,6 +34,78 @@ Open http://localhost:3000.
 
 ---
 
+## Docker
+
+### Prerequisites
+
+- Docker 24+
+- Docker Compose v2 (`docker compose` command)
+
+### Quick start
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/naimkatiman/alpha-scanner.git
+cd alpha-scanner
+
+# 2. (Optional) Set a strong secret
+cp .env.example .env
+# Edit .env and set NEXTAUTH_SECRET to a random string
+
+# 3. Build and start
+docker compose up -d
+
+# 4. Run database migrations
+docker compose exec app npx prisma migrate deploy
+
+# App running at http://localhost:3000
+# Health endpoint: http://localhost:3000/api/health
+```
+
+### Services
+
+| Service | Image | Port | Description |
+|---------|-------|------|-------------|
+| `app` | Built from `Dockerfile` | 3000 | Next.js application |
+| `db` | `postgres:16-alpine` | internal | PostgreSQL database |
+
+### Environment variables (docker-compose.yml defaults)
+
+| Variable | Default | Notes |
+|----------|---------|-------|
+| `DATABASE_URL` | `postgresql://alpha:alpha@db:5432/alpha` | Points to the `db` service |
+| `NEXTAUTH_SECRET` | `change-me-in-production` | **Change this before exposing publicly** |
+| `NEXTAUTH_URL` | `http://localhost:3000` | Update to your public URL if deployed remotely |
+
+Override by setting variables in a `.env` file or with `-e` flags.
+
+### Database persistence
+
+PostgreSQL data is stored in the `postgres_data` Docker volume and survives container restarts. To reset:
+
+```bash
+docker compose down -v  # removes the volume
+```
+
+### Stopping and updating
+
+```bash
+# Stop
+docker compose down
+
+# Pull latest code and rebuild
+git pull
+docker compose build --no-cache
+docker compose up -d
+docker compose exec app npx prisma migrate deploy
+```
+
+### Image size
+
+The multi-stage Dockerfile produces a `<200 MB` production image using Next.js standalone output. Only the compiled app and its runtime dependencies are included — `node_modules` and build-time tooling are discarded.
+
+---
+
 ## Deploy to Vercel
 
 ### Step 1 — Import the repository
