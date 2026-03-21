@@ -23,7 +23,7 @@ function SkeletonLine({ width = 'w-full', height = 'h-3' }: { width?: string; he
 
 function SignalPanelSkeleton() {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111] p-4 sm:p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+    <div className="rounded-xl border border-white/[0.06] bg-[#0a0a0a] p-4 sm:p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
       <div className="flex items-start justify-between mb-4">
         <div className="space-y-2">
           <SkeletonLine width="w-28" height="h-4" />
@@ -162,7 +162,7 @@ export default function SignalPanel({ symbol, mode, risk, loading = false }: Sig
 
   if (loading || signalLoading) return <SignalPanelSkeleton />
   if (!symbol) return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111] p-4 sm:p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+    <div className="rounded-xl border border-white/[0.06] bg-[#0a0a0a] p-4 sm:p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
       <EmptyState />
     </div>
   )
@@ -191,7 +191,7 @@ export default function SignalPanel({ symbol, mode, risk, loading = false }: Sig
       initial={{ opacity: 0, y: 16, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={spring}
-      className={`rounded-xl border border-white/[0.06] bg-[#111] p-4 sm:p-5 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${glowClass} ${direction !== 'NEUTRAL' ? 'signal-alive' : ''}`}
+      className={`rounded-xl border border-white/[0.06] bg-[#0a0a0a] p-4 sm:p-5 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${glowClass} ${direction !== 'NEUTRAL' ? 'signal-alive' : ''}`}
       style={{ borderTopColor: dirColor, borderTopWidth: '2px' }}
     >
       {/* Header */}

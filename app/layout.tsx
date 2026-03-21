@@ -90,7 +90,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
-      <body className="bg-background text-white antialiased">
+      <body className="bg-[#050505] text-white antialiased">
         <AuthProvider>
           {children}
         </AuthProvider>

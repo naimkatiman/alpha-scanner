@@ -6,7 +6,7 @@ import BacktestDashboard from '../components/BacktestDashboard'
 
 export default function BacktestPage() {
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-[#0a0a0a]">
+    <div className="flex min-h-[100dvh] flex-col bg-[#050505]">
       <Navbar onMenuToggle={() => {}} />
       <main className="flex-1 p-3 sm:p-4 md:p-6 max-w-6xl mx-auto w-full">
         <div className="mb-4">

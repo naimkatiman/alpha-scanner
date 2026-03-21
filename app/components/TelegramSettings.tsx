@@ -49,7 +49,7 @@ export default function TelegramSettings({
 
   return (
     <div
-      className="rounded-xl border border-white/[0.06] bg-[#111] overflow-hidden"
+      className="rounded-xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden"
       style={{ borderTopColor: ACCENT, borderTopWidth: '2px' }}
     >
       {/* Header */}

@@ -89,7 +89,7 @@ export default function WebhookSettings() {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#111] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+    <div className="rounded-xl border border-white/[0.06] bg-[#0a0a0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
       <button
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-white/[0.02] transition-colors"

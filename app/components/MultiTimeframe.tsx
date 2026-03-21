@@ -56,7 +56,7 @@ export default function MultiTimeframe({ symbol }: MultiTimeframeProps) {
 
   return (
     <div
-      className="rounded-xl border border-white/[0.06] bg-[#111]"
+      className="rounded-xl border border-white/[0.06] bg-[#0a0a0a]"
       style={{ borderTopColor: '#06b6d4', borderTopWidth: '2px' }}
     >
       {/* Header */}

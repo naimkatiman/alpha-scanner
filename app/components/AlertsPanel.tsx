@@ -27,7 +27,7 @@ export default function AlertsPanel({
 
   return (
     <div
-      className="rounded-xl border border-white/[0.06] bg-[#111] overflow-hidden"
+      className="rounded-xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden"
       style={{ borderTopColor: '#a1a1aa', borderTopWidth: '2px' }}
     >
       {/* Header */}
@@ -207,7 +207,7 @@ export function AlertToast({
       role="alert"
     >
       <div
-        className="flex items-center gap-3 rounded-lg border bg-[#111] px-4 py-3 shadow-xl"
+        className="flex items-center gap-3 rounded-lg border bg-[#0a0a0a] px-4 py-3 shadow-xl"
         style={{ borderColor: `${dirColor}40` }}
       >
         <span

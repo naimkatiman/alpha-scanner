@@ -244,12 +244,13 @@ tasks:
     output: "SignalRecord Prisma model (symbol, mode, direction, entryPrice, tp1, sl, confidence, outcome, timestamps). Auto-record on signal generation (fire-and-forget). /api/accuracy/check GET (cron endpoint, checks pending signals vs live prices, resolves HIT_TP1/HIT_SL/EXPIRED after 24h). /api/accuracy GET (stats by symbol + overall + recent records). /api/signals/record POST (manual recording). /accuracy page with overall stats cards, per-symbol win rate bars, recent signals table. Navbar link added. Commit bdd0693."
 
   - id: TASK-049
-    status: in_progress
+    status: done
     owner: pm-agent
     notes: "Webhook outbound — allow users to configure a custom webhook URL. On every new signal, POST a JSON payload (symbol, direction, entry, TP/SL, confidence, timestamp) to their URL. Retry 3x with backoff. Admin dashboard to see webhook delivery logs. Useful for connecting to trading bots."
+    output: "WebhookConfig + WebhookLog Prisma models. webhookDispatcher.ts (3x retry with exponential backoff, 10s timeout). Auto-dispatch on new signal via signals route. /api/webhook/configure (GET/POST/PUT/DELETE). /api/webhook/logs GET. WebhookSettings sidebar component (add URL, enable/disable toggle, delete, inline delivery logs). Commit a81c5c5."
 
   - id: TASK-050
-    status: pending
+    status: in_progress
     owner: pm-agent
     notes: "taste-skill frontend redesign — install taste-skill (npx skills add https://github.com/Leonxlnx/taste-skill --yes), read .agents/skills/redesign-existing-projects/SKILL.md and .agents/skills/high-end-visual-design/SKILL.md, apply Ethereal Glass vibe (OLED dark #050505, emerald #10B981 accent). Redesign: globals.css, layout, Navbar (floating glass pill), dashboard cards, signal panel, chart, leaderboard, backtest page. framer-motion animations. Build must pass."
 

@@ -9,7 +9,7 @@ export default function LeaderboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-[#0a0a0a]">
+    <div className="flex min-h-[100dvh] flex-col bg-[#050505]">
       <Navbar onMenuToggle={() => setSidebarOpen((o) => !o)} sidebarOpen={sidebarOpen} />
 
       <main className="flex-1 px-4 py-6 sm:px-6 md:px-8 max-w-5xl mx-auto w-full">

@@ -40,7 +40,7 @@ export default function SignalHistory({
 
   return (
     <div
-      className="rounded-xl border border-white/[0.06] bg-[#111] overflow-hidden"
+      className="rounded-xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden"
       style={{ borderTopColor: '#10b981', borderTopWidth: '2px' }}
     >
       {/* Header */}

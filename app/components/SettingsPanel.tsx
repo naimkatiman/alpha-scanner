@@ -87,7 +87,7 @@ export default function SettingsPanel({ settings, onSettingsChange }: SettingsPa
 
   return (
     <div
-      className="rounded-xl border border-white/[0.06] bg-[#111]"
+      className="rounded-xl border border-white/[0.06] bg-[#0a0a0a]"
       style={{ borderTopColor: '#374151', borderTopWidth: '2px' }}
     >
       {/* Collapsible header */}

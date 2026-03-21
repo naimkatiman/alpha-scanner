@@ -467,7 +467,7 @@ export default function IndicatorsPanel({ symbol }: IndicatorsPanelProps) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-      className="rounded-xl border border-white/[0.06] bg-[#111] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+      className="rounded-xl border border-white/[0.06] bg-[#0a0a0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
       style={{ borderTopColor: '#10b981', borderTopWidth: '2px' }}
     >
       {/* Collapsible header */}

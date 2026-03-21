@@ -149,7 +149,9 @@ export default function Home() {
   const closeSidebar = () => setSidebarOpen(false)
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-[#0a0a0a] overflow-x-hidden">
+    <div className="flex min-h-[100dvh] flex-col bg-[#050505] overflow-x-hidden relative">
+      {/* Ambient emerald glow */}
+      <div className="ambient-glow" />
       {/* Alert toast */}
       <AlertToast alert={alerts.toastAlert} onDismiss={alerts.dismissToast} />
 

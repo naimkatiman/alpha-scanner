@@ -15,7 +15,7 @@ export default function SRLevels({ symbol }: SRLevelsProps) {
 
   return (
     <div
-      className="rounded-xl border border-white/[0.06] bg-[#111]"
+      className="rounded-xl border border-white/[0.06] bg-[#0a0a0a]"
       style={{ borderTopColor: '#a1a1aa', borderTopWidth: '2px' }}
     >
       {/* Collapsible header */}
