@@ -28,9 +28,11 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@upstash/redis": "^1.37.0",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.38.0",
     "geist": "^1.7.0",
+    "iron-session": "^8.0.4",
     "lucide-react": "^0.577.0",
     "metaapi.cloud-sdk": "^29.3.3",
     "nanoid": "^5.1.7",
@@ -41,6 +43,13 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tailwindcss": "^4.2.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

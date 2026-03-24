@@ -110,3 +110,93 @@ model UserSettings {
   telegramChatId   String?
   updatedAt        DateTime @updatedAt
 }
+
+model Signal {
+  id          String   @id @default(cuid())
+  symbol      String
+  timeframe   String
+  direction   String
+  entryPrice  Float
+  stopLoss    Float
+  takeProfit  Float
+  confidence  Int
+  strategy    String
+  status      String   @default("ACTIVE")
+  triggeredAt DateTime?
+  closedAt    DateTime?
+  pnl         Float?
+  createdAt   DateTime @default(now())
+
+  @@index([symbol])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Backtest {
+  id            String   @id @default(cuid())
+  strategyName  String
+  symbol        String
+  timeframe     String
+  startDate     DateTime
+  endDate       DateTime
+  totalTrades   Int
+  winRate       Float
+  profitFactor  Float
+  maxDrawdown   Float
+  netProfit     Float
+  sharpeRatio   Float?
+  config        String
+  results       String
+  createdAt     DateTime @default(now())
+
+  @@index([strategyName])
+  @@index([symbol])
+}
+
+model Alert {
+  id          String    @id @default(cuid())
+  symbol      String
+  type        String
+  condition   String
+  targetPrice Float?
+  message     String
+  triggered   Boolean   @default(false)
+  triggeredAt DateTime?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  @@index([symbol])
+  @@index([active])
+}
+
+model TradingSession {
+  id          String   @id @default(cuid())
+  symbol      String
+  direction   String
+  entryPrice  Float
+  exitPrice   Float?
+  quantity    Float
+  leverage    Float    @default(1)
+  status      String   @default("OPEN")
+  pnl         Float?
+  pnlPercent  Float?
+  notes       String?
+  openedAt    DateTime @default(now())
+  closedAt    DateTime?
+
+  @@index([symbol])
+  @@index([status])
+}
+
+model UserPreference {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  theme             String  @default("dark")
+  defaultTimeframe  String  @default("4h")
+  defaultSymbols    String  @default("[]")
+  notifications     Boolean @default(true)
+  emailAlerts       Boolean @default(false)
+  soundAlerts       Boolean @default(true)
+  chartType         String  @default("candlestick")
+  language          String  @default("en")
+}
