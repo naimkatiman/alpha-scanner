@@ -13,10 +13,14 @@ export default function LeaderboardClient() {
       <Navbar onMenuToggle={() => setSidebarOpen((o) => !o)} sidebarOpen={sidebarOpen} />
 
       <main className="flex-1 px-4 py-6 sm:px-6 md:px-8 max-w-5xl mx-auto w-full">
-        <div className="mb-6">
-          <h1 className="text-xl font-bold text-white mb-1">Signal Leaderboard</h1>
-          <p className="text-xs text-zinc-500">
-            Rankings based on server-side signal history — win rates by symbol and mode.
+        <div className="mb-6 pt-2">
+          <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-2 font-medium">Performance Rankings</p>
+          <h1 className="text-3xl font-black tracking-tighter text-white leading-none">
+            Signal<br />
+            <span className="text-emerald-400">Leaderboard</span>
+          </h1>
+          <p className="mt-3 text-xs text-zinc-500 max-w-md">
+            Win rates by symbol and mode, derived from resolved signal history.
           </p>
         </div>
         <Leaderboard />

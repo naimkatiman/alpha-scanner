@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Target, TrendingUp, TrendingDown, Clock, Zap } from 'lucide-react'
+import { ArrowLeft, Target, TrendingUp, TrendingDown, Clock, Zap, BarChart2 } from 'lucide-react'
 
 interface SymbolAccuracy {
   symbol: string
@@ -67,7 +67,7 @@ export default function AccuracyPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-[100dvh] bg-[#050505] text-white">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#050505]/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4">
@@ -75,85 +75,110 @@ export default function AccuracyPage() {
             <ArrowLeft size={16} />
             <span className="text-sm">Back</span>
           </Link>
+          <div className="h-4 w-px bg-white/[0.06]" />
           <div className="flex items-center gap-2">
-            <Target size={18} className="text-emerald-500" />
-            <h1 className="text-sm font-semibold">Signal Accuracy</h1>
+            <Target size={16} className="text-emerald-500" />
+            <span className="text-[10px] uppercase tracking-widest text-zinc-600 font-medium">Signal Accuracy</span>
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-8">
+        {/* Page title */}
+        <div className="mb-8">
+          <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-2 font-medium">Performance</p>
+          <h1 className="text-3xl font-black tracking-tighter text-white leading-none">
+            Accuracy<br />
+            <span className="text-emerald-400">Metrics</span>
+          </h1>
+          <p className="mt-3 text-sm text-zinc-500 max-w-md">
+            Live win-rate tracking across all symbols and signal modes.
+          </p>
+        </div>
+
         {loading ? (
-          <div className="space-y-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 rounded-xl bg-white/[0.03] animate-pulse" />
+          <div className="space-y-3">
+            <div className="h-16 rounded-xl bg-white/[0.03] skeleton" />
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-12 rounded-lg bg-white/[0.03] skeleton" />
             ))}
           </div>
         ) : !data || data.overall.totalSignals === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Target size={48} className="mb-4 text-zinc-700" />
-            <h2 className="text-lg font-semibold text-zinc-400">No signal data yet</h2>
-            <p className="mt-2 text-sm text-zinc-600">
-              Signal accuracy tracking starts automatically as signals are generated.
-            </p>
-            <Link
-              href="/"
-              className="mt-6 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium hover:bg-emerald-500 transition-colors"
-            >
-              Go to Dashboard
-            </Link>
+          /* Empty state — cockpit-style */
+          <div className="border border-white/[0.06] rounded-2xl bg-[#0a0a0a] overflow-hidden">
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-white/[0.04]">
+              <BarChart2 size={14} className="text-zinc-700" />
+              <span className="text-[10px] uppercase tracking-widest text-zinc-700 font-medium">No data</span>
+            </div>
+            <div className="px-6 py-12 text-center">
+              <Target size={32} className="mx-auto mb-4 text-zinc-800" />
+              <p className="text-sm font-semibold text-zinc-500">No signal data yet</p>
+              <p className="mt-1.5 text-xs text-zinc-700 max-w-xs mx-auto">
+                Accuracy tracking starts automatically once signals are generated and resolved.
+              </p>
+              <Link
+                href="/"
+                className="mt-6 inline-flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 text-sm font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+              >
+                <Zap size={12} />
+                View Dashboard
+              </Link>
+            </div>
           </div>
         ) : (
           <>
-            {/* Overall Stats */}
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 mb-8">
-              <div className="rounded-xl border border-white/[0.06] bg-[#111] p-4">
-                <p className="text-[10px] uppercase tracking-widest text-zinc-600">Total Signals</p>
-                <p className="mt-1 text-2xl font-bold">{data.overall.totalSignals}</p>
+            {/* Overall Stats — cockpit divide-x row */}
+            <div className="flex flex-wrap items-stretch divide-x divide-white/[0.06] rounded-2xl border border-white/[0.06] bg-[#0a0a0a] overflow-hidden mb-8">
+              <div className="flex-1 min-w-[100px] px-5 py-4">
+                <p className="data-label">Total</p>
+                <p className="data-value text-xl mt-1">{data.overall.totalSignals}</p>
               </div>
-              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-                <p className="text-[10px] uppercase tracking-widest text-emerald-600">Win Rate</p>
-                <p className="mt-1 text-2xl font-bold text-emerald-400">{data.overall.winRate}%</p>
+              <div className="flex-1 min-w-[100px] px-5 py-4 bg-emerald-500/[0.03]">
+                <p className="data-label text-emerald-700">Win Rate</p>
+                <p className="data-value text-xl mt-1 text-emerald-400">{data.overall.winRate}%</p>
               </div>
-              <div className="rounded-xl border border-white/[0.06] bg-[#111] p-4">
-                <div className="flex items-center gap-1.5">
-                  <TrendingUp size={12} className="text-emerald-500" />
-                  <p className="text-[10px] uppercase tracking-widest text-zinc-600">Hit TP1</p>
+              <div className="flex-1 min-w-[100px] px-5 py-4">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <TrendingUp size={10} className="text-emerald-500" />
+                  <p className="data-label">Hit TP1</p>
                 </div>
-                <p className="mt-1 text-2xl font-bold text-emerald-400">{data.overall.hitTP1}</p>
+                <p className="data-value text-xl text-emerald-400">{data.overall.hitTP1}</p>
               </div>
-              <div className="rounded-xl border border-white/[0.06] bg-[#111] p-4">
-                <div className="flex items-center gap-1.5">
-                  <TrendingDown size={12} className="text-rose-500" />
-                  <p className="text-[10px] uppercase tracking-widest text-zinc-600">Hit SL</p>
+              <div className="flex-1 min-w-[100px] px-5 py-4">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <TrendingDown size={10} className="text-rose-500" />
+                  <p className="data-label">Hit SL</p>
                 </div>
-                <p className="mt-1 text-2xl font-bold text-rose-400">{data.overall.hitSL}</p>
+                <p className="data-value text-xl text-rose-400">{data.overall.hitSL}</p>
               </div>
-              <div className="rounded-xl border border-white/[0.06] bg-[#111] p-4">
-                <div className="flex items-center gap-1.5">
-                  <Clock size={12} className="text-yellow-500" />
-                  <p className="text-[10px] uppercase tracking-widest text-zinc-600">Pending</p>
+              <div className="flex-1 min-w-[100px] px-5 py-4">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Clock size={10} className="text-yellow-500" />
+                  <p className="data-label">Pending</p>
                 </div>
-                <p className="mt-1 text-2xl font-bold text-yellow-400">{data.overall.pending}</p>
+                <p className="data-value text-xl text-yellow-400">{data.overall.pending}</p>
               </div>
             </div>
 
             {/* Per-Symbol Accuracy */}
-            <h2 className="mb-4 text-sm font-semibold text-zinc-400">Accuracy by Symbol</h2>
-            <div className="space-y-2 mb-8">
+            <div className="mb-2 flex items-center gap-3">
+              <p className="text-[10px] uppercase tracking-widest text-zinc-600 font-medium">By Symbol</p>
+              <div className="flex-1 h-px bg-white/[0.04]" />
+            </div>
+            <div className="space-y-1.5 mb-8 border border-white/[0.06] rounded-xl overflow-hidden bg-[#0a0a0a]">
               {data.bySymbol
                 .sort((a, b) => b.winRate - a.winRate)
-                .map((s) => (
+                .map((s, i) => (
                   <div
                     key={s.symbol}
-                    className="flex items-center gap-4 rounded-lg border border-white/[0.06] bg-[#111] px-4 py-3"
+                    className={`flex items-center gap-4 px-4 py-3 ${i < data.bySymbol.length - 1 ? 'border-b border-white/[0.04]' : ''}`}
                   >
                     <div className="flex items-center gap-2 w-28">
-                      <Zap size={12} className="text-emerald-500" />
-                      <span className="text-sm font-semibold">{s.symbol}</span>
+                      <Zap size={10} className="text-emerald-500 shrink-0" />
+                      <span className="text-xs font-semibold font-mono">{s.symbol}</span>
                     </div>
                     <div className="flex-1">
-                      <div className="flex h-2 overflow-hidden rounded-full bg-white/[0.04]">
+                      <div className="flex h-1.5 overflow-hidden rounded-full bg-white/[0.04]">
                         <div
                           className="h-full bg-emerald-500 transition-all"
                           style={{ width: `${s.winRate}%` }}
@@ -164,45 +189,48 @@ export default function AccuracyPage() {
                         />
                       </div>
                     </div>
-                    <span className="w-12 text-right font-mono text-sm font-bold text-emerald-400">
+                    <span className="w-12 text-right font-mono text-sm font-bold tabular-nums text-emerald-400">
                       {s.winRate}%
                     </span>
-                    <span className="w-16 text-right text-xs text-zinc-500">{s.total} signals</span>
+                    <span className="w-16 text-right font-mono text-[11px] tabular-nums text-zinc-600">{s.total} sig</span>
                   </div>
                 ))}
             </div>
 
             {/* Recent Records */}
-            <h2 className="mb-4 text-sm font-semibold text-zinc-400">Recent Signals</h2>
-            <div className="overflow-x-auto">
+            <div className="mb-2 flex items-center gap-3">
+              <p className="text-[10px] uppercase tracking-widest text-zinc-600 font-medium">Recent Signals</p>
+              <div className="flex-1 h-px bg-white/[0.04]" />
+            </div>
+            <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-[#0a0a0a]">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-white/[0.06] text-left text-zinc-600">
-                    <th className="px-3 py-2">Symbol</th>
-                    <th className="px-3 py-2">Direction</th>
-                    <th className="px-3 py-2">Entry</th>
-                    <th className="px-3 py-2">TP1</th>
-                    <th className="px-3 py-2">SL</th>
-                    <th className="px-3 py-2">Conf</th>
-                    <th className="px-3 py-2">Outcome</th>
-                    <th className="px-3 py-2">Time</th>
+                  <tr className="border-b border-white/[0.06]">
+                    <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider text-zinc-600 font-medium">Symbol</th>
+                    <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider text-zinc-600 font-medium">Dir</th>
+                    <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider text-zinc-600 font-medium">Entry</th>
+                    <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider text-zinc-600 font-medium">TP1</th>
+                    <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider text-zinc-600 font-medium">SL</th>
+                    <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider text-zinc-600 font-medium">Conf</th>
+                    <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider text-zinc-600 font-medium">Outcome</th>
+                    <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider text-zinc-600 font-medium">Time</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {data.recentRecords.map((r) => (
-                    <tr key={r.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
-                      <td className="px-3 py-2 font-semibold">{r.symbol}</td>
+                  {data.recentRecords.map((r, i) => (
+                    <tr key={r.id} className={`hover:bg-white/[0.02] ${i < data.recentRecords.length - 1 ? 'border-b border-white/[0.03]' : ''}`}>
+                      <td className="px-3 py-2 font-mono font-semibold text-white">{r.symbol}</td>
                       <td className="px-3 py-2">
-                        <span className={r.direction === 'BUY' ? 'text-emerald-400' : 'text-rose-400'}>
+                        <span className={`font-mono font-bold text-[11px] ${r.direction === 'BUY' ? 'text-emerald-400' : 'text-rose-400'}`}>
                           {r.direction}
                         </span>
                       </td>
-                      <td className="px-3 py-2 font-mono">{r.entryPrice.toFixed(2)}</td>
-                      <td className="px-3 py-2 font-mono text-emerald-400">{r.tp1.toFixed(2)}</td>
-                      <td className="px-3 py-2 font-mono text-rose-400">{r.sl.toFixed(2)}</td>
-                      <td className="px-3 py-2">{r.confidence}%</td>
+                      <td className="px-3 py-2 font-mono tabular-nums text-zinc-300">{r.entryPrice.toFixed(2)}</td>
+                      <td className="px-3 py-2 font-mono tabular-nums text-emerald-400">{r.tp1.toFixed(2)}</td>
+                      <td className="px-3 py-2 font-mono tabular-nums text-rose-400">{r.sl.toFixed(2)}</td>
+                      <td className="px-3 py-2 font-mono tabular-nums text-zinc-400">{r.confidence}%</td>
                       <td className="px-3 py-2"><OutcomeBadge outcome={r.outcome} /></td>
-                      <td className="px-3 py-2 text-zinc-500">
+                      <td className="px-3 py-2 font-mono text-zinc-600 text-[10px]">
                         {new Date(r.createdAt).toLocaleString()}
                       </td>
                     </tr>
