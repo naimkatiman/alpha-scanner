@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs_24", "openssl"]
 
 [phases.build]
-cmds = ["npm ci", "npx prisma generate", "npx prisma db push", "npm run build"]
+cmds = ["npm ci", "npx prisma generate", "npx prisma db push", "npm run build", "cp -r public .next/standalone/public", "cp -r .next/static .next/standalone/.next/static"]
 
 [start]
-cmd = "npm start"
+cmd = "node .next/standalone/server.js"
