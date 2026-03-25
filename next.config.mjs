@@ -2,7 +2,6 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   serverExternalPackages: ['metaapi.cloud-sdk', 'bcryptjs', '@prisma/client'],
   async headers() {
     return [
