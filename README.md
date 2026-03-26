@@ -182,6 +182,25 @@ See the full [Deployment Guide](docs/DEPLOY.md) for detailed instructions.
 
 ---
 
+## 🆚 Why Alpha Screener?
+
+| Feature | Alpha Screener | TradingView | Trendspider | Finviz |
+|---------|---------------|-------------|-------------|--------|
+| Self-hosted | ✅ Free forever | ❌ $360/yr+ | ❌ $420/yr+ | ❌ $300/yr+ |
+| AI signals | ✅ Built-in | ❌ Manual | ⚠️ Basic | ❌ No |
+| Forex + Crypto + Metals | ✅ All | ✅ All | ⚠️ Limited | ❌ Stocks only |
+| Paper trading | ✅ Built-in | ✅ Built-in | ❌ No | ❌ No |
+| Backtesting | ✅ Free | ⚠️ Paid tier | ✅ Paid | ❌ No |
+| Telegram alerts | ✅ Built-in | ❌ Webhooks | ❌ No | ❌ Email only |
+| Open source | ✅ MIT | ❌ | ❌ | ❌ |
+| Your data, your server | ✅ | ❌ | ❌ | ❌ |
+
+**Stop paying $2,340/yr for tools that don't talk to each other.**
+
+> Alpha Screener is the hosted SaaS version of this scanner. Self-hosters get everything free. Power users can upgrade to [Alpha Screener](https://alphascreener.io) for managed hosting + premium features.
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting a PR.
