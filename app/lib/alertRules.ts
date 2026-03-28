@@ -38,12 +38,13 @@ export interface AlertRule {
 
 const STORAGE_KEY = 'alpha-scanner-alert-rules'
 
-export function saveRules(rules: AlertRule[]): void {
+export function saveRules(rules: AlertRule[], onSync?: (value: AlertRule[]) => void): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rules))
   } catch {
     // ignore
   }
+  onSync?.(rules)
 }
 
 export function loadRules(): AlertRule[] {

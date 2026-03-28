@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { SignalDirection } from '../lib/signalEngine'
+import { useSettingsSyncContext } from '../providers/SettingsSyncProvider'
 
 /* ── Types ────────────────────────────────────────────────────────────────── */
 
@@ -91,8 +92,6 @@ function calcTradeProfit(trade: PaperTrade, currentPrice: number): number {
   const diff = trade.direction === 'buy'
     ? currentPrice - trade.openPrice
     : trade.openPrice - currentPrice
-  // Simplified: profit = diff × volume × 100000 (forex standard lot)
-  // For crypto/metals, we use a simpler multiplier
   return diff * trade.volume * 100
 }
 
@@ -103,21 +102,46 @@ export function usePaperTrading(
   signalDirection?: SignalDirection,
   selectedSymbol?: string,
 ): UsePaperTradingReturn {
+  const { isLoggedIn, serverData, loaded: syncLoaded, syncToServer } = useSettingsSyncContext()
   const [enabled, setEnabled] = useState(false)
   const [autoTrade, setAutoTrade] = useState(false)
   const [account, setAccount] = useState<PaperAccount>(defaultAccount())
   const [lotSize, setLotSize] = useState(0.01)
   const prevDirection = useRef<SignalDirection | null>(null)
+  const hydratedRef = useRef(false)
 
-  // Load from localStorage
+  // Load from localStorage, overlay server data if logged in
   useEffect(() => {
-    const saved = loadAccount()
-    setAccount(saved)
+    if (!syncLoaded) return
+    if (hydratedRef.current) return
+    hydratedRef.current = true
+
+    const localAccount = loadAccount()
     const enabledSaved = localStorage.getItem('alpha_scanner_paper_enabled')
     if (enabledSaved === 'true') setEnabled(true)
     const autoSaved = localStorage.getItem('alpha_scanner_paper_autotrade')
     if (autoSaved === 'true') setAutoTrade(true)
-  }, [])
+
+    if (isLoggedIn && serverData?.paperTradingState) {
+      const serverState = serverData.paperTradingState as PaperAccount
+      if (serverState.balance !== undefined) {
+        setAccount(serverState)
+        return
+      }
+    }
+    setAccount(localAccount)
+  }, [syncLoaded, isLoggedIn, serverData])
+
+  // Sync account to server on changes
+  const saveAndSync = useCallback((acct: PaperAccount) => {
+    saveAccount(acct)
+    if (isLoggedIn) {
+      syncToServer('paperTradingState', {
+        ...acct,
+        tradeHistory: acct.tradeHistory.slice(0, 100),
+      })
+    }
+  }, [isLoggedIn, syncToServer])
 
   // Calculate unrealized P&L
   const unrealizedPL = account.openTrades.reduce((sum, trade) => {
@@ -139,7 +163,6 @@ export function usePaperTrading(
       const price = prices[selectedSymbol]?.price
       if (price) {
         const dir = signalDirection === 'BUY' ? 'buy' as const : 'sell' as const
-        // Check if already have a trade in same direction
         const existing = account.openTrades.find(
           (t) => t.symbol === selectedSymbol && t.direction === dir,
         )
@@ -166,10 +189,10 @@ export function usePaperTrading(
         ...prev,
         openTrades: [...prev.openTrades, trade],
       }
-      saveAccount(updated)
+      saveAndSync(updated)
       return updated
     })
-  }, [lotSize])
+  }, [lotSize, saveAndSync])
 
   const closeTrade = useCallback((tradeId: string, price: number) => {
     setAccount((prev) => {
@@ -190,10 +213,10 @@ export function usePaperTrading(
         openTrades: prev.openTrades.filter((t) => t.id !== tradeId),
         tradeHistory: [closedTrade, ...prev.tradeHistory],
       }
-      saveAccount(updated)
+      saveAndSync(updated)
       return updated
     })
-  }, [])
+  }, [saveAndSync])
 
   const closeAllTrades = useCallback((currentPrices: Record<string, number>) => {
     setAccount((prev) => {
@@ -211,16 +234,16 @@ export function usePaperTrading(
         openTrades: [],
         tradeHistory: [...closedTrades, ...prev.tradeHistory],
       }
-      saveAccount(updated)
+      saveAndSync(updated)
       return updated
     })
-  }, [])
+  }, [saveAndSync])
 
   const resetAccount = useCallback(() => {
     const fresh = defaultAccount()
     setAccount(fresh)
-    saveAccount(fresh)
-  }, [])
+    saveAndSync(fresh)
+  }, [saveAndSync])
 
   const toggleEnabled = useCallback(() => {
     setEnabled((prev) => {

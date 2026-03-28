@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useSettingsSyncContext } from '../providers/SettingsSyncProvider'
 
 /* ── Types ────────────────────────────────────────────────────────────────── */
 
@@ -15,9 +16,9 @@ export interface EquitySnapshot {
 export interface PerformanceMetrics {
   currentEquity: number
   peakEquity: number
-  maxDrawdown: number      // dollar amount
-  maxDrawdownPct: number   // percentage
-  profitFactor: number     // gross profit / gross loss
+  maxDrawdown: number
+  maxDrawdownPct: number
+  profitFactor: number
   avgWin: number
   avgLoss: number
   largestWin: number
@@ -26,7 +27,7 @@ export interface PerformanceMetrics {
   totalPLPct: number
   winStreak: number
   lossStreak: number
-  currentStreak: number    // positive = win streak, negative = loss streak
+  currentStreak: number
   bySymbol: Record<string, { profit: number; trades: number }>
   byMode: Record<string, { profit: number; trades: number }>
 }
@@ -35,7 +36,7 @@ export interface PerformanceMetrics {
 
 const EQUITY_STORAGE_KEY = 'alpha-scanner-equity-curve'
 const TRADES_STORAGE_KEY = 'alpha-scanner-trade-results'
-const MAX_SNAPSHOTS = 365 // ~1 year of daily snapshots
+const MAX_SNAPSHOTS = 365
 const INITIAL_BALANCE = 10000
 
 /* ── Trade result (from paper trading) ────────────────────────────────────── */
@@ -59,21 +60,51 @@ export function usePerformanceAnalytics(
   currentBalance: number,
   unrealizedPL: number,
 ) {
+  const { isLoggedIn, serverData, loaded: syncLoaded, syncToServer } = useSettingsSyncContext()
   const [snapshots, setSnapshots] = useState<EquitySnapshot[]>([])
   const [tradeResults, setTradeResults] = useState<TradeResult[]>([])
+  const hydratedRef = useRef(false)
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Load from localStorage
+  // Debounced sync for snapshots (changes daily)
+  const debouncedSyncSnapshots = useCallback((data: EquitySnapshot[]) => {
+    if (!isLoggedIn) return
+    if (syncTimerRef.current) clearTimeout(syncTimerRef.current)
+    syncTimerRef.current = setTimeout(() => {
+      syncToServer('equitySnapshots', data)
+    }, 3000)
+  }, [isLoggedIn, syncToServer])
+
+  const syncTradeResults = useCallback((data: TradeResult[]) => {
+    if (!isLoggedIn) return
+    syncToServer('tradeRecords', data)
+  }, [isLoggedIn, syncToServer])
+
+  // Load from localStorage, overlay server data if logged in
   useEffect(() => {
+    if (!syncLoaded) return
+    if (hydratedRef.current) return
+    hydratedRef.current = true
+
+    let localSnaps: EquitySnapshot[] = []
+    let localTrades: TradeResult[] = []
     try {
       const storedSnaps = localStorage.getItem(EQUITY_STORAGE_KEY)
-      if (storedSnaps) setSnapshots(JSON.parse(storedSnaps))
-
+      if (storedSnaps) localSnaps = JSON.parse(storedSnaps)
       const storedTrades = localStorage.getItem(TRADES_STORAGE_KEY)
-      if (storedTrades) setTradeResults(JSON.parse(storedTrades))
-    } catch {
-      // ignore
+      if (storedTrades) localTrades = JSON.parse(storedTrades)
+    } catch { /* ignore */ }
+
+    if (isLoggedIn && serverData) {
+      const serverSnaps = serverData.equitySnapshots as EquitySnapshot[]
+      const serverTrades = serverData.tradeRecords as TradeResult[]
+      setSnapshots(serverSnaps.length > 0 ? serverSnaps : localSnaps)
+      setTradeResults(serverTrades.length > 0 ? serverTrades : localTrades)
+    } else {
+      setSnapshots(localSnaps)
+      setTradeResults(localTrades)
     }
-  }, [])
+  }, [syncLoaded, isLoggedIn, serverData])
 
   // Take daily equity snapshot
   useEffect(() => {
@@ -83,19 +114,16 @@ export function usePerformanceAnalytics(
     const todayStart = new Date().setHours(0, 0, 0, 0)
 
     setSnapshots((prev) => {
-      // Check if we already have a snapshot today
       const existingToday = prev.find((s) => s.timestamp >= todayStart)
       let updated: EquitySnapshot[]
 
       if (existingToday) {
-        // Update today's snapshot
         updated = prev.map((s) =>
           s.timestamp >= todayStart
             ? { ...s, equity: currentEquity, balance: currentBalance, unrealizedPL, timestamp: now }
             : s,
         )
       } else {
-        // Add new snapshot
         updated = [
           ...prev,
           {
@@ -111,27 +139,26 @@ export function usePerformanceAnalytics(
       try {
         localStorage.setItem(EQUITY_STORAGE_KEY, JSON.stringify(updated))
       } catch { /* ignore */ }
+      debouncedSyncSnapshots(updated)
       return updated
     })
-  }, [currentEquity, currentBalance, unrealizedPL, tradeResults.length])
+  }, [currentEquity, currentBalance, unrealizedPL, tradeResults.length, debouncedSyncSnapshots])
 
   // Record trade result
   const recordTrade = useCallback((trade: TradeResult) => {
     setTradeResults((prev) => {
-      // Deduplicate by id
       if (prev.some((t) => t.id === trade.id)) return prev
       const updated = [...prev, trade].slice(-1000)
       try {
         localStorage.setItem(TRADES_STORAGE_KEY, JSON.stringify(updated))
       } catch { /* ignore */ }
+      syncTradeResults(updated)
       return updated
     })
-  }, [])
+  }, [syncTradeResults])
 
-  // Compute metrics
   const metrics = computeMetrics(snapshots, tradeResults)
 
-  // Reset
   const resetAnalytics = useCallback(() => {
     setSnapshots([])
     setTradeResults([])
@@ -139,7 +166,11 @@ export function usePerformanceAnalytics(
       localStorage.removeItem(EQUITY_STORAGE_KEY)
       localStorage.removeItem(TRADES_STORAGE_KEY)
     } catch { /* ignore */ }
-  }, [])
+    if (isLoggedIn) {
+      syncToServer('equitySnapshots', [])
+      syncToServer('tradeRecords', [])
+    }
+  }, [isLoggedIn, syncToServer])
 
   return {
     snapshots,
@@ -163,7 +194,6 @@ function computeMetrics(
   const grossLoss = Math.abs(losses.reduce((sum, t) => sum + t.profit, 0))
   const totalPL = trades.reduce((sum, t) => sum + t.profit, 0)
 
-  // Equity curve analysis
   let peakEquity = INITIAL_BALANCE
   let maxDrawdown = 0
   let maxDrawdownPct = 0
@@ -179,7 +209,6 @@ function computeMetrics(
     }
   }
 
-  // Streaks
   let winStreak = 0
   let lossStreak = 0
   let currentStreak = 0
@@ -199,7 +228,6 @@ function computeMetrics(
     if (tempLoss > lossStreak) lossStreak = tempLoss
   }
 
-  // By symbol/mode breakdown
   const bySymbol: Record<string, { profit: number; trades: number }> = {}
   const byMode: Record<string, { profit: number; trades: number }> = {}
 

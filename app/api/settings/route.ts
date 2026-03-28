@@ -3,6 +3,47 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../lib/auth'
 import { prisma } from '../../lib/prisma'
 
+const JSON_FIELDS = [
+  'watchlist',
+  'alertWatchlist',
+  'alertRules',
+  'signalHistory',
+  'equitySnapshots',
+  'tradeRecords',
+] as const
+
+const STRING_FIELDS = ['preferredMode', 'riskProfile', 'telegramBotToken', 'telegramChatId'] as const
+const NUMBER_FIELDS = ['leverage', 'capital'] as const
+const NULLABLE_JSON_FIELDS = ['paperTradingState'] as const
+
+function parseJsonField(value: string, fallback: unknown = []): unknown {
+  try {
+    return JSON.parse(value)
+  } catch {
+    return fallback
+  }
+}
+
+function serializeResponse(settings: Record<string, unknown>) {
+  const result: Record<string, unknown> = {}
+
+  for (const key of JSON_FIELDS) {
+    result[key] = parseJsonField(settings[key] as string ?? '[]')
+  }
+  for (const key of STRING_FIELDS) {
+    result[key] = settings[key] ?? null
+  }
+  for (const key of NUMBER_FIELDS) {
+    result[key] = settings[key]
+  }
+  for (const key of NULLABLE_JSON_FIELDS) {
+    const val = settings[key] as string | null
+    result[key] = val ? parseJsonField(val, null) : null
+  }
+
+  return result
+}
+
 export async function GET() {
   const session = await getServerSession(authOptions)
   if (!session?.user) {
@@ -22,15 +63,7 @@ export async function GET() {
     })
   }
 
-  return NextResponse.json({
-    watchlist: JSON.parse(settings.watchlist),
-    preferredMode: settings.preferredMode,
-    riskProfile: settings.riskProfile,
-    leverage: settings.leverage,
-    capital: settings.capital,
-    telegramBotToken: settings.telegramBotToken,
-    telegramChatId: settings.telegramChatId,
-  })
+  return NextResponse.json(serializeResponse(settings as unknown as Record<string, unknown>))
 }
 
 export async function PUT(req: Request) {
@@ -48,13 +81,30 @@ export async function PUT(req: Request) {
     const body = await req.json()
 
     const data: Record<string, unknown> = {}
-    if (body.watchlist !== undefined) data.watchlist = JSON.stringify(body.watchlist)
-    if (body.preferredMode !== undefined) data.preferredMode = body.preferredMode
-    if (body.riskProfile !== undefined) data.riskProfile = body.riskProfile
-    if (body.leverage !== undefined) data.leverage = body.leverage
-    if (body.capital !== undefined) data.capital = body.capital
-    if (body.telegramBotToken !== undefined) data.telegramBotToken = body.telegramBotToken
-    if (body.telegramChatId !== undefined) data.telegramChatId = body.telegramChatId
+
+    // JSON array fields — accept arrays, store as JSON strings
+    for (const key of JSON_FIELDS) {
+      if (body[key] !== undefined) {
+        data[key] = JSON.stringify(body[key])
+      }
+    }
+
+    // Nullable JSON field (paperTradingState)
+    for (const key of NULLABLE_JSON_FIELDS) {
+      if (body[key] !== undefined) {
+        data[key] = body[key] !== null ? JSON.stringify(body[key]) : null
+      }
+    }
+
+    // String fields
+    for (const key of STRING_FIELDS) {
+      if (body[key] !== undefined) data[key] = body[key]
+    }
+
+    // Number fields
+    for (const key of NUMBER_FIELDS) {
+      if (body[key] !== undefined) data[key] = body[key]
+    }
 
     const settings = await prisma.userSettings.upsert({
       where: { userId },
@@ -62,15 +112,7 @@ export async function PUT(req: Request) {
       create: { userId, ...data },
     })
 
-    return NextResponse.json({
-      watchlist: JSON.parse(settings.watchlist),
-      preferredMode: settings.preferredMode,
-      riskProfile: settings.riskProfile,
-      leverage: settings.leverage,
-      capital: settings.capital,
-      telegramBotToken: settings.telegramBotToken,
-      telegramChatId: settings.telegramChatId,
-    })
+    return NextResponse.json(serializeResponse(settings as unknown as Record<string, unknown>))
   } catch {
     return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 })
   }

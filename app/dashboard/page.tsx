@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, lazy, Suspense, memo, useRef } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense, memo, useRef } from 'react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import SymbolSelector from '../components/SymbolSelector'
@@ -30,6 +30,8 @@ import SignalCommentary from '../components/SignalCommentary'
 import OnboardingTour from '../components/OnboardingTour'
 import OnboardingChecklist from '../components/OnboardingChecklist'
 import UpgradeGate from '../components/UpgradeGate'
+import LocalStorageMigration from '../components/LocalStorageMigration'
+import { useSettingsSyncContext } from '../providers/SettingsSyncProvider'
 
 // Lazy-loaded heavy panels
 const PriceChart = lazy(() => import('../components/PriceChart'))
@@ -84,7 +86,13 @@ export default function DashboardPage() {
   const [selectedRisk, setSelectedRisk] = useState<RiskProfile>('balanced')
   const [settings, setSettings] = useState<ScannerSettings>(DEFAULT_SETTINGS)
 
+  // DB sync for logged-in users
+  const { isLoggedIn, serverData, loaded: syncLoaded, syncToServer } = useSettingsSyncContext()
+  const hydratedFromDB = useRef(false)
+  const hydratedFromURL = useRef(false)
+
   // Apply strategy config from URL params (e.g. from /strategy/[slug] share page)
+  // URL params take priority over DB values
   useEffect(() => {
     const sp = new URLSearchParams(window.location.search)
     const symbol = sp.get('symbol')
@@ -92,18 +100,64 @@ export default function DashboardPage() {
     const risk = sp.get('risk') as RiskProfile | null
     const leverage = sp.get('leverage')
     const capital = sp.get('capital')
-    if (symbol) setSelectedSymbol(symbol)
-    if (mode) setSelectedMode(mode)
-    if (risk) setSelectedRisk(risk)
-    if (leverage || capital) {
-      setSettings((prev) => ({
-        ...prev,
-        ...(leverage ? { leverage: Number(leverage) } : {}),
-        ...(capital ? { capital: Number(capital) } : {}),
-      }))
+    if (symbol || mode || risk || leverage || capital) {
+      hydratedFromURL.current = true
+      if (symbol) setSelectedSymbol(symbol)
+      if (mode) setSelectedMode(mode)
+      if (risk) setSelectedRisk(risk)
+      if (leverage || capital) {
+        setSettings((prev) => ({
+          ...prev,
+          ...(leverage ? { leverage: Number(leverage) } : {}),
+          ...(capital ? { capital: Number(capital) } : {}),
+        }))
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Hydrate from DB when logged in (only once, and only if URL params didn't override)
+  useEffect(() => {
+    if (!syncLoaded || !isLoggedIn || !serverData || hydratedFromDB.current) return
+    hydratedFromDB.current = true
+
+    // Don't override URL param values
+    if (!hydratedFromURL.current) {
+      if (serverData.preferredMode) setSelectedMode(serverData.preferredMode as TradingMode)
+      if (serverData.riskProfile) setSelectedRisk(serverData.riskProfile as RiskProfile)
+      if (serverData.leverage) setSettings((prev) => ({ ...prev, leverage: serverData.leverage }))
+      if (serverData.capital) setSettings((prev) => ({ ...prev, capital: serverData.capital }))
+      // Hydrate last selected symbol from watchlist[0] if available
+      if (serverData.watchlist && serverData.watchlist.length > 0) {
+        setSelectedSymbol(serverData.watchlist[0])
+      }
+    }
+  }, [syncLoaded, isLoggedIn, serverData])
+
+  // Synced setters — update local state + sync to DB for logged-in users
+  const handleModeChange = useCallback((mode: TradingMode) => {
+    setSelectedMode(mode)
+    if (isLoggedIn) syncToServer('preferredMode', mode)
+  }, [isLoggedIn, syncToServer])
+
+  const handleRiskChange = useCallback((risk: RiskProfile) => {
+    setSelectedRisk(risk)
+    if (isLoggedIn) syncToServer('riskProfile', risk)
+  }, [isLoggedIn, syncToServer])
+
+  const handleSymbolChange = useCallback((symbol: string) => {
+    setSelectedSymbol(symbol)
+    // Persist last selected symbol as first item in watchlist
+    if (isLoggedIn) syncToServer('watchlist', [symbol])
+  }, [isLoggedIn, syncToServer])
+
+  const handleSettingsChange = useCallback((newSettings: ScannerSettings) => {
+    setSettings(newSettings)
+    if (isLoggedIn) {
+      syncToServer('leverage', newSettings.leverage)
+      syncToServer('capital', newSettings.capital)
+    }
+  }, [isLoggedIn, syncToServer])
 
   const { prices, loading: pricesLoading, error: pricesError, lastUpdated, rateLimited } = usePrices()
   const { signal } = useSignals(selectedSymbol, selectedMode, selectedRisk)
@@ -179,6 +233,7 @@ export default function DashboardPage() {
       <div className="ambient-glow" />
       {/* Alert toast */}
       <AlertToast alert={alerts.toastAlert} onDismiss={alerts.dismissToast} />
+      <LocalStorageMigration />
 
       <Navbar onMenuToggle={() => setSidebarOpen((o) => !o)} sidebarOpen={sidebarOpen} />
 
@@ -224,7 +279,7 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-3 p-4 pb-8">
             <SymbolSelector
               selected={selectedSymbol}
-              onSelect={(s) => { setSelectedSymbol(s); closeSidebar() }}
+              onSelect={(s) => { handleSymbolChange(s); closeSidebar() }}
               prices={prices}
               pricesLoading={pricesLoading}
               positionSymbols={positionSymbols}
@@ -232,13 +287,13 @@ export default function DashboardPage() {
 
             <ModeSelector
               selected={selectedMode}
-              onSelect={(m) => { setSelectedMode(m) }}
+              onSelect={(m) => { handleModeChange(m) }}
             />
 
             <div data-tour-step="risk">
               <RiskSelector
                 selected={selectedRisk}
-                onSelect={(r) => { setSelectedRisk(r) }}
+                onSelect={(r) => { handleRiskChange(r) }}
               />
             </div>
 
@@ -250,14 +305,14 @@ export default function DashboardPage() {
               currentLeverage={settings.leverage}
               currentCapital={settings.capital}
               onApply={(config: StrategyConfig) => {
-                if (config.symbols?.length) setSelectedSymbol(config.symbols[0])
-                setSelectedMode(config.mode)
-                setSelectedRisk(config.riskProfile)
-                setSettings((prev) => ({
-                  ...prev,
+                if (config.symbols?.length) handleSymbolChange(config.symbols[0])
+                handleModeChange(config.mode)
+                handleRiskChange(config.riskProfile)
+                handleSettingsChange({
+                  ...settings,
                   leverage: config.leverage,
                   capital: config.capital,
-                }))
+                })
               }}
             />
 
@@ -391,7 +446,7 @@ export default function DashboardPage() {
                 />
               </ErrorBoundary>
               <ErrorBoundary fallbackTitle="Settings error">
-                <SettingsPanel settings={settings} onSettingsChange={setSettings} />
+                <SettingsPanel settings={settings} onSettingsChange={handleSettingsChange} />
               </ErrorBoundary>
             </div>
 

@@ -9,6 +9,7 @@ import {
   type AlertRule,
 } from '../lib/alertRules'
 import type { AllIndicators } from '../lib/technicalAnalysis'
+import { useSettingsSyncContext } from '../providers/SettingsSyncProvider'
 
 const COOLDOWN_MS = 5 * 60_000   // 5 minutes
 const EVAL_INTERVAL_MS = 30_000  // 30 seconds
@@ -33,20 +34,29 @@ export function useCustomAlerts(
   selectedSymbol: string,
   currentPrice: number,
 ): UseCustomAlertsReturn {
+  const { isLoggedIn, serverData, loaded: syncLoaded, syncToServer } = useSettingsSyncContext()
   const [rules, setRules] = useState<AlertRule[]>([])
   const [triggeredRules, setTriggeredRules] = useState<TriggeredRule[]>([])
   const prevValuesRef = useRef<Record<string, Record<string, number>>>({})
+  const hydratedRef = useRef(false)
 
-  // Load rules on mount
+  // Load rules on mount — prefer server data for logged-in users
   useEffect(() => {
-    setRules(loadRules())
-  }, [])
+    if (!syncLoaded) return
+    if (hydratedRef.current) return
+    hydratedRef.current = true
 
-  // Persist rules on change
-  const persistRules = useCallback((newRules: AlertRule[]) => {
-    setRules(newRules)
-    saveRules(newRules)
-  }, [])
+    const localRules = loadRules()
+    if (isLoggedIn && serverData && (serverData.alertRules as unknown[]).length > 0) {
+      setRules(serverData.alertRules as AlertRule[])
+    } else {
+      setRules(localRules)
+    }
+  }, [syncLoaded, isLoggedIn, serverData])
+
+  const syncRules = useCallback((updated: AlertRule[]) => {
+    if (isLoggedIn) syncToServer('alertRules', updated)
+  }, [isLoggedIn, syncToServer])
 
   const addRule = useCallback(
     (rule: Omit<AlertRule, 'id' | 'createdAt'>) => {
@@ -58,10 +68,11 @@ export function useCustomAlerts(
       setRules((prev) => {
         const updated = [...prev, newRule]
         saveRules(updated)
+        syncRules(updated)
         return updated
       })
     },
-    [],
+    [syncRules],
   )
 
   const updateRule = useCallback(
@@ -69,10 +80,11 @@ export function useCustomAlerts(
       setRules((prev) => {
         const updated = prev.map((r) => (r.id === id ? { ...r, ...updates } : r))
         saveRules(updated)
+        syncRules(updated)
         return updated
       })
     },
-    [],
+    [syncRules],
   )
 
   const deleteRule = useCallback(
@@ -80,10 +92,11 @@ export function useCustomAlerts(
       setRules((prev) => {
         const updated = prev.filter((r) => r.id !== id)
         saveRules(updated)
+        syncRules(updated)
         return updated
       })
     },
-    [],
+    [syncRules],
   )
 
   const clearTriggered = useCallback(() => {

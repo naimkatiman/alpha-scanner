@@ -78,9 +78,10 @@ export function loadWatchlist(): string[] {
   }
 }
 
-export function saveWatchlist(symbols: string[]): void {
+export function saveWatchlist(symbols: string[], onSync?: (value: string[]) => void): void {
   if (typeof window === 'undefined') return
   localStorage.setItem(WATCHLIST_KEY, JSON.stringify(symbols))
+  onSync?.(symbols)
 }
 
 export function loadAlertHistory(): AlertConfig[] {

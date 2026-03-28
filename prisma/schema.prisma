@@ -124,6 +124,12 @@ model UserSettings {
   capital          Float    @default(10000)
   telegramBotToken String?
   telegramChatId   String?
+  alertWatchlist   String   @default("[]")
+  alertRules       String   @default("[]")
+  paperTradingState String?
+  signalHistory    String   @default("[]")
+  equitySnapshots  String   @default("[]")
+  tradeRecords     String   @default("[]")
   updatedAt        DateTime @updatedAt
 }
 

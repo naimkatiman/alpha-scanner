@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { ServiceWorkerRegistrar } from './components/ServiceWorkerRegistrar'
 import AuthProvider from './components/AuthProvider'
+import { SettingsSyncProvider } from './providers/SettingsSyncProvider'
 
 const geist = Geist({
   variable: '--font-geist',
@@ -92,7 +93,9 @@ export default function RootLayout({
     <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
       <body className="bg-[#050505] text-white antialiased">
         <AuthProvider>
-          {children}
+          <SettingsSyncProvider>
+            {children}
+          </SettingsSyncProvider>
         </AuthProvider>
         <ServiceWorkerRegistrar />
       </body>

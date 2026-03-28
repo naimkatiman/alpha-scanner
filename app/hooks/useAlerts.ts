@@ -13,6 +13,7 @@ import {
   sendDesktopNotification,
   requestNotificationPermission,
 } from '../lib/alertEngine'
+import { useSettingsSyncContext } from '../providers/SettingsSyncProvider'
 
 export interface UseAlertsReturn {
   watchlist: string[]
@@ -29,6 +30,7 @@ export interface UseAlertsReturn {
 }
 
 export function useAlerts(currentMode: string): UseAlertsReturn {
+  const { isLoggedIn, serverData, loaded: syncLoaded, syncToServer } = useSettingsSyncContext()
   const [watchlist, setWatchlist] = useState<string[]>([])
   const [alerts, setAlerts] = useState<AlertConfig[]>([])
   const [toastAlert, setToastAlert] = useState<AlertConfig | null>(null)
@@ -37,17 +39,29 @@ export function useAlerts(currentMode: string): UseAlertsReturn {
   const prevSignals = useRef<Map<string, SignalDirection>>(new Map())
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isPollingRef = useRef(false)
+  const hydratedRef = useRef(false)
 
-  // Load from localStorage
+  // Load from localStorage, then overlay server data if logged in
   useEffect(() => {
-    setWatchlist(loadWatchlist())
+    if (!syncLoaded) return
+    if (hydratedRef.current) return
+    hydratedRef.current = true
+
+    const localWatchlist = loadWatchlist()
     setAlerts(loadAlertHistory())
+
+    if (isLoggedIn && serverData && serverData.alertWatchlist.length > 0) {
+      setWatchlist(serverData.alertWatchlist)
+    } else {
+      setWatchlist(localWatchlist)
+    }
+
     if (typeof window !== 'undefined' && 'Notification' in window) {
       setNotificationsEnabled(Notification.permission === 'granted')
     }
-  }, [])
+  }, [syncLoaded, isLoggedIn, serverData])
 
-  // Poll watched symbols for signal changes — debounced (skip if already polling)
+  // Poll watched symbols for signal changes
   useEffect(() => {
     if (watchlist.length === 0) return
 
@@ -95,32 +109,37 @@ export function useAlerts(currentMode: string): UseAlertsReturn {
     return () => clearInterval(interval)
   }, [watchlist, currentMode, notificationsEnabled])
 
+  const persistWatchlist = useCallback((updated: string[]) => {
+    saveWatchlist(updated)
+    if (isLoggedIn) syncToServer('alertWatchlist', updated)
+  }, [isLoggedIn, syncToServer])
+
   const addToWatchlist = useCallback((symbol: string) => {
     setWatchlist((prev) => {
       if (prev.includes(symbol)) return prev
       const updated = [...prev, symbol]
-      saveWatchlist(updated)
+      persistWatchlist(updated)
       return updated
     })
-  }, [])
+  }, [persistWatchlist])
 
   const removeFromWatchlist = useCallback((symbol: string) => {
     setWatchlist((prev) => {
       const updated = prev.filter((s) => s !== symbol)
-      saveWatchlist(updated)
+      persistWatchlist(updated)
       return updated
     })
-  }, [])
+  }, [persistWatchlist])
 
   const toggleWatchlist = useCallback((symbol: string) => {
     setWatchlist((prev) => {
       const updated = prev.includes(symbol)
         ? prev.filter((s) => s !== symbol)
         : [...prev, symbol]
-      saveWatchlist(updated)
+      persistWatchlist(updated)
       return updated
     })
-  }, [])
+  }, [persistWatchlist])
 
   const clearAlerts = useCallback(() => {
     setAlerts([])

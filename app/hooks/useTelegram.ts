@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { SignalDirection } from '../lib/signalEngine'
 import { getSymbolConfig, fmt } from '../lib/symbols'
+import { useSettingsSyncContext } from '../providers/SettingsSyncProvider'
 
 /* ── Types ────────────────────────────────────────────────────────────────── */
 
@@ -24,24 +25,42 @@ const DEFAULT_CONFIG: TelegramConfig = {
 /* ── Hook ─────────────────────────────────────────────────────────────────── */
 
 export function useTelegram() {
+  const { isLoggedIn, serverData, loaded: syncLoaded, syncToServer } = useSettingsSyncContext()
   const [config, setConfig] = useState<TelegramConfig>(DEFAULT_CONFIG)
   const [sending, setSending] = useState(false)
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
   const [lastError, setLastError] = useState<string | null>(null)
   const lastSentRef = useRef<string>('')
+  const hydratedRef = useRef(false)
 
-  // Load config on mount
+  // Load config: prefer server data for logged-in users, then localStorage
   useEffect(() => {
+    if (!syncLoaded) return
+    if (hydratedRef.current) return
+    hydratedRef.current = true
+
+    // Try localStorage first (always available)
+    let local = DEFAULT_CONFIG
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        const parsed = JSON.parse(raw) as TelegramConfig
-        setConfig(parsed)
+      if (raw) local = JSON.parse(raw) as TelegramConfig
+    } catch { /* ignore */ }
+
+    // If logged in with server data, override botToken/chatId from server
+    if (isLoggedIn && serverData) {
+      const merged: TelegramConfig = {
+        ...local,
+        botToken: serverData.telegramBotToken || local.botToken,
+        chatId: serverData.telegramChatId || local.chatId,
       }
-    } catch {
-      // ignore
+      setConfig(merged)
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+      } catch { /* ignore */ }
+    } else {
+      setConfig(local)
     }
-  }, [])
+  }, [syncLoaded, isLoggedIn, serverData])
 
   // Persist config
   const updateConfig = useCallback((updates: Partial<TelegramConfig>) => {
@@ -49,12 +68,17 @@ export function useTelegram() {
       const updated = { ...prev, ...updates }
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      } catch {
-        // ignore
+      } catch { /* ignore */ }
+
+      // Sync token/chatId to server if logged in
+      if (isLoggedIn) {
+        if (updates.botToken !== undefined) syncToServer('telegramBotToken', updates.botToken)
+        if (updates.chatId !== undefined) syncToServer('telegramChatId', updates.chatId)
       }
+
       return updated
     })
-  }, [])
+  }, [isLoggedIn, syncToServer])
 
   // Send alert message
   const sendAlert = useCallback(async (message: string): Promise<boolean> => {

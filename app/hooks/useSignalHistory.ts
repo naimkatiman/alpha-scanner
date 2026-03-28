@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { SignalDirection } from '../lib/signalEngine'
 import type { TradingMode, RiskProfile } from '../data/mockSignals'
+import { useSettingsSyncContext } from '../providers/SettingsSyncProvider'
 
 /* ── Types ────────────────────────────────────────────────────────────────── */
 
@@ -17,7 +18,6 @@ export interface SignalRecord {
   tp1: number
   sl: number
   timestamp: number
-  // Accuracy tracking
   outcome?: 'win' | 'loss' | 'pending'
   closedPrice?: number
   closedAt?: number
@@ -54,34 +54,51 @@ export function useSignalHistory(
   } | null,
   currentPrice: number,
 ) {
+  const { isLoggedIn, serverData, loaded: syncLoaded, syncToServer } = useSettingsSyncContext()
   const [records, setRecords] = useState<SignalRecord[]>([])
   const lastRecordedRef = useRef<string>('')
+  const hydratedRef = useRef(false)
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Load from localStorage
+  // Debounced sync to server (signal history changes frequently)
+  const debouncedSync = useCallback((data: SignalRecord[]) => {
+    if (!isLoggedIn) return
+    if (syncTimerRef.current) clearTimeout(syncTimerRef.current)
+    syncTimerRef.current = setTimeout(() => {
+      syncToServer('signalHistory', data)
+    }, 2000)
+  }, [isLoggedIn, syncToServer])
+
+  // Load from localStorage, overlay server data if logged in
   useEffect(() => {
+    if (!syncLoaded) return
+    if (hydratedRef.current) return
+    hydratedRef.current = true
+
+    let local: SignalRecord[] = []
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored) as SignalRecord[]
-        setRecords(parsed)
-      }
-    } catch {
-      // ignore
-    }
-  }, [])
+      if (stored) local = JSON.parse(stored) as SignalRecord[]
+    } catch { /* ignore */ }
 
-  // Save to localStorage on change
+    if (isLoggedIn && serverData && (serverData.signalHistory as unknown[]).length > 0) {
+      setRecords(serverData.signalHistory as SignalRecord[])
+    } else {
+      setRecords(local)
+    }
+  }, [syncLoaded, isLoggedIn, serverData])
+
+  // Save to localStorage and sync
   const saveRecords = useCallback((newRecords: SignalRecord[]) => {
     const trimmed = newRecords.slice(-MAX_RECORDS)
     setRecords(trimmed)
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed))
-    } catch {
-      // ignore
-    }
-  }, [])
+    } catch { /* ignore */ }
+    debouncedSync(trimmed)
+  }, [debouncedSync])
 
-  // Record new signal when direction changes for the same symbol/mode/risk
+  // Record new signal when direction changes
   useEffect(() => {
     if (!currentSignal || currentSignal.direction === 'NEUTRAL') return
     if (!currentSignal.entryPrice || currentSignal.entryPrice <= 0) return
@@ -109,9 +126,10 @@ export function useSignalHistory(
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       } catch { /* ignore */ }
+      debouncedSync(updated)
       return updated
     })
-  }, [currentSignal])
+  }, [currentSignal, debouncedSync])
 
   // Check pending signals against current price for accuracy
   useEffect(() => {
@@ -123,7 +141,6 @@ export function useSignalHistory(
       const updated = prev.map((r) => {
         if (r.outcome !== 'pending') return r
 
-        // Check if TP1 or SL was hit
         if (r.direction === 'BUY') {
           if (currentPrice >= r.tp1) {
             changed = true
@@ -144,7 +161,6 @@ export function useSignalHistory(
           }
         }
 
-        // Auto-expire after 24h
         if (now - r.timestamp > TP1_CHECK_WINDOW_MS) {
           changed = true
           return { ...r, outcome: 'loss' as const, closedPrice: currentPrice, closedAt: now }
@@ -157,22 +173,20 @@ export function useSignalHistory(
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
         } catch { /* ignore */ }
+        debouncedSync(updated)
         return updated
       }
       return prev
     })
-  }, [currentPrice])
+  }, [currentPrice, debouncedSync])
 
-  // Compute stats
   const stats: SignalHistoryStats = computeStats(records)
 
-  // Clear history
   const clearHistory = useCallback(() => {
     saveRecords([])
     lastRecordedRef.current = ''
   }, [saveRecords])
 
-  // Filter
   const getFilteredRecords = useCallback(
     (filters?: { symbol?: string; mode?: TradingMode; outcome?: 'win' | 'loss' | 'pending' }) => {
       if (!filters) return records
@@ -207,7 +221,6 @@ function computeStats(records: SignalRecord[]): SignalHistoryStats {
   const byMode: Record<string, { wins: number; losses: number; total: number; winRate: number }> = {}
 
   for (const r of resolved) {
-    // By symbol
     if (!bySymbol[r.symbol]) bySymbol[r.symbol] = { wins: 0, losses: 0, total: 0, winRate: 0 }
     bySymbol[r.symbol].total++
     if (r.outcome === 'win') bySymbol[r.symbol].wins++
@@ -216,7 +229,6 @@ function computeStats(records: SignalRecord[]): SignalHistoryStats {
       ? (bySymbol[r.symbol].wins / bySymbol[r.symbol].total) * 100
       : 0
 
-    // By mode
     if (!byMode[r.mode]) byMode[r.mode] = { wins: 0, losses: 0, total: 0, winRate: 0 }
     byMode[r.mode].total++
     if (r.outcome === 'win') byMode[r.mode].wins++

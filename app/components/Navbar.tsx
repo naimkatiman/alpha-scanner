@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { List, X, Lightning, ChartBar, Trophy, Radio, Crosshair, Rss, Key, Play, House, CurrencyDollar } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import UserMenu from './UserMenu'
+import SyncStatusIndicator from './SyncStatusIndicator'
 import { usePlan } from '@/app/hooks/usePlan'
 
 interface NavbarProps {
@@ -140,6 +141,9 @@ export default function Navbar({ onMenuToggle = () => {}, sidebarOpen = false }:
                 <span className="text-[10px] font-bold text-purple-400 tracking-wider">ELITE</span>
               </div>
             )}
+
+            {/* Cloud sync status */}
+            <SyncStatusIndicator />
 
             {/* Live badge */}
             <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-2 py-1">

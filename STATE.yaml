@@ -319,12 +319,13 @@ tasks:
 
   # Phase 11 — Alpha Screener SaaS Launch
   - id: TASK-061
-    status: in_progress
+    status: done
     owner: pm-agent
     notes: "Stripe billing — real subscription tiers (Free/Pro/Elite). Free: 3 signals/day, 5 assets. Pro ($29/mo): unlimited signals, all assets, Telegram alerts, API access. Elite ($79/mo): everything + priority support + white-label. Stripe Checkout + webhooks + billing portal. Gate features by plan. /pricing page with annual discount toggle. Use ~/.claude/skills/api-design/SKILL.md + /security-scan before commit."
+    output: "Complete Stripe billing: server-side plan gating on 6 API routes (backtest/telegram/webhook Pro+, broker/trading-sessions Elite), UpgradeGate client component (glass overlay + Phosphor Lock + /pricing CTA), dashboard components wrapped (BrokerConnect elite, TelegramSettings/WebhookSettings pro), .env.example with all Stripe vars. Subscription Prisma model, Stripe checkout/portal/webhook/status routes, planLimits.ts (3 signals/day free, 5 assets free), usePlan hook. Commit d442e8d."
 
   - id: TASK-062
-    status: pending
+    status: in_progress
     owner: pm-agent
     notes: "User dashboard upgrade — replace localStorage-only state with full DB persistence for logged-in users. Sync: watchlist, risk profile, leverage/capital settings, Telegram config, custom alert rules, strategy templates. Show sync status indicator. Guest mode still works (localStorage). Migration: on first login, offer to import localStorage data to DB."
 
