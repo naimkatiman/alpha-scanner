@@ -14,6 +14,7 @@ const JSON_FIELDS = [
 
 const STRING_FIELDS = ['preferredMode', 'riskProfile', 'telegramBotToken', 'telegramChatId'] as const
 const NUMBER_FIELDS = ['leverage', 'capital'] as const
+const BOOLEAN_FIELDS = ['pushSignalAlerts', 'pushTpAlerts', 'pushSlAlerts', 'pushDailyReport'] as const
 const NULLABLE_JSON_FIELDS = ['paperTradingState'] as const
 
 function parseJsonField(value: string, fallback: unknown = []): unknown {
@@ -36,6 +37,9 @@ function serializeResponse(settings: Record<string, unknown>) {
   for (const key of NUMBER_FIELDS) {
     result[key] = settings[key]
   }
+  for (const key of BOOLEAN_FIELDS) {
+    result[key] = settings[key] ?? true
+  }
   for (const key of NULLABLE_JSON_FIELDS) {
     const val = settings[key] as string | null
     result[key] = val ? parseJsonField(val, null) : null
@@ -45,25 +49,29 @@ function serializeResponse(settings: Record<string, unknown>) {
 }
 
 export async function GET() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const userId = (session.user as { id?: string }).id
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    let settings = await prisma.userSettings.findUnique({ where: { userId } })
+
+    if (!settings) {
+      settings = await prisma.userSettings.create({
+        data: { userId },
+      })
+    }
+
+    return NextResponse.json(serializeResponse(settings as unknown as Record<string, unknown>))
+  } catch {
+    return NextResponse.json({ error: 'Failed to load settings' }, { status: 500 })
   }
-
-  const userId = (session.user as { id?: string }).id
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  let settings = await prisma.userSettings.findUnique({ where: { userId } })
-
-  if (!settings) {
-    settings = await prisma.userSettings.create({
-      data: { userId },
-    })
-  }
-
-  return NextResponse.json(serializeResponse(settings as unknown as Record<string, unknown>))
 }
 
 export async function PUT(req: Request) {
@@ -104,6 +112,11 @@ export async function PUT(req: Request) {
     // Number fields
     for (const key of NUMBER_FIELDS) {
       if (body[key] !== undefined) data[key] = body[key]
+    }
+
+    // Boolean fields (push notification preferences)
+    for (const key of BOOLEAN_FIELDS) {
+      if (body[key] !== undefined) data[key] = Boolean(body[key])
     }
 
     const settings = await prisma.userSettings.upsert({

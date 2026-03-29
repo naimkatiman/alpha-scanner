@@ -5,6 +5,7 @@ import { generateSignal } from '@/app/lib/signalEngine'
 import { checkRateLimit } from '@/app/lib/apiGuard'
 import { prisma } from '@/app/lib/prisma'
 import { dispatchWebhooks } from '@/app/lib/webhookDispatcher'
+import { notifyNewSignal } from '@/app/lib/pushNotifier'
 import { validateApiKey } from '@/app/lib/apiKeyAuth'
 import { checkSignalLimit, checkAssetAccess } from '@/app/lib/planLimits'
 import { getIronSession } from 'iron-session'
@@ -136,6 +137,9 @@ export async function GET(request: NextRequest): Promise<Response> {
           confidence: Math.round(signal.confidence),
         },
       }).catch(() => {}) // fire-and-forget, never crash
+
+      // Push notification (fire-and-forget)
+      notifyNewSignal(symbol, signal.direction, Math.round(signal.confidence)).catch(() => {})
 
       // Dispatch webhooks (fire-and-forget)
       dispatchWebhooks({

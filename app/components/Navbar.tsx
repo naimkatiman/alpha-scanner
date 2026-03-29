@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { List, X, Lightning, ChartBar, Trophy, Radio, Crosshair, Rss, Key, Play, House, CurrencyDollar, Storefront } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,6 +15,7 @@ interface NavbarProps {
 
 export default function Navbar({ onMenuToggle = () => {}, sidebarOpen = false }: NavbarProps) {
   const { plan, isPro, isElite } = usePlan()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 px-3 pt-3 pb-1">
@@ -24,10 +26,10 @@ export default function Navbar({ onMenuToggle = () => {}, sidebarOpen = false }:
           <div className="flex items-center gap-3">
             {/* Mobile hamburger */}
             <button
-              onClick={onMenuToggle}
+              onClick={() => { onMenuToggle(); setMobileMenuOpen((v) => !v) }}
               className="btn-icon flex items-center justify-center rounded-full p-1.5 text-zinc-400 transition-all duration-200 hover:bg-white/[0.06] hover:text-white active:scale-95 md:hidden"
-              aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-              aria-expanded={sidebarOpen}
+              aria-label={sidebarOpen || mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={sidebarOpen || mobileMenuOpen}
             >
               <AnimatePresence mode="wait" initial={false}>
                 {sidebarOpen ? (
@@ -76,7 +78,7 @@ export default function Navbar({ onMenuToggle = () => {}, sidebarOpen = false }:
               className="hidden rounded-full px-3 py-1.5 text-[11px] font-medium text-zinc-500 transition-all hover:bg-white/[0.05] hover:text-zinc-300 sm:flex items-center gap-1.5"
             >
               <House size={13} />
-              House
+              Home
             </Link>
             <Link
               href="/demo"
@@ -165,6 +167,50 @@ export default function Navbar({ onMenuToggle = () => {}, sidebarOpen = false }:
           </nav>
         </div>
       </div>
+
+      {/* Mobile nav drawer */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/60 md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <motion.nav
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.15 }}
+              className="fixed left-3 right-3 top-[72px] z-50 rounded-2xl border border-white/[0.06] bg-[#0a0a0a]/95 backdrop-blur-xl p-3 flex flex-col gap-0.5 md:hidden"
+            >
+              {[
+                { href: '/', label: 'Home', icon: <House size={14} /> },
+                { href: '/demo', label: 'Try Demo', icon: <Play size={14} className="fill-current" /> },
+                { href: '/dashboard', label: 'Dashboard', icon: <Lightning size={14} /> },
+                { href: '/backtest', label: 'Backtest', icon: <ChartBar size={14} /> },
+                { href: '/leaderboard', label: 'Leaderboard', icon: <Trophy size={14} /> },
+                { href: '/accuracy', label: 'Accuracy', icon: <Crosshair size={14} /> },
+                { href: '/feed', label: 'Feed', icon: <Rss size={14} /> },
+                { href: '/marketplace', label: 'Marketplace', icon: <Storefront size={14} /> },
+                { href: '/pricing', label: 'Pricing', icon: <CurrencyDollar size={14} /> },
+              ].map(({ href, label, icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-400 hover:bg-white/[0.05] hover:text-white transition-colors"
+                >
+                  {icon}
+                  {label}
+                </Link>
+              ))}
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   )
 }

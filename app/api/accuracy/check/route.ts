@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/app/lib/prisma'
+import { notifyTpHit, notifySlHit } from '@/app/lib/pushNotifier'
 
 // This route is called by a cron job every 15 minutes to check pending signals
 // against current prices and update their outcomes.
@@ -29,7 +30,10 @@ export async function GET(request: Request): Promise<Response> {
   // Simple auth check — require a secret or allow localhost
   const { searchParams } = new URL(request.url)
   const secret = searchParams.get('secret')
-  const cronSecret = process.env.CRON_SECRET || 'dev-cron-secret'
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) {
+    return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 })
+  }
 
   if (secret !== cronSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -78,11 +82,18 @@ export async function GET(request: Request): Promise<Response> {
           data: { outcome: newOutcome, resolvedAt: now },
         })
         resolved++
+
+        // Push notifications for TP/SL hits (fire-and-forget)
+        if (newOutcome === 'HIT_TP1') {
+          notifyTpHit(record.symbol, record.direction).catch(() => {})
+        } else if (newOutcome === 'HIT_SL') {
+          notifySlHit(record.symbol, record.direction).catch(() => {})
+        }
       }
     }
 
     return NextResponse.json({ checked, resolved, totalPending: pending.length })
   } catch (err) {
-    return NextResponse.json({ error: 'Check failed', detail: String(err) }, { status: 500 })
+    return NextResponse.json({ error: 'Check failed' }, { status: 500 })
   }
 }

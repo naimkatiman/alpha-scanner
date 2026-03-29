@@ -36,8 +36,7 @@ export async function GET(request: Request) {
         'Cache-Control': 'public, max-age=30, stale-while-revalidate=60',
       },
     })
-  } catch (err) {
-    console.error('[feed] DB error', err)
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

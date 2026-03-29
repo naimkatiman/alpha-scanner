@@ -197,28 +197,31 @@ function PricingSection() {
         </Link>
       </div>
 
-      <div className="glass-card bg-[#0a0a0a] rounded-2xl p-7 flex flex-col gap-4 border border-blue-500/30"
-        style={{ boxShadow: '0 0 40px rgba(37,99,235,0.08), inset 0 0 40px rgba(37,99,235,0.02)' }}>
+      <div className="glass-card bg-[#0a0a0a] rounded-2xl p-7 flex flex-col gap-4 border border-emerald-500/30"
+        style={{ boxShadow: '0 0 40px rgba(16,185,129,0.08), inset 0 0 40px rgba(16,185,129,0.02)' }}>
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-lg font-bold text-white mb-1">Pro</h3>
-            <div className="text-3xl font-black text-white">$9<span className="text-sm text-zinc-500 font-normal">/mo</span></div>
+            <div className="text-3xl font-black text-white">$29<span className="text-sm text-zinc-500 font-normal">/mo</span></div>
           </div>
-          <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-full px-2.5 py-1 tracking-wider">
-            COMING SOON
+          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-2.5 py-1 tracking-wider">
+            POPULAR
           </span>
         </div>
         <ul className="flex flex-col gap-2.5 flex-1">
-          {['Unlimited API requests', 'Plugs integrations', 'Priority support', 'Advanced backtesting', 'Custom alert rules'].map((item) => (
+          {['Unlimited API requests', 'All 12+ assets', 'Webhook & Telegram alerts', 'Advanced backtesting', 'Custom alert rules'].map((item) => (
             <li key={item} className="flex items-center gap-2 text-sm text-zinc-400">
-              <span className="text-blue-500 text-xs">&#10003;</span>
+              <span className="text-emerald-500 text-xs">&#10003;</span>
               {item}
             </li>
           ))}
         </ul>
-        <button disabled className="block w-full text-center py-2.5 rounded-xl bg-zinc-800 text-zinc-500 font-semibold text-sm cursor-not-allowed">
-          Coming Soon
-        </button>
+        <Link
+          href="/pricing"
+          className="block text-center py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-colors"
+        >
+          View Plans
+        </Link>
       </div>
     </div>
   )
@@ -234,7 +237,7 @@ function LandingFooter() {
             { label: 'Demo', href: '/demo' },
             { label: 'Leaderboard', href: '/leaderboard' },
             { label: 'Feed', href: '/feed' },
-            { label: 'API Docs', href: '/api-keys' },
+            { label: 'API Keys', href: '/api-keys' },
             { label: 'GitHub', href: 'https://github.com/naimkatiman/alpha-scanner' },
           ].map(({ label, href }) => (
             <Link

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://alpha-scanner.vercel.app/sitemap.xml
+Sitemap: https://alpha-scanner-production.up.railway.app/sitemap.xml

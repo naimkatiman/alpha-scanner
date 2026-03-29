@@ -67,8 +67,6 @@ export default function PricingPage() {
     if (data.url) window.location.href = data.url
   }
 
-  const isSubscribed = currentPlan === 'pro' || currentPlan === 'elite'
-
   return (
     <div className="min-h-[100dvh] bg-[#050505] relative overflow-hidden">
       {/* Background mesh gradient */}
@@ -82,7 +80,7 @@ export default function PricingPage() {
         <div className="mx-auto max-w-5xl flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-white">
             <Lightning size={20} className="text-emerald-500" />
-            <span className="font-bold tracking-tight text-gradient-emerald">Alpha Screener</span>
+            <span className="font-bold tracking-tight text-gradient-emerald">Alpha Scanner</span>
           </Link>
           <Link
             href="/dashboard"
@@ -212,22 +210,26 @@ export default function PricingPage() {
                 </div>
               ))}
             </div>
-            {isSubscribed && stripeCustomerId ? (
+            {currentPlan === 'pro' && stripeCustomerId ? (
               <button
                 onClick={handlePortal}
                 className="rounded-full bg-emerald-500/10 border border-emerald-500/20 py-2.5 text-center text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 transition-all"
               >
                 Manage Subscription
               </button>
+            ) : currentPlan === 'elite' ? (
+              <div className="rounded-full border border-white/[0.06] bg-white/[0.03] py-2.5 text-center text-xs font-medium text-zinc-500">
+                Included in Elite
+              </div>
             ) : (
               <button
                 onClick={() =>
                   handleCheckout(annual ? PLANS.pro.annual : PLANS.pro.monthly)
                 }
-                disabled={isLoading}
+                disabled={isLoading || !PLANS.pro.monthly}
                 className="rounded-full bg-emerald-500 py-2.5 text-center text-xs font-semibold text-black hover:bg-emerald-400 transition-all disabled:opacity-50"
               >
-                Subscribe to Pro
+                {PLANS.pro.monthly ? 'Subscribe to Pro' : 'Coming Soon'}
               </button>
             )}
           </motion.div>
@@ -263,7 +265,7 @@ export default function PricingPage() {
                 </div>
               ))}
             </div>
-            {isSubscribed && stripeCustomerId ? (
+            {currentPlan === 'elite' && stripeCustomerId ? (
               <button
                 onClick={handlePortal}
                 className="rounded-full bg-purple-500/10 border border-purple-500/20 py-2.5 text-center text-xs font-medium text-purple-400 hover:bg-purple-500/20 transition-all"
@@ -275,10 +277,10 @@ export default function PricingPage() {
                 onClick={() =>
                   handleCheckout(annual ? PLANS.elite.annual : PLANS.elite.monthly)
                 }
-                disabled={isLoading}
+                disabled={isLoading || !PLANS.elite.monthly}
                 className="rounded-full bg-purple-500 py-2.5 text-center text-xs font-semibold text-white hover:bg-purple-400 transition-all disabled:opacity-50"
               >
-                Subscribe to Elite
+                {PLANS.elite.monthly ? 'Subscribe to Elite' : 'Coming Soon'}
               </button>
             )}
           </motion.div>

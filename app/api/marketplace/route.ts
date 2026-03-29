@@ -31,42 +31,51 @@ export async function GET(request: NextRequest) {
     ...(assetType !== 'all' ? { assetType } : {}),
   }
 
-  const listings = await prisma.strategyListing.findMany({
-    where,
-    include: {
-      author: { select: { id: true, name: true } },
-      _count: { select: { purchases: true } },
-    },
-    orderBy: sort === 'price' ? { price: 'asc' } : { createdAt: 'desc' },
-  })
+  try {
+    const listings = await prisma.strategyListing.findMany({
+      where,
+      include: {
+        author: { select: { id: true, name: true } },
+        _count: { select: { purchases: true } },
+      },
+      orderBy: sort === 'price' ? { price: 'asc' } : { createdAt: 'desc' },
+    })
 
-  // Parse JSON fields and sort by winRate if needed
-  const parsed = listings.map((l) => {
-    const backtest = JSON.parse(l.backtestResults) as Record<string, unknown>
-    return {
-      id: l.id,
-      name: l.name,
-      description: l.description,
-      price: l.price,
-      assetType: l.assetType,
-      isPublished: l.isPublished,
-      winRate: typeof backtest.winRate === 'number' ? backtest.winRate : null,
-      totalTrades: typeof backtest.totalTrades === 'number' ? backtest.totalTrades : null,
-      profitFactor: typeof backtest.profitFactor === 'number' ? backtest.profitFactor : null,
-      author: l.author,
-      purchaseCount: l._count.purchases,
-      createdAt: l.createdAt,
-      updatedAt: l.updatedAt,
+    // Parse JSON fields and sort by winRate if needed
+    const parsed = listings.map((l) => {
+      let backtest: Record<string, unknown> = {}
+      try {
+        backtest = JSON.parse(l.backtestResults) as Record<string, unknown>
+      } catch {
+        // Malformed JSON — use empty defaults
+      }
+      return {
+        id: l.id,
+        name: l.name,
+        description: l.description,
+        price: l.price,
+        assetType: l.assetType,
+        isPublished: l.isPublished,
+        winRate: typeof backtest.winRate === 'number' ? backtest.winRate : null,
+        totalTrades: typeof backtest.totalTrades === 'number' ? backtest.totalTrades : null,
+        profitFactor: typeof backtest.profitFactor === 'number' ? backtest.profitFactor : null,
+        author: l.author,
+        purchaseCount: l._count.purchases,
+        createdAt: l.createdAt,
+        updatedAt: l.updatedAt,
+      }
+    })
+
+    if (sort === 'winRate') {
+      parsed.sort((a, b) => (b.winRate ?? 0) - (a.winRate ?? 0))
+    } else if (sort === 'popular') {
+      parsed.sort((a, b) => b.purchaseCount - a.purchaseCount)
     }
-  })
 
-  if (sort === 'winRate') {
-    parsed.sort((a, b) => (b.winRate ?? 0) - (a.winRate ?? 0))
-  } else if (sort === 'popular') {
-    parsed.sort((a, b) => b.purchaseCount - a.purchaseCount)
+    return NextResponse.json({ listings: parsed })
+  } catch {
+    return NextResponse.json({ error: 'Failed to fetch marketplace listings' }, { status: 500 })
   }
-
-  return NextResponse.json({ listings: parsed })
 }
 
 export async function POST(request: NextRequest) {
@@ -104,26 +113,30 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Config or backtest data too large' }, { status: 400 })
   }
 
-  const listing = await prisma.strategyListing.create({
-    data: {
-      authorId: session.userId,
-      name: name.trim(),
-      description: typeof description === 'string' ? description.trim() : '',
-      price,
-      indicatorsConfig: configStr,
-      backtestResults: backtestStr,
-      assetType: validatedAssetType,
-      isPublished: isPublished ?? false,
-    },
-  })
+  try {
+    const listing = await prisma.strategyListing.create({
+      data: {
+        authorId: session.userId,
+        name: name.trim(),
+        description: typeof description === 'string' ? description.trim() : '',
+        price,
+        indicatorsConfig: configStr,
+        backtestResults: backtestStr,
+        assetType: validatedAssetType,
+        isPublished: isPublished ?? false,
+      },
+    })
 
-  return NextResponse.json({
-    id: listing.id,
-    name: listing.name,
-    description: listing.description,
-    price: listing.price,
-    assetType: listing.assetType,
-    isPublished: listing.isPublished,
-    createdAt: listing.createdAt,
-  }, { status: 201 })
+    return NextResponse.json({
+      id: listing.id,
+      name: listing.name,
+      description: listing.description,
+      price: listing.price,
+      assetType: listing.assetType,
+      isPublished: listing.isPublished,
+      createdAt: listing.createdAt,
+    }, { status: 201 })
+  } catch {
+    return NextResponse.json({ error: 'Failed to create listing' }, { status: 500 })
+  }
 }
